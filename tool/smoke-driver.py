@@ -63,8 +63,11 @@ def dump_nodes():
                 capture_output=True, timeout=60)
             xml = r.stdout.decode(errors="replace")
             start = xml.find("<?xml")
-            if start >= 0:
-                root = ET.fromstring(xml[start:])
+            end = xml.find("</hierarchy>")
+            if start >= 0 and end > start:
+                # uiautomator appends a "UI hierchary dumped to: ..."
+                # line after the XML — parse only the document itself.
+                root = ET.fromstring(xml[start:end + len("</hierarchy>")])
                 nodes = []
                 for n in root.iter("node"):
                     bounds = n.get("bounds", "")
@@ -173,7 +176,7 @@ def main():
     log("=== Convert264 emulator smoke test ===")
 
     # 1. Launch
-    nodes = wait_for(lambda ns: find(ns, text="Convert264") is not None, 90, "app title")
+    nodes = wait_for(lambda ns: find(ns, text="Convert264") is not None, 180, "app title")
     if nodes is None:
         log("FAIL: app title 'Convert264' never appeared")
         screenshot("99-failure.png")

@@ -16,11 +16,16 @@ adb wait-for-device
 say "device ready: $(adb shell getprop ro.build.model | tr -d '\r') / $(adb shell getprop ro.build.version.release | tr -d '\r')"
 say "waiting for boot_completed"
 adb shell 'while [ "$(getprop sys.boot_completed)" != "1" ]; do sleep 2; done'
-say "boot completed; letting the system settle (Play services, first-boot ANRs)"
-sleep 60
+say "boot completed; letting the system settle (first-boot dexopt, ANRs)"
+sleep 90
 # Digital Wellbeing ANRs on first boot and blocks the whole screen;
-# it is unrelated to the app under test.
+# it is unrelated to the app under test. (Absent on AOSP images —
+# the error below is harmless there.)
 adb shell pm disable-user --user 0 com.google.android.apps.wellbeing 2>&1 | tee -a "$LOG" || true
+# The Settings app ANRs on slow first boots and its dialog blocks the
+# app from drawing (and stalls uiautomator dumps). Force-stop it;
+# the settings provider is a separate process and unaffected.
+adb shell am force-stop com.android.settings 2>&1 | tee -a "$LOG" || true
 adb shell settings put global window_animation_scale 0 2>/dev/null || true
 adb shell settings put global transition_animation_scale 0 2>/dev/null || true
 adb shell settings put global animator_duration_scale 0 2>/dev/null || true
@@ -49,6 +54,10 @@ if [ -n "$APP_PID" ]; then
 else
   say "WARN: app process not visible via pidof after 60s — continuing; driver will decide"
 fi
+# The Settings ANR can reappear once the app starts drawing; kill it
+# again right before the driver starts so no dialog blocks the UI.
+adb shell am force-stop com.android.settings 2>/dev/null || true
+sleep 2
 
 python3 tool/smoke-driver.py 2>&1 | tee -a "$LOG"
 DRIVER_RC=${PIPESTATUS[0]}
