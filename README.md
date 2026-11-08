@@ -25,9 +25,12 @@ then handed off to GitHub + CI for a real build and emulator test.
 ## Build
 
 ```bash
-./gradlew assembleRelease   # release APK in app/build/outputs/apk/release/
-./gradlew testDebugUnitTest  # unit tests
+gradle assembleRelease   # release APK in app/build/outputs/apk/release/
+gradle testDebugUnitTest  # unit tests
 ```
+(The AI Studio export contains no `gradlew` wrapper scripts; CI uses
+Gradle 9.3.1 via `gradle/actions/setup-gradle`. Locally, open the
+project in Android Studio or run Gradle 9.3.1 directly.)
 
 CI builds the release APK on every `v*` tag and publishes it as a
 GitHub Release (see `.github/workflows/android-release.yml`).
