@@ -39,11 +39,24 @@ so a future properly-signed build will need a reinstall, not an update.
 
 ## Emulator smoke test
 
-`.github/workflows/emulator-smoke.yml` installs a debug APK on an
-API 35 emulator, taps "Try Sample Clip", sets a trim, converts, and
-requires the progress bar to advance, an output `_h264.mp4` file to
-exist, and the Open/Share success screen to appear. The driver script
-is `tool/smoke-test.sh`.
+`.github/workflows/emulator-smoke.yml` runs the in-process Compose
+instrumented test `app/src/androidTest/.../Convert264SmokeTest.kt`
+(`gradle connectedDebugAndroidTest`) on an API 35 emulator: it taps
+"Try Sample Clip", trims the end to 15s via the Exact Input dialog,
+converts, requires the converting status bar to be shown, the
+"Conversion Complete!" screen with Open/Share, and a real `_h264.mp4`
+output file on disk (verified with ffprobe). The runner script is
+`tool/smoke-test.sh`.
+
+Known emulator limitation: on the GitHub Actions emulator the
+Media3 progress percent stays 0 for the whole export
+(`Transformer.getProgress()` stays unavailable/0 on the software
+encoder — proven by 75 polls over a 44s conversion), so the test
+logs the observed values but does not gate on the % ramping; % ramping
+needs a real device. (An earlier `adb`/`uiautomator` driver,
+`tool/smoke-driver.py`, is kept as a manual fallback — the emulator
+ANRs so often that hierarchy dumps return empty for minutes at a
+time, which is why CI uses the in-process test.)
 
 ## Package
 
