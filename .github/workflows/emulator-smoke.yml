@@ -25,9 +25,7 @@ jobs:
       - name: Generate CI debug keystore
         run: |
           keytool -genkeypair -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Convert264 CI, OU=CI, O=CI, L=CI, ST=CI, C=US" -noprompt
-      - name: Build debug APK
-        run: gradle assembleDebug --no-daemon
-      - name: Emulator smoke test
+      - name: Emulator smoke test (instrumented, in-process)
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
@@ -44,5 +42,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: smoke-evidence
-          path: tool/smoke-screenshots/
+          path: |
+            tool/smoke-screenshots/
+            app/build/outputs/androidTest-results/
+            app/build/reports/androidTests/
           retention-days: 30
