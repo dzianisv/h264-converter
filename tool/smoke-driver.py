@@ -30,10 +30,10 @@ progress_bar_seen = False
 
 
 def log(msg):
-    line = f"[{time.strftime('%H:%M:%S')}] {msg}"
-    print(line, flush=True)
-    with open(LOG_PATH, "a") as f:
-        f.write(line + "\n")
+    # Print only — smoke-test.sh tees stdout into smoke.log.
+    # (Writing to the file here too duplicated every line and, on
+    # open("w"), truncated the install/launch lines the shell wrote.)
+    print(f"[{time.strftime('%H:%M:%S')}] {msg}", flush=True)
 
 
 def adb(*args, timeout=120, binary=False):
@@ -53,31 +53,42 @@ def screenshot(name):
 
 
 def dump_nodes():
-    adb("shell", "uiautomator", "dump", "/sdcard/window_dump.xml")
-    out, _, _ = adb("pull", "/sdcard/window_dump.xml", "/tmp/window_dump.xml")
-    try:
-        root = ET.parse("/tmp/window_dump.xml").getroot()
-    except Exception as e:
-        log(f"dump parse failed: {e}")
-        return []
-    nodes = []
-    for n in root.iter("node"):
-        bounds = n.get("bounds", "")
-        m = re.match(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", bounds)
-        cx = cy = 0
-        if m:
-            x1, y1, x2, y2 = map(int, m.groups())
-            cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
-        nodes.append({
-            "text": n.get("text", ""),
-            "desc": n.get("content-desc", ""),
-            "res": n.get("resource-id", ""),
-            "class": n.get("class", ""),
-            "clickable": n.get("clickable") == "true",
-            "cx": cx, "cy": cy,
-            "bounds": bounds,
-        })
-    return nodes
+    # Stream the hierarchy straight to stdout — avoids the sdcard
+    # file + pull round-trip, which silently fails when the system
+    # is still settling (ANR dialogs, slow boot).
+    for _attempt in range(3):
+        try:
+            r = subprocess.run(
+                ["adb", "exec-out", "uiautomator", "dump", "/dev/tty"],
+                capture_output=True, timeout=60)
+            xml = r.stdout.decode(errors="replace")
+            start = xml.find("<?xml")
+            if start >= 0:
+                root = ET.fromstring(xml[start:])
+                nodes = []
+                for n in root.iter("node"):
+                    bounds = n.get("bounds", "")
+                    m = re.match(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", bounds)
+                    cx = cy = 0
+                    if m:
+                        x1, y1, x2, y2 = map(int, m.groups())
+                        cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
+                    nodes.append({
+                        "text": n.get("text", ""),
+                        "desc": n.get("content-desc", ""),
+                        "res": n.get("resource-id", ""),
+                        "class": n.get("class", ""),
+                        "clickable": n.get("clickable") == "true",
+                        "cx": cx, "cy": cy,
+                        "bounds": bounds,
+                    })
+                return nodes
+            log(f"uiautomator dump returned no XML (rc={r.returncode}): {r.stderr.decode(errors='replace')[:200]}")
+        except Exception as e:
+            log(f"dump attempt failed: {e}")
+        time.sleep(2)
+    log("dump failed after 3 attempts")
+    return []
 
 
 def screen_text(nodes):
@@ -103,17 +114,29 @@ def tap(node, label):
     time.sleep(1)
 
 
+def dismiss_anr(nodes):
+    """If a system 'X isn't responding' dialog is up, close that app."""
+    for n in nodes:
+        if n["text"] and "isn't responding" in n["text"]:
+            close = find(nodes, text="Close app")
+            if close:
+                log(f"ANR dialog for {n['text']!r} — tapping Close app")
+                tap(close, "Close app (ANR)")
+                time.sleep(2)
+                return True
+    return False
+
+
 def wait_for(pred, timeout, label, poll=1.0):
     deadline = time.time() + timeout
     last = []
     while time.time() < deadline:
         nodes = dump_nodes()
         last = nodes
+        if nodes and dismiss_anr(nodes):
+            continue
         if pred(nodes):
             return nodes
-        if any("Failed" in n["text"] or "failed" in n["text"].lower() for n in nodes
-               if n["text"] and "Conversion" in n["text"]):
-            pass
         time.sleep(poll)
     return None
 
@@ -147,7 +170,6 @@ def check_error(nodes):
 
 def main():
     os.makedirs(SHOT_DIR, exist_ok=True)
-    open(LOG_PATH, "w").close()
     log("=== Convert264 emulator smoke test ===")
 
     # 1. Launch
@@ -223,6 +245,8 @@ def main():
     shot_taken = False
     while time.time() < deadline:
         nodes = dump_nodes()
+        if nodes:
+            dismiss_anr(nodes)
         err = check_error(nodes)
         if err:
             log(f"FAIL: conversion error on screen: {err}")

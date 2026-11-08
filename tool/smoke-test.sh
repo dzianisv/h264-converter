@@ -14,12 +14,30 @@ say() { echo "[smoke] $*" | tee -a "$LOG"; }
 
 adb wait-for-device
 say "device ready: $(adb shell getprop ro.build.model | tr -d '\r') / $(adb shell getprop ro.build.version.release | tr -d '\r')"
+say "waiting for boot_completed"
+adb shell 'while [ "$(getprop sys.boot_completed)" != "1" ]; do sleep 2; done'
+say "boot completed; letting the system settle (Play services, first-boot ANRs)"
+sleep 60
+# Digital Wellbeing ANRs on first boot and blocks the whole screen;
+# it is unrelated to the app under test.
+adb shell pm disable-user --user 0 com.google.android.apps.wellbeing 2>&1 | tee -a "$LOG" || true
+adb shell settings put global window_animation_scale 0 2>/dev/null || true
+adb shell settings put global transition_animation_scale 0 2>/dev/null || true
+adb shell settings put global animator_duration_scale 0 2>/dev/null || true
 
 say "installing $APK"
 adb install -r -g "$APK" 2>&1 | tee -a "$LOG"
 say "launching app"
 adb shell am start -n "$PKG/.MainActivity" 2>&1 | tee -a "$LOG"
 sleep 3
+APP_PID=$(adb shell pidof "$PKG" 2>/dev/null | tr -d '\r')
+if [ -z "$APP_PID" ]; then
+  say "FAIL: app process $PKG is not running after launch"
+  adb shell dumpsys activity activities 2>/dev/null | grep -i -A2 -B2 convert264 | tee -a "$LOG" || true
+  adb exec-out screencap -p > "$OUT/99-failure.png"
+  exit 1
+fi
+say "app process running (pid $APP_PID)"
 
 python3 tool/smoke-driver.py 2>&1 | tee -a "$LOG"
 DRIVER_RC=${PIPESTATUS[0]}
