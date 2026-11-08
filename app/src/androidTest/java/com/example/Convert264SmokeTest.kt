@@ -98,8 +98,9 @@ class Convert264SmokeTest {
             for (node in composeRule.onAllNodesWithTag("conversion_percent_text")
                 .fetchSemanticsNodes()
             ) {
-                val text = node.config.getOrNull(SemanticsProperties.Text)
-                    ?.firstOrNull()?.text ?: continue
+                val text = node.config
+                    .getOrElse(SemanticsProperties.Text) { emptyList() }
+                    .firstOrNull()?.text ?: continue
                 text.trim().removeSuffix("%").toIntOrNull()?.let { seen.add(it) }
             }
             Thread.sleep(1000)
