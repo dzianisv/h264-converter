@@ -32,6 +32,11 @@ adb shell settings put global animator_duration_scale 0 2>/dev/null || true
 
 say "installing $APK"
 adb install -r -g "$APK" 2>&1 | tee -a "$LOG"
+# Installing triggers dexopt of the (18 MB, Firebase/Media3/Room)
+# APK on an already-loaded system; launching immediately after
+# overloads it and the system ANRs. Let dexopt finish first.
+say "letting dexopt finish after install (120s)"
+sleep 120
 say "launching app"
 # NOTE: the Kotlin source stays under the com.example namespace the
 # AI Studio export generated — only the applicationId was renamed.
@@ -54,10 +59,9 @@ if [ -n "$APP_PID" ]; then
 else
   say "WARN: app process not visible via pidof after 60s — continuing; driver will decide"
 fi
-# The Settings ANR can reappear once the app starts drawing; kill it
-# again right before the driver starts so no dialog blocks the UI.
-adb shell am force-stop com.android.settings 2>/dev/null || true
-sleep 2
+# Give the app time to draw its first frame before the driver
+# starts dumping the hierarchy.
+sleep 30
 
 python3 tool/smoke-driver.py 2>&1 | tee -a "$LOG"
 DRIVER_RC=${PIPESTATUS[0]}

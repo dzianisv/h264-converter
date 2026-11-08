@@ -118,9 +118,20 @@ def tap(node, label):
 
 
 def dismiss_anr(nodes):
-    """If a system 'X isn't responding' dialog is up, close that app."""
+    """Dismiss a system 'X isn't responding' dialog.
+    For System UI, tap Wait — killing System UI leaves the device
+    with no status/nav bar and breaks uiautomator dumps entirely.
+    For any other app, Close app is fine."""
     for n in nodes:
         if n["text"] and "isn't responding" in n["text"]:
+            if "System UI" in n["text"]:
+                wait_btn = find(nodes, text="Wait")
+                if wait_btn:
+                    log(f"ANR dialog for {n['text']!r} — tapping Wait (never kill System UI)")
+                    tap(wait_btn, "Wait (System UI ANR)")
+                    time.sleep(5)
+                    return True
+                return False
             close = find(nodes, text="Close app")
             if close:
                 log(f"ANR dialog for {n['text']!r} — tapping Close app")
