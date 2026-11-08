@@ -33,14 +33,22 @@ say "launching app"
 # So the activity is com.example.MainActivity, not $PKG.MainActivity.
 adb shell am start -n "$PKG/com.example.MainActivity" 2>&1 | tee -a "$LOG"
 sleep 3
-APP_PID=$(adb shell pidof "$PKG" 2>/dev/null | tr -d '\r')
-if [ -z "$APP_PID" ]; then
-  say "FAIL: app process $PKG is not running after launch"
-  adb shell dumpsys activity activities 2>/dev/null | grep -i -A2 -B2 convert264 | tee -a "$LOG" || true
-  adb exec-out screencap -p > "$OUT/99-failure.png"
-  exit 1
+# Cold start on a slow emulator can take a while to spawn the process
+# (first run: still starting after 3s, with a system ANR dialog on
+# top). Poll for the process, but do NOT fail here — the driver's
+# 90s wait for the app title (which also dismisses ANR dialogs) is
+# the real gate; failing here would kill a healthy slow launch.
+APP_PID=""
+for _i in $(seq 1 30); do
+  APP_PID=$(adb shell pidof "$PKG" 2>/dev/null | tr -d '\r')
+  [ -n "$APP_PID" ] && break
+  sleep 2
+done
+if [ -n "$APP_PID" ]; then
+  say "app process running (pid $APP_PID)"
+else
+  say "WARN: app process not visible via pidof after 60s — continuing; driver will decide"
 fi
-say "app process running (pid $APP_PID)"
 
 python3 tool/smoke-driver.py 2>&1 | tee -a "$LOG"
 DRIVER_RC=${PIPESTATUS[0]}
