@@ -28,7 +28,10 @@ adb shell settings put global animator_duration_scale 0 2>/dev/null || true
 say "installing $APK"
 adb install -r -g "$APK" 2>&1 | tee -a "$LOG"
 say "launching app"
-adb shell am start -n "$PKG/.MainActivity" 2>&1 | tee -a "$LOG"
+# NOTE: the Kotlin source stays under the com.example namespace the
+# AI Studio export generated — only the applicationId was renamed.
+# So the activity is com.example.MainActivity, not $PKG.MainActivity.
+adb shell am start -n "$PKG/com.example.MainActivity" 2>&1 | tee -a "$LOG"
 sleep 3
 APP_PID=$(adb shell pidof "$PKG" 2>/dev/null | tr -d '\r')
 if [ -z "$APP_PID" ]; then
