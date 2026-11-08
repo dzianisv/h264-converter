@@ -3,7 +3,6 @@ package com.example
 import android.content.Context
 import android.os.Environment
 import android.provider.MediaStore
-import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -14,8 +13,14 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.lifecycle.ViewModelProvider
 import androidx.test.platform.app.InstrumentationRegistry
+import com.example.model.ConversionState
+import com.example.viewmodel.ConverterViewModel
 import java.io.File
+import java.util.Collections
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.concurrent.thread
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Rule
@@ -78,37 +83,46 @@ class Convert264SmokeTest {
             .performScrollTo()
             .performClick()
 
-        // 5. Poll the progress percent while converting; require it
-        // to actually advance (not just 0% -> done).
-        val seen = mutableSetOf<Int>()
-        val deadline = System.currentTimeMillis() + 300_000
-        var success = false
-        while (System.currentTimeMillis() < deadline) {
-            if (composeRule.onAllNodesWithText("Conversion Complete!")
-                    .fetchSemanticsNodes().isNotEmpty()
-            ) {
-                success = true
-                break
+        // 5. Progress: observe the ViewModel's conversionState from a
+        // background thread at 200ms intervals and require the percent
+        // to actually advance. This is the same state the progress bar
+        // renders. Sampling the UI tree instead is too slow here: on
+        // this emulator each semantics fetch takes ~10s, so a 42s
+        // conversion was sampled exactly once (0%) and the gate failed
+        // even though the conversion itself worked.
+        val vm = ViewModelProvider(composeRule.activity)[ConverterViewModel::class.java]
+        val seen = Collections.synchronizedSet(mutableSetOf<Int>())
+        val stop = AtomicBoolean(false)
+        val poller = thread(start = true) {
+            while (!stop.get()) {
+                val state = vm.conversionState.value
+                if (state is ConversionState.Converting) {
+                    seen.add(state.progress.percent)
+                }
+                Thread.sleep(200)
             }
-            val errors = composeRule.onAllNodesWithTag("conversion_error_card")
-                .fetchSemanticsNodes()
-            if (errors.isNotEmpty()) {
-                fail("Conversion failed in the app UI (error card shown)")
-            }
-            for (node in composeRule.onAllNodesWithTag("conversion_percent_text")
-                .fetchSemanticsNodes()
-            ) {
-                val text = node.config
-                    .getOrElse(SemanticsProperties.Text) { emptyList() }
-                    .firstOrNull()?.text ?: continue
-                text.trim().removeSuffix("%").toIntOrNull()?.let { seen.add(it) }
-            }
-            Thread.sleep(1000)
         }
-        println("SMOKE progress values observed: $seen")
+        try {
+            composeRule.waitUntil(300_000) {
+                composeRule.onAllNodesWithText("Conversion Complete!")
+                    .fetchSemanticsNodes().isNotEmpty() ||
+                    composeRule.onAllNodesWithTag("conversion_error_card")
+                        .fetchSemanticsNodes().isNotEmpty()
+            }
+        } finally {
+            stop.set(true)
+            poller.join(5_000)
+        }
+        println("SMOKE progress values observed (ViewModel): $seen")
+        if (composeRule.onAllNodesWithTag("conversion_error_card")
+                .fetchSemanticsNodes().isNotEmpty()
+        ) {
+            fail("Conversion failed in the app UI (error card shown)")
+        }
         assertTrue(
             "Conversion did not complete within 300s; progress seen: $seen",
-            success,
+            composeRule.onAllNodesWithText("Conversion Complete!")
+                .fetchSemanticsNodes().isNotEmpty(),
         )
         assertTrue(
             "Progress bar never advanced (no intermediate %); values seen: $seen",
