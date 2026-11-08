@@ -209,42 +209,83 @@ def main():
         return 1
     dur = [n["text"] for n in nodes if n["text"].startswith("Duration:")]
     log(f"sample loaded; {dur}")
-    nodes = wait_for(lambda ns: find(ns, text="Convert to H.264 MP4") is not None, 30, "convert button")
-    if nodes is None:
-        log("FAIL: 'Convert to H.264 MP4' button never appeared")
+    n = scroll_to("Convert to H.264 MP4")
+    if n is None:
+        log("FAIL: 'Convert to H.264 MP4' button never appeared (scrolled for it)")
         screenshot("99-failure.png")
         return 1
     screenshot("02-sample-loaded.png")
 
-    # 3. Trim: END TIME -1s chip (right half of screen) -> 3s clip becomes 2s
+    # 3. Trim: set END to 5s via the Exact Input dialog. The sample
+    # clip is 32.5s on this slow emulator (frames are timestamped in
+    # wall-clock as they encode), so trimming to 5s also keeps the
+    # transcode fast. Fall back to the END "-1s" chip if the dialog
+    # cannot be driven.
     n = scroll_to("TRIM VIDEO")
     if n is None:
         log("FAIL: 'TRIM VIDEO' card never appeared")
         screenshot("99-failure.png")
         return 1
+    trimmed = False
     nodes = dump_nodes()
-    minus = [x for x in nodes if x["text"] == "-1s"]
-    # screen width from wm size
-    out, _, _ = adb("shell", "wm", "size")
-    m = re.search(r"(\d+)x(\d+)", out)
-    width = int(m.group(1)) if m else 1080
-    right = [x for x in minus if x["cx"] > width // 2]
-    if not right:
-        log(f"FAIL: no END TIME '-1s' chip found (found {len(minus)} '-1s' nodes)")
-        screenshot("99-failure.png")
-        return 1
-    tap(right[0], "END TIME -1s chip")
-    time.sleep(1)
-    nodes = dump_nodes()
-    txt = screen_text(nodes)
-    if "00:02" not in txt:
-        log(f"FAIL: trim did not apply — '00:02' not on screen. Visible text: {txt[:800]}")
-        screenshot("99-failure.png")
-        return 1
-    log("trim applied: end time is now 00:02 (was 00:03)")
+    exact = find(nodes, text="Exact Input")
+    if exact is not None:
+        tap(exact, "Exact Input")
+        dlg = wait_for(lambda ns: find(ns, text="Set Exact Trim Times") is not None, 30, "exact-time dialog")
+        if dlg is not None:
+            field = find(dlg, res="exact_end_input")
+            if field is None:
+                # fallback: the end field holds the current end time
+                field = find(dlg, text="00:32")
+            if field is not None:
+                tap(field, "end time field")
+                for _ in range(12):
+                    adb("shell", "input", "keyevent", "67")  # DEL
+                adb("shell", "input", "text", "5")
+                time.sleep(1)
+                nodes2 = dump_nodes()
+                apply_btn = find(nodes2, text="Apply")
+                if apply_btn is not None:
+                    tap(apply_btn, "Apply exact times")
+                    time.sleep(2)
+                    nodes3 = dump_nodes()
+                    if "00:05" in screen_text(nodes3):
+                        trimmed = True
+                        log("trim applied via Exact Input: end time is now 00:05")
+                    else:
+                        log(f"WARN: Exact Input applied but '00:05' not on screen: {screen_text(nodes3)[:500]}")
+                else:
+                    log("WARN: Apply button not found in exact-time dialog")
+            else:
+                log("WARN: end time field not found in exact-time dialog")
+        else:
+            log("WARN: exact-time dialog never appeared")
+    if not trimmed:
+        # Fallback: END TIME "-1s" chip (right half of screen) — end
+        # must decrease by 1s.
+        nodes = dump_nodes()
+        before = [x["text"] for x in nodes if re.fullmatch(r"00:\d\d\.\d", x["text"])]
+        minus = [x for x in nodes if x["text"] == "-1s"]
+        out, _, _ = adb("shell", "wm", "size")
+        m = re.search(r"(\d+)x(\d+)", out)
+        width = int(m.group(1)) if m else 1080
+        right = [x for x in minus if x["cx"] > width // 2]
+        if not right:
+            log(f"FAIL: could not set a trim (dialog failed, no END '-1s' chip; end times seen: {before})")
+            screenshot("99-failure.png")
+            return 1
+        tap(right[0], "END TIME -1s chip")
+        time.sleep(1)
+        nodes = dump_nodes()
+        after = [x["text"] for x in nodes if re.fullmatch(r"00:\d\d\.\d", x["text"])]
+        if before == after:
+            log(f"FAIL: trim did not apply — end times unchanged: {before}")
+            screenshot("99-failure.png")
+            return 1
+        log(f"trim applied via -1s chip: end times {before} -> {after}")
     screenshot("03-trimmed.png")
 
-    # 4. Convert
+    # 4. Convert (button is below the fold — scroll to it)
     n = scroll_to("Convert to H.264 MP4")
     if n is None:
         log("FAIL: convert button scrolled out of reach")
@@ -254,7 +295,7 @@ def main():
 
     # 5. Poll progress
     global progress_bar_seen
-    deadline = time.time() + 180
+    deadline = time.time() + 300
     converting_seen = False
     shot_taken = False
     while time.time() < deadline:
@@ -284,7 +325,7 @@ def main():
             break
         time.sleep(1)
     else:
-        log(f"FAIL: conversion did not complete within 180s. progress seen: {progress_seen}")
+        log(f"FAIL: conversion did not complete within 300s. progress seen: {progress_seen}")
         screenshot("99-failure.png")
         return 1
 

@@ -93,7 +93,7 @@ adb pull "/sdcard/Movies/Convert264/$OUT_FILE" "$OUT/output.mp4" 2>&1 | tee -a "
 if command -v ffprobe >/dev/null 2>&1; then
   ffprobe -v error -show_entries format=duration,size -show_entries stream=codec_name,width,height -of default=noprint_wrappers=1 "$OUT/output.mp4" 2>&1 | tee -a "$LOG"
   OUT_DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$OUT/output.mp4" 2>/dev/null)
-  say "output duration (ffprobe): ${OUT_DUR}s — expected ~2s (3s sample trimmed to 2s)"
+  say "output duration (ffprobe): ${OUT_DUR}s — expected ~5s (32s sample trimmed to 5s)"
 else
   say "ffprobe not available; duration taken from success screen"
 fi
