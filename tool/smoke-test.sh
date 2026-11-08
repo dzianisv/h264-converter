@@ -44,7 +44,7 @@ if [ -n "$OUT_FILE" ]; then
   if command -v ffprobe >/dev/null 2>&1; then
     ffprobe -v error -show_entries format=duration,size -show_entries stream=codec_name,width,height -of default=noprint_wrappers=1 "$OUT/output.mp4" 2>&1 | tee -a "$LOG"
     OUT_DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$OUT/output.mp4" 2>/dev/null)
-    say "output duration (ffprobe): ${OUT_DUR}s — expected ~5s (sample trimmed to 5s)"
+    say "output duration (ffprobe): ${OUT_DUR}s — expected ~15s (sample trimmed to 15s)"
   fi
 else
   say "no _h264.mp4 under /sdcard/Movies/Convert264"

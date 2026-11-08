@@ -35,7 +35,7 @@ import org.junit.Test
  * emulator: the system there ANRs repeatedly and uiautomator dumps
  * return empty for minutes at a time.
  *
- * Flow: Try Sample Clip -> trim END to 5s via Exact Input -> Convert
+ * Flow: Try Sample Clip -> trim END to 15s via Exact Input -> Convert
  * -> require the progress percent to actually advance -> require the
  * "Conversion Complete!" screen with Open + Share -> require a real
  * _h264.mp4 output file on disk.
@@ -62,21 +62,25 @@ class Convert264SmokeTest {
         }
         println("SMOKE sample loaded")
 
-        // 3. Trim END to 5s via the Exact Input dialog (keeps the
-        // transcode fast even though the sample is ~35s long here).
+        // 3. Trim END to 15s via the Exact Input dialog. 15s (not 5s):
+        // on this emulator the Media3 setup phase takes ~20s during
+        // which progress is unavailable, and a 5s clip then encodes
+        // in ~2s — the percent jumps 0 -> 100 with no observable
+        // intermediates. A 15s clip encodes for ~60s+, so the progress
+        // has time to ramp through intermediate values.
         composeRule.onNodeWithText("Exact Input").performClick()
         composeRule.waitUntil(60_000) {
             composeRule.onAllNodesWithText("Set Exact Trim Times")
                 .fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onNodeWithTag("exact_end_input").performTextClearance()
-        composeRule.onNodeWithTag("exact_end_input").performTextInput("5")
+        composeRule.onNodeWithTag("exact_end_input").performTextInput("15")
         composeRule.onNodeWithText("Apply").performClick()
         composeRule.waitUntil(60_000) {
-            composeRule.onAllNodesWithText("00:05")
+            composeRule.onAllNodesWithText("00:15")
                 .fetchSemanticsNodes().isNotEmpty()
         }
-        println("SMOKE trim applied: end time 00:05")
+        println("SMOKE trim applied: end time 00:15")
 
         // 4. Convert (button is below the fold — scroll to it first).
         composeRule.onNodeWithTag("convert_button")
@@ -92,12 +96,14 @@ class Convert264SmokeTest {
         // even though the conversion itself worked.
         val vm = ViewModelProvider(composeRule.activity)[ConverterViewModel::class.java]
         val seen = Collections.synchronizedSet(mutableSetOf<Int>())
+        var pollCount = 0
         val stop = AtomicBoolean(false)
         val poller = thread(start = true) {
             while (!stop.get()) {
                 val state = vm.conversionState.value
                 if (state is ConversionState.Converting) {
                     seen.add(state.progress.percent)
+                    pollCount++
                 }
                 Thread.sleep(200)
             }
@@ -113,7 +119,7 @@ class Convert264SmokeTest {
             stop.set(true)
             poller.join(5_000)
         }
-        println("SMOKE progress values observed (ViewModel): $seen")
+        println("SMOKE progress values observed (ViewModel, $pollCount polls): $seen")
         if (composeRule.onAllNodesWithTag("conversion_error_card")
                 .fetchSemanticsNodes().isNotEmpty()
         ) {
