@@ -1,0 +1,36 @@
+name: Android PR
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK components
+        run: |
+          sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 9.3.1
+      - name: Generate CI keystores
+        run: |
+          keytool -genkeypair -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Convert264 CI, OU=CI, O=CI, L=CI, ST=CI, C=US" -noprompt
+          keytool -genkeypair -keystore upload.keystore -storepass ci-upload-pass -alias upload -keypass ci-upload-pass -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Convert264 CI, OU=CI, O=CI, L=CI, ST=CI, C=US" -noprompt
+      - name: Unit tests
+        run: gradle testDebugUnitTest --no-daemon
+      - name: Build debug APK
+        run: gradle assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7

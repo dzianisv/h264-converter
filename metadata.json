@@ -1,0 +1,6 @@
+{
+  "name": "Convert264",
+  "description": "Clean, ad-free H.264 MP4 video converter and trimmer",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
