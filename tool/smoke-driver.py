@@ -163,14 +163,32 @@ def swipe_up():
     time.sleep(1)
 
 
-def scroll_to(text, tries=6):
+def swipe_down():
+    out, _, _ = adb("shell", "wm", "size")
+    m = re.search(r"(\d+)x(\d+)", out)
+    w, h = (1080, 2400) if not m else (int(m.group(1)), int(m.group(2)))
+    adb("shell", "input", "swipe", str(w // 2), str(int(h * 0.25)), str(w // 2), str(int(h * 0.75)), "300")
+    time.sleep(1)
+
+
+def scroll_to(text, tries=4):
+    # The target may be below the fold (swipe up) or above it
+    # (swipe down) — e.g. after scrolling down to the Convert
+    # button, TRIM VIDEO is above the viewport. Try both ways.
     for _ in range(tries):
         nodes = dump_nodes()
         n = find(nodes, text=text)
         if n:
             return n
         swipe_up()
-    return None
+    for _ in range(tries):
+        nodes = dump_nodes()
+        n = find(nodes, text=text)
+        if n:
+            return n
+        swipe_down()
+    nodes = dump_nodes()
+    return find(nodes, text=text)
 
 
 def check_error(nodes):
