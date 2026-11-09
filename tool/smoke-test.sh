@@ -30,6 +30,24 @@ adb wait-for-device
 say "device ready: $(adb shell getprop ro.build.model | tr -d '\r') / $(adb shell getprop ro.build.version.release | tr -d '\r')"
 say "waiting for boot_completed"
 adb shell 'while [ "$(getprop sys.boot_completed)" != "1" ]; do sleep 2; done'
+# The runner reports boot completed while the device is still
+# unresponsive often enough that Gradle then fails with
+# "Skipping device 'emulator-5554': Unknown API Level" — do not
+# start the build until the API level is actually queryable.
+say "waiting for device properties to become queryable (API level)"
+API=""
+for i in $(seq 1 36); do
+  API=$(timeout 20 adb shell getprop ro.build.version.sdk 2>/dev/null | tr -d '\r')
+  if [ "$API" = "35" ]; then
+    say "device API level: $API"
+    break
+  fi
+  sleep 5
+done
+if [ "$API" != "35" ]; then
+  say "device never became queryable (last API level='$API') — emulator infra failure, retry the run"
+  exit 2
+fi
 say "boot completed; letting the system settle (first-boot dexopt, ANRs)"
 sleep 90
 # Digital Wellbeing ANRs on first boot; absent on AOSP images —
