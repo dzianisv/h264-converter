@@ -68,7 +68,7 @@ if adb shell ls /system/bin/screenrecord >/dev/null 2>&1; then
       # Log failures instead of discarding them: on some emulator
       # images screenrecord exits immediately (no encoder), and the
       # loop then breaks with no video and no explanation.
-      adb shell screenrecord --time-limit 170 "/sdcard/smoke-video-$n.mp4" >> "$OUT/screenrecord.log" 2>&1 || break
+      adb shell screenrecord --time-limit 170 "/data/local/tmp/smoke-video-$n.mp4" >> "$OUT/screenrecord.log" 2>&1 || break
       n=$((n + 1))
     done
   ) &
@@ -94,8 +94,10 @@ say "connectedDebugAndroidTest exit code: $RC"
 
 stop_recording
 
-# --- Pull screen-recorded video chunks ---
-adb shell ls /sdcard/smoke-video-*.mp4 2>/dev/null | tr -d '\r' | while read -r f; do
+# --- Pull screen-recorded video chunks (written to /data/local/tmp:
+# screenrecord cannot open files under /sdcard on API 35 —
+# "Permission denied" — but /data/local/tmp is shell-writable) ---
+adb shell ls /data/local/tmp/smoke-video-*.mp4 2>/dev/null | tr -d '\r' | while read -r f; do
   adb pull "$f" "$OUT/" 2>&1 | tee -a "$LOG" || true
 done
 ls -l "$OUT"/smoke-video-*.mp4 2>/dev/null | tee -a "$LOG" || say "no video chunks pulled"
