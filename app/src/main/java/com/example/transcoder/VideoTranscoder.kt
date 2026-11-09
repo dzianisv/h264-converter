@@ -282,8 +282,15 @@ class VideoTranscoder(private val context: Context) {
             false
         }
 
-        // Also index into Android's MediaStore so other apps and Gallery instantly recognize it
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        // Index into Android's MediaStore so other apps and Gallery
+        // instantly recognize the file — but ONLY as a fallback when
+        // the direct file write failed. Inserting a row
+        // unconditionally left a 0-byte duplicate entry
+        // ("<name> (1).mp4", duration 0) next to every real file,
+        // because the bytes were only written into the row when the
+        // direct copy had failed.
+        val directWriteOk = copied && targetFile.exists() && targetFile.length() > 0L
+        if (!directWriteOk && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             try {
                 val values = ContentValues().apply {
                     put(MediaStore.Video.Media.DISPLAY_NAME, displayName)
@@ -292,12 +299,9 @@ class VideoTranscoder(private val context: Context) {
                     put(MediaStore.Video.Media.IS_PENDING, 0)
                 }
                 context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)?.let { mediaStoreUri ->
-                    // Copy bytes into MediaStore if direct file write was restricted
-                    if (!copied || !targetFile.exists() || targetFile.length() == 0L) {
-                        context.contentResolver.openOutputStream(mediaStoreUri)?.use { out ->
-                            FileInputStream(stagingFile).use { input ->
-                                input.copyTo(out)
-                            }
+                    context.contentResolver.openOutputStream(mediaStoreUri)?.use { out ->
+                        FileInputStream(stagingFile).use { input ->
+                            input.copyTo(out)
                         }
                     }
                 }

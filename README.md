@@ -40,34 +40,41 @@ so a future properly-signed build will need a reinstall, not an update.
 ## Emulator smoke test
 
 `.github/workflows/emulator-smoke.yml` runs the in-process Compose
-instrumented test `app/src/androidTest/.../Convert264SmokeTest.kt`
-(`gradle connectedDebugAndroidTest`) on an API 35 emulator: it taps
-"Try Sample Clip", trims the end to 15s via the Exact Input dialog,
-converts, requires the converting status bar to be shown, the
-"Conversion Complete!" screen with Open/Share, and a real `_h264.mp4`
-output file on disk (verified with ffprobe). The runner script is
+instrumented tests `app/src/androidTest/.../Convert264SmokeTest.kt`
+and `ShareIntentSmokeTest.kt` (`gradle connectedDebugAndroidTest`)
+on an API 35 emulator: the first taps "Try Sample Clip", trims the
+end to 15s via the Exact Input dialog, and converts twice (Original
+preset, then 720p), requiring the converting status bar to be shown,
+the "Conversion Complete!" screen with Open/Share, a real `_h264.mp4`
+output file on disk (verified with ffprobe), live elapsed time
+during the export, and no 0-byte phantom rows in MediaStore; the
+second launches the app with a real `ACTION_SEND` share intent and
+requires the shared video to load. The runner script is
 `tool/smoke-test.sh`.
 
-Known emulator limitation: on the GitHub Actions emulator the
-Media3 progress percent stays 0 for the whole export. The app now
-records Media3's RAW progress state on every poll (see
-`TranscodeDiagnostics`: 0=NOT_STARTED, 1=WAITING_FOR_AVAILABILITY,
-2=AVAILABLE, 3=UNAVAILABLE/permanently unavailable) and the smoke
-test prints the state histogram for two encode paths (Original and
-720p) — see the PROGRESS-DIAG lines in the smoke log. What the
-earlier runs proved is only that the percent never became available;
-the state histogram in v0.1.1 is what says WHY (WAITING the whole
-time = the encoder never reports progress here; UNAVAILABLE = it
-never will on this encoder). A time-based percent estimate would be
-fabrication (encode speed is not linear in time), so the app
-deliberately does NOT do that: when progress is unavailable the
-status bar shows an indeterminate bar plus live elapsed time, and
-only switches to a determinate percent when Media3 actually reports
-one. % ramping still needs a real device. (An earlier
-`adb`/`uiautomator` driver, `tool/smoke-driver.py`, is kept as a
-manual fallback — the emulator ANRs so often that hierarchy dumps
-return empty for minutes at a time, which is why CI uses the
-in-process test.)
+Progress — what the emulator actually proved (v0.1.1 smoke run
+42648740990, raw `Transformer.getProgress()` states logged on every
+poll; 0=NOT_STARTED, 1=WAITING, 2=AVAILABLE, 3=UNAVAILABLE):
+- **The % DOES ramp — on the 720p path.** Run 2 (720p preset,
+  Presentation scale effect): percents seen 0, 6, 36, 38, 44, 52,
+  74, 85, 98, 99 over 89s, 160 of 164 polls AVAILABLE. The bar
+  ramps for real whenever the encode is slow enough to observe.
+- **On the fast Original path it jumps 0 → 99.** Run 1 (Original,
+  no effects): the state stayed WAITING for ~24s of setup, became
+  AVAILABLE once at 99%, and the export finished ~1s later. The
+  earlier "percent stays 0 for the whole export" reading was wrong
+  in detail: it was never UNAVAILABLE (state 3 never appeared), it
+  was WAITING and then done. A time-based percent estimate would
+  still be fabrication, so the app does NOT do that: while progress
+  is WAITING it shows an indeterminate bar plus live elapsed time,
+  and switches to a determinate percent the moment Media3 reports
+  one. On a real phone with a hardware encoder the setup phase is
+  shorter and the ramp should be visible on both paths — but that
+  still needs a real-device check.
+- Known sample quirk: the generated sample clip reports ~37s
+  duration instead of 3s (its frames are timestamped in wall-clock
+  as they encode on a slow emulator); the trim/output durations
+  are still verified against the 15s trim.
 
 Evidence from each smoke run is kept under
 `tool/smoke-screenshots/<run-id>/` (in-test screenshots at every

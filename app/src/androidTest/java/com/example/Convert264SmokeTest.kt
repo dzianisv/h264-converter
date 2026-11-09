@@ -192,6 +192,15 @@ class Convert264SmokeTest {
         if (out != null) {
             println("SMOKE $label OUTPUT file=${out.name} bytes=${out.length()}")
         }
+        // No 0-byte phantom rows in MediaStore: publishFinalFile used
+        // to insert a MediaStore row unconditionally and only write
+        // bytes into it when the direct copy failed, leaving an empty
+        // "<name> (1).mp4" entry next to every real file.
+        val emptyRows = mediaStoreHits.filter { it.contains("bytes=0") }
+        assertTrue(
+            "MediaStore has 0-byte phantom entries after $label: $emptyRows",
+            emptyRows.isEmpty(),
+        )
         return out
     }
 
@@ -239,8 +248,16 @@ class Convert264SmokeTest {
         outputDir().listFiles()?.map { "${it.name} (${it.length()} bytes)" } ?: emptyList()
 
     private fun newestOutputFile(): File? = outputDir().listFiles()
-        ?.filter { it.name.endsWith("_h264.mp4") && it.length() > 0 }
+        // Output names are <base>_h264.mp4, <base>_h264_1.mp4, ...
+        // (see FormatUtils.generateUniqueOutputName) — a plain
+        // endsWith("_h264.mp4") misses the _1/_2 files, which is
+        // exactly how run 2 once "found" run 1's file again.
+        ?.filter { it.length() > 0 && OUTPUT_NAME_REGEX.containsMatchIn(it.name) }
         ?.maxByOrNull { it.lastModified() }
+
+    companion object {
+        private val OUTPUT_NAME_REGEX = Regex("""_h264(_\d+)?\.mp4$""")
+    }
 
     private fun queryMediaStore(): List<String> {
         val ctx = InstrumentationRegistry.getInstrumentation().targetContext

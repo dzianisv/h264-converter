@@ -1,5 +1,6 @@
 package com.example
 
+import android.content.ComponentName
 import android.content.Intent
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -39,6 +40,12 @@ class ShareIntentSmokeTest {
             type = "video/mp4"
             putExtra(Intent.EXTRA_STREAM, sampleUri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            // ActivityScenario cannot launch an implicit intent: the
+            // system resolves ACTION_SEND to the chooser
+            // ("resolved to different process system:ui"). Pin the
+            // intent to our own MainActivity — action, type and
+            // extras stay exactly as a real share would send them.
+            component = ComponentName(targetContext, MainActivity::class.java)
         }
         ActivityScenario.launch<MainActivity>(intent).use {
             composeRule.waitUntil(180_000) {

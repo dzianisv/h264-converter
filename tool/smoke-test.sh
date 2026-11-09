@@ -47,7 +47,10 @@ if adb shell ls /system/bin/screenrecord >/dev/null 2>&1; then
   (
     n=1
     while true; do
-      adb shell screenrecord --time-limit 170 "/sdcard/smoke-video-$n.mp4" >/dev/null 2>&1 || break
+      # Log failures instead of discarding them: on some emulator
+      # images screenrecord exits immediately (no encoder), and the
+      # loop then breaks with no video and no explanation.
+      adb shell screenrecord --time-limit 170 "/sdcard/smoke-video-$n.mp4" >> "$OUT/screenrecord.log" 2>&1 || break
       n=$((n + 1))
     done
   ) &
@@ -86,7 +89,7 @@ find "$OUT/screenshots" -name "*.png" 2>/dev/null | tee -a "$LOG" || true
 # --- Output-file verification (the real outcome, not just the UI) ---
 say "=== output file checks ==="
 adb shell ls -l /sdcard/Movies/Convert264/ 2>&1 | tee -a "$LOG"
-for OUT_FILE in $(adb shell ls /sdcard/Movies/Convert264/ 2>/dev/null | tr -d '\r' | grep '_h264\.mp4'); do
+for OUT_FILE in $(adb shell ls /sdcard/Movies/Convert264/ 2>/dev/null | tr -d '\r' | grep -E '_h264(_[0-9]+)?\.mp4'); do
   say "output file: $OUT_FILE"
   OUT_SIZE=$(adb shell stat -c %s "/sdcard/Movies/Convert264/$OUT_FILE" 2>/dev/null | tr -d '\r')
   say "output size bytes: $OUT_SIZE"
@@ -99,10 +102,16 @@ for OUT_FILE in $(adb shell ls /sdcard/Movies/Convert264/ 2>/dev/null | tr -d '\
   fi
 done
 
-# SMOKE lines the tests printed (land in the JUnit XML system-out)
+# SMOKE lines the tests printed. println() output lands in the
+# JUnit XML system-out on some runs and only in logcat on others —
+# grep both so the diagnostics never go missing again.
 find app/build/outputs/androidTest-results -name "*.xml" 2>/dev/null | while read -r f; do
   echo "=== $f ===" | tee -a "$LOG"
   grep -o "SMOKE[^<]*" "$f" 2>/dev/null | tee -a "$LOG" || true
+done
+find app/build/outputs/androidTest-results -name "logcat-*.txt" 2>/dev/null | while read -r f; do
+  echo "=== $f (SMOKE lines) ===" | tee -a "$LOG"
+  grep -h "SMOKE" "$f" 2>/dev/null | sed 's/^.*SMOKE/SMOKE/' | tee -a "$LOG" || true
 done
 
 # Keep a stable pointer to the latest run for humans.
