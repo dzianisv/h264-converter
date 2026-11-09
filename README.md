@@ -49,14 +49,31 @@ output file on disk (verified with ffprobe). The runner script is
 `tool/smoke-test.sh`.
 
 Known emulator limitation: on the GitHub Actions emulator the
-Media3 progress percent stays 0 for the whole export
-(`Transformer.getProgress()` stays unavailable/0 on the software
-encoder — proven by 75 polls over a 44s conversion), so the test
-logs the observed values but does not gate on the % ramping; % ramping
-needs a real device. (An earlier `adb`/`uiautomator` driver,
-`tool/smoke-driver.py`, is kept as a manual fallback — the emulator
-ANRs so often that hierarchy dumps return empty for minutes at a
-time, which is why CI uses the in-process test.)
+Media3 progress percent stays 0 for the whole export. The app now
+records Media3's RAW progress state on every poll (see
+`TranscodeDiagnostics`: 0=NOT_STARTED, 1=WAITING_FOR_AVAILABILITY,
+2=AVAILABLE, 3=UNAVAILABLE/permanently unavailable) and the smoke
+test prints the state histogram for two encode paths (Original and
+720p) — see the PROGRESS-DIAG lines in the smoke log. What the
+earlier runs proved is only that the percent never became available;
+the state histogram in v0.1.1 is what says WHY (WAITING the whole
+time = the encoder never reports progress here; UNAVAILABLE = it
+never will on this encoder). A time-based percent estimate would be
+fabrication (encode speed is not linear in time), so the app
+deliberately does NOT do that: when progress is unavailable the
+status bar shows an indeterminate bar plus live elapsed time, and
+only switches to a determinate percent when Media3 actually reports
+one. % ramping still needs a real device. (An earlier
+`adb`/`uiautomator` driver, `tool/smoke-driver.py`, is kept as a
+manual fallback — the emulator ANRs so often that hierarchy dumps
+return empty for minutes at a time, which is why CI uses the
+in-process test.)
+
+Evidence from each smoke run is kept under
+`tool/smoke-screenshots/<run-id>/` (in-test screenshots at every
+step, screen-recorded video chunks, every output file ffprobed,
+smoke.log) and uploaded as a CI artifact (30-day retention) — see
+the `Emulator Smoke Test` workflow run for the release under test.
 
 ## Package
 

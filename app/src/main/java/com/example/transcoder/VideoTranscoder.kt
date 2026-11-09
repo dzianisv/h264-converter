@@ -9,6 +9,7 @@ import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
+import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.media3.common.Effect
 import androidx.media3.common.MediaItem
@@ -38,6 +39,23 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.UUID
+
+/**
+ * Diagnostics for the last transcode run, for tests and debugging.
+ *
+ * Media3's Transformer.getProgress() returns a *state*, not just a
+ * percent: NOT_STARTED (0), WAITING_FOR_AVAILABILITY (1), AVAILABLE
+ * (2), UNAVAILABLE (3, permanently unavailable). Earlier versions of
+ * this app only recorded the percent when the state was AVAILABLE, so
+ * a run that stayed at 0% was indistinguishable from "never polled".
+ * These counters record the raw state on every poll, so a test can
+ * tell WAITING (might become available on another encoder) apart
+ * from UNAVAILABLE (never will, on this encoder).
+ */
+object TranscodeDiagnostics {
+    @Volatile var lastRunStateCounts: Map<Int, Int> = emptyMap()
+    @Volatile var lastRunMaxPercent: Int = 0
+}
 
 class VideoTranscoder(private val context: Context) {
 
@@ -182,25 +200,58 @@ class VideoTranscoder(private val context: Context) {
             return@withContext
         }
 
-        // Progress polling loop
+        // Progress polling loop. Polls Transformer.getProgress() and
+        // reports on EVERY poll — including when the state is not
+        // AVAILABLE — so the elapsed time keeps ticking in the UI and
+        // the caller can see the raw state. A time-based percent
+        // estimate would be fabrication (encode speed is not linear
+        // in time), so when progress is unavailable we report
+        // percent=0 with progressAvailable=false and the UI renders
+        // an indeterminate bar instead of a fake 0%.
         val progressHolder = ProgressHolder()
+        val stateCounts = mutableMapOf<Int, Int>()
+        var lastState = -1
+        var pollIndex = 0
+        TranscodeDiagnostics.lastRunStateCounts = emptyMap()
+        TranscodeDiagnostics.lastRunMaxPercent = 0
         progressJob = CoroutineScope(Dispatchers.Main).launch {
             while (isActive) {
                 val progressState = transformer.getProgress(progressHolder)
-                if (progressState == Transformer.PROGRESS_STATE_AVAILABLE) {
-                    val percent = progressHolder.progress.coerceIn(0, 100)
-                    val elapsedSec = (System.currentTimeMillis() - startTime) / 1000
-                    val currentTrimProgressMs = (totalTrimDurationMs * (percent / 100.0)).toLong()
-
-                    onProgress(
-                        ConversionProgress(
-                            percent = percent,
-                            currentTrimProgressMs = currentTrimProgressMs,
-                            totalTrimDurationMs = totalTrimDurationMs,
-                            elapsedSeconds = elapsedSec
-                        )
+                stateCounts[progressState] = (stateCounts[progressState] ?: 0) + 1
+                TranscodeDiagnostics.lastRunStateCounts = stateCounts.toMap()
+                if (progressState != lastState || pollIndex % 40 == 0) {
+                    Log.d(
+                        "Convert264",
+                        "progress state=$progressState " +
+                            "(0=NOT_STARTED 1=WAITING 2=AVAILABLE 3=UNAVAILABLE) " +
+                            "percent=${if (progressState == Transformer.PROGRESS_STATE_AVAILABLE) progressHolder.progress else "n/a"} " +
+                            "elapsed=${(System.currentTimeMillis() - startTime) / 1000}s",
                     )
+                    lastState = progressState
                 }
+                pollIndex++
+                val available = progressState == Transformer.PROGRESS_STATE_AVAILABLE
+                val percent = if (available) {
+                    progressHolder.progress.coerceIn(0, 100).also {
+                        if (it > TranscodeDiagnostics.lastRunMaxPercent) {
+                            TranscodeDiagnostics.lastRunMaxPercent = it
+                        }
+                    }
+                } else {
+                    0
+                }
+                val elapsedSec = (System.currentTimeMillis() - startTime) / 1000
+                val currentTrimProgressMs = (totalTrimDurationMs * (percent / 100.0)).toLong()
+
+                onProgress(
+                    ConversionProgress(
+                        percent = percent,
+                        currentTrimProgressMs = currentTrimProgressMs,
+                        totalTrimDurationMs = totalTrimDurationMs,
+                        elapsedSeconds = elapsedSec,
+                        progressAvailable = available,
+                    )
+                )
                 delay(250L)
             }
         }

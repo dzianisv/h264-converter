@@ -16,6 +16,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.model.ConversionState
+import com.example.transcoder.TranscodeDiagnostics
 import com.example.viewmodel.ConverterViewModel
 import java.io.File
 import java.util.Collections
@@ -35,94 +36,100 @@ import org.junit.Test
  * emulator: the system there ANRs repeatedly and uiautomator dumps
  * return empty for minutes at a time.
  *
- * Flow: Try Sample Clip -> trim END to 15s via Exact Input -> Convert
- * -> require the converting status bar to be shown (progress values
- * are logged but NOT gated: Media3's getProgress stays unavailable/0
- * on this emulator's software encoder, so the % cannot ramp here —
- * that needs a real device) -> require the "Conversion Complete!"
- * screen with Open + Share -> require a real _h264.mp4 output file.
+ * Flow, twice (run 1: Original preset, run 2: 720p preset — the 720p
+ * run exercises the Presentation scale-effect path, to check whether
+ * Media3 reports progress on a different encode path):
+ *   Try Sample Clip -> trim END to 15s via Exact Input -> Convert
+ *   -> converting status bar shown -> "Conversion Complete!" with
+ *   Open + Share -> real _h264.mp4 output file on disk.
+ *
+ * Screenshots are captured in-test at every step
+ * (see ScreenshotHelper.kt) and pulled by tool/smoke-test.sh into
+ * tool/smoke-screenshots/<run-id>/ — they are the layout evidence
+ * and must be looked at, not just collected.
+ *
+ * Progress: the test records Media3's RAW progress state on every
+ * poll (see TranscodeDiagnostics: 0=NOT_STARTED, 1=WAITING,
+ * 2=AVAILABLE, 3=UNAVAILABLE) and the max percent/elapsed seen.
+ * The % is NOT gated — on this emulator's software encoder
+ * getProgress() has never become AVAILABLE, so the bar cannot ramp
+ * here and that needs a real device. What IS gated: the converting
+ * status bar is shown, the elapsed time advances (live feedback even
+ * without a percent), and the conversion completes.
  */
 class Convert264SmokeTest {
 
     @get:Rule
     val composeRule = createAndroidComposeRule<MainActivity>()
 
-    @Test
-    fun sampleClipConvertsEndToEnd() {
-        // 1. Try Sample Clip
-        composeRule.waitUntil(120_000) {
-            composeRule.onAllNodesWithText("Try Sample")
+    private fun waitForText(text: String, timeoutMs: Long = 60_000) {
+        composeRule.waitUntil(timeoutMs) {
+            composeRule.onAllNodesWithText(text)
                 .fetchSemanticsNodes().isNotEmpty()
         }
-        composeRule.onNodeWithText("Try Sample").performClick()
+    }
 
-        // 2. Sample loaded (generation is wall-clock bound on a slow
-        // emulator: 90 frames can take ~90s to encode).
-        composeRule.waitUntil(240_000) {
-            composeRule.onAllNodesWithText("SOURCE VIDEO")
+    private fun waitForTag(tag: String, timeoutMs: Long = 60_000) {
+        composeRule.waitUntil(timeoutMs) {
+            composeRule.onAllNodesWithTag(tag)
                 .fetchSemanticsNodes().isNotEmpty()
         }
-        println("SMOKE sample loaded")
+    }
 
-        // 3. Trim END to 15s via the Exact Input dialog. 15s (not 5s):
+    /** Runs one conversion end to end and returns the output file found. */
+    private fun runConversion(label: String, presetTag: String?): File? {
+        if (presetTag != null) {
+            composeRule.onNodeWithTag(presetTag)
+                .performScrollTo()
+                .performClick()
+            println("SMOKE $label: preset $presetTag selected")
+        }
+
+        // Trim END to 15s via the Exact Input dialog. 15s (not 5s):
         // on this emulator the Media3 setup phase takes ~20s during
         // which progress is unavailable, and a 5s clip then encodes
         // in ~2s — the percent jumps 0 -> 100 with no observable
-        // intermediates. A 15s clip encodes for ~60s+, so the progress
-        // has time to ramp through intermediate values.
+        // intermediates. A 15s clip encodes for ~60s+.
         composeRule.onNodeWithText("Exact Input").performClick()
-        composeRule.waitUntil(60_000) {
-            composeRule.onAllNodesWithText("Set Exact Trim Times")
-                .fetchSemanticsNodes().isNotEmpty()
-        }
+        waitForText("Set Exact Trim Times")
         composeRule.onNodeWithTag("exact_end_input").performTextClearance()
         composeRule.onNodeWithTag("exact_end_input").performTextInput("15")
         composeRule.onNodeWithText("Apply").performClick()
-        composeRule.waitUntil(60_000) {
-            composeRule.onAllNodesWithText("00:15")
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-        println("SMOKE trim applied: end time 00:15")
+        waitForText("00:15")
+        println("SMOKE $label: trim applied, end time 00:15")
 
-        // 4. Convert (button is below the fold — scroll to it first).
+        // Convert (button is below the fold — scroll to it first).
         composeRule.onNodeWithTag("convert_button")
             .performScrollTo()
             .performClick()
 
-        // 5. Progress: observe the ViewModel's conversionState from a
-        // background thread at 200ms intervals. On THIS emulator the
-        // percent stays 0 for the whole export (proven: 75 polls over
-        // a 44s conversion of a 15s clip) — Media3's
-        // Transformer.getProgress() stays unavailable/0 on the
-        // software encoder here, so the app has nothing to report and
-        // the bar cannot ramp. That is an emulator limitation, not
-        // something the app can fix by polling harder: the app
-        // faithfully reports what Media3 gives it. So the gate here
-        // is: the Converting state IS shown (status bar rendered with
-        // the "CONVERTING TO H.264..." line) and it reaches Success.
-        // The percent ramping itself is NOT verified on this emulator
-        // and needs a real device. The observed values are logged.
+        // Observe the ViewModel's conversionState from a background
+        // thread at 200ms intervals: percents seen, max elapsed, and
+        // whether progress was ever reported as available.
         val vm = ViewModelProvider(composeRule.activity)[ConverterViewModel::class.java]
-        val seen = Collections.synchronizedSet(mutableSetOf<Int>())
+        val seenPercents = Collections.synchronizedSet(mutableSetOf<Int>())
+        var maxElapsed = 0L
+        var sawAvailable = false
         var pollCount = 0
         val stop = AtomicBoolean(false)
         val poller = thread(start = true) {
             while (!stop.get()) {
                 val state = vm.conversionState.value
                 if (state is ConversionState.Converting) {
-                    seen.add(state.progress.percent)
+                    seenPercents.add(state.progress.percent)
+                    if (state.progress.elapsedSeconds > maxElapsed) {
+                        maxElapsed = state.progress.elapsedSeconds
+                    }
+                    if (state.progress.progressAvailable) sawAvailable = true
                     pollCount++
                 }
                 Thread.sleep(200)
             }
         }
         try {
-            // Status bar rendered while converting.
-            composeRule.waitUntil(60_000) {
-                composeRule.onAllNodesWithText("CONVERTING TO H.264...")
-                    .fetchSemanticsNodes().isNotEmpty()
-            }
-            println("SMOKE converting status bar shown")
+            waitForText("CONVERTING TO H.264...")
+            println("SMOKE $label: converting status bar shown")
+            captureScreenshot(composeRule, "03-converting-$label")
             composeRule.waitUntil(300_000) {
                 composeRule.onAllNodesWithText("Conversion Complete!")
                     .fetchSemanticsNodes().isNotEmpty() ||
@@ -133,49 +140,107 @@ class Convert264SmokeTest {
             stop.set(true)
             poller.join(5_000)
         }
-        println("SMOKE progress values observed (ViewModel, $pollCount polls): $seen")
-        println("SMOKE NOTE: percent stayed 0 on this emulator (Media3 getProgress unavailable on the software encoder); % ramping needs a real device")
+        val stateCounts = TranscodeDiagnostics.lastRunStateCounts
+        val maxPercent = TranscodeDiagnostics.lastRunMaxPercent
+        println(
+            "SMOKE $label PROGRESS-DIAG polls=$pollCount percents=$seenPercents " +
+                "maxElapsed=${maxElapsed}s sawAvailable=$sawAvailable " +
+                "rawStates=$stateCounts maxPercent=$maxPercent " +
+                "(states: 0=NOT_STARTED 1=WAITING 2=AVAILABLE 3=UNAVAILABLE)",
+        )
         if (composeRule.onAllNodesWithTag("conversion_error_card")
                 .fetchSemanticsNodes().isNotEmpty()
         ) {
-            fail("Conversion failed in the app UI (error card shown)")
+            fail("Conversion failed in the app UI (error card shown) [$label]")
         }
         assertTrue(
-            "Conversion did not complete within 300s; progress seen: $seen",
+            "Conversion did not complete within 300s [$label]; percents seen: $seenPercents",
             composeRule.onAllNodesWithText("Conversion Complete!")
                 .fetchSemanticsNodes().isNotEmpty(),
         )
         assertTrue(
-            "Converting state was never observed during the export; polls: $pollCount",
+            "Converting state was never observed during the export [$label]; polls: $pollCount",
             pollCount > 0,
         )
+        assertTrue(
+            "Elapsed time never advanced during the export [$label] — the " +
+                "status bar gave no live feedback at all",
+            maxElapsed > 0,
+        )
+        assertTrue(
+            "No Media3 progress-state diagnostics were recorded [$label] — " +
+                "the progress investigation has no data",
+            stateCounts.isNotEmpty(),
+        )
 
-        // 6. Success screen with Open + Share.
+        // Success screen with Open + Share.
         composeRule.onNodeWithText("Open").assertIsDisplayed()
         composeRule.onNodeWithText("Share").assertIsDisplayed()
-        println("SMOKE success screen shown with Open + Share")
+        println("SMOKE $label: success screen shown with Open + Share")
+        captureScreenshot(composeRule, "04-success-$label")
 
-        // 7. A real output file on disk.
-        val dir = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES),
-            "Convert264",
-        )
-        val outputs = dir.listFiles()
-            ?.filter { it.name.endsWith("_h264.mp4") && it.length() > 0 }
-            ?: emptyList()
+        // A real output file on disk.
+        val out = newestOutputFile()
         val mediaStoreHits = queryMediaStore()
-        println("SMOKE output dir ${dir.absolutePath}: ${dir.listFiles()?.map { "${it.name} (${it.length()} bytes)" }}")
-        println("SMOKE MediaStore Convert264 entries: $mediaStoreHits")
+        println("SMOKE $label: output dir contents: ${outputDirListing()}")
+        println("SMOKE $label: MediaStore Convert264 entries: $mediaStoreHits")
         assertTrue(
-            "No _h264.mp4 output in ${dir.absolutePath} and none in MediaStore " +
-                "(dir contents: ${dir.listFiles()?.map { it.name }}, MediaStore: $mediaStoreHits)",
-            outputs.isNotEmpty() || mediaStoreHits.isNotEmpty(),
+            "No _h264.mp4 output in Movies/Convert264 and none in MediaStore " +
+                "[$label] (dir: ${outputDirListing()}, MediaStore: $mediaStoreHits)",
+            out != null || mediaStoreHits.isNotEmpty(),
         )
-        val out = outputs.maxByOrNull { it.lastModified() }
         if (out != null) {
-            println("SMOKE OUTPUT file=${out.name} bytes=${out.length()}")
+            println("SMOKE $label OUTPUT file=${out.name} bytes=${out.length()}")
         }
+        return out
     }
+
+    @Test
+    fun sampleClipConvertsEndToEnd() {
+        // 1. Launch screen.
+        waitForText("Try Sample", 120_000)
+        captureScreenshot(composeRule, "01-launch")
+        composeRule.onNodeWithText("Try Sample").performClick()
+
+        // 2. Sample loaded (generation is wall-clock bound on a slow
+        // emulator: 90 frames can take ~90s to encode on first run;
+        // the file is cached in the app cache dir afterwards).
+        waitForText("SOURCE VIDEO", 240_000)
+        println("SMOKE sample loaded")
+        captureScreenshot(composeRule, "02-sample-loaded")
+
+        // 3. Run 1: Original preset (no scale effect).
+        val out1 = runConversion("run1-original", null)
+        assertTrue("Run 1 produced no output file on disk", out1 != null)
+
+        // 4. Run 2: 720p preset (Presentation scale effect — a
+        // different encode path; does Media3 report progress there?).
+        composeRule.onNodeWithTag("convert_another_button")
+            .performScrollTo()
+            .performClick()
+        waitForText("Try Sample", 120_000)
+        composeRule.onNodeWithText("Try Sample").performClick()
+        waitForText("SOURCE VIDEO", 120_000)
+        println("SMOKE sample reloaded for run 2 (cached file)")
+        val out2 = runConversion("run2-720p", "preset_p720")
+        assertTrue("Run 2 produced no output file on disk", out2 != null)
+        assertTrue(
+            "Run 2 output is the same file as run 1 — expected a second file",
+            out2 != out1,
+        )
+    }
+
+    private fun outputDir(): File = File(
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES),
+        "Convert264",
+    )
+
+    private fun outputDirListing(): List<String> =
+        outputDir().listFiles()?.map { "${it.name} (${it.length()} bytes)" } ?: emptyList()
+
+    private fun newestOutputFile(): File? = outputDir().listFiles()
+        ?.filter { it.name.endsWith("_h264.mp4") && it.length() > 0 }
+        ?.maxByOrNull { it.lastModified() }
 
     private fun queryMediaStore(): List<String> {
         val ctx = InstrumentationRegistry.getInstrumentation().targetContext

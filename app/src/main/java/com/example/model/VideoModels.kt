@@ -28,7 +28,14 @@ data class ConversionProgress(
     val percent: Int = 0,
     val currentTrimProgressMs: Long = 0L,
     val totalTrimDurationMs: Long = 0L,
-    val elapsedSeconds: Long = 0L
+    val elapsedSeconds: Long = 0L,
+    /**
+     * True only when Media3 actually reported a percentage
+     * (Transformer.getProgress() == PROGRESS_STATE_AVAILABLE).
+     * When false, [percent] is 0 and means "unknown", NOT "0% done" —
+     * the UI must render an indeterminate bar, never a determinate 0%.
+     */
+    val progressAvailable: Boolean = false
 )
 
 data class ConversionResult(

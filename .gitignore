@@ -19,4 +19,5 @@ debug.keystore
 *.jks
 *.keystore
 tool/smoke-evidence/
+tool/smoke-screenshots/
 tool/apk-inspection/

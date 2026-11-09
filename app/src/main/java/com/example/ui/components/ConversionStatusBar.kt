@@ -86,7 +86,10 @@ fun ConversionStatusBar(
                     color = MaterialTheme.colorScheme.primary
                 ) {
                     Text(
-                        text = "${progress.percent}%",
+                        // When the encoder does not report progress, "0%"
+                        // would be a lie — show an ellipsis instead and
+                        // render the bar indeterminate below.
+                        text = if (progress.progressAvailable) "${progress.percent}%" else "…",
                         color = MaterialTheme.colorScheme.onPrimary,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
@@ -101,17 +104,38 @@ fun ConversionStatusBar(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Real LinearProgressIndicator
-            LinearProgressIndicator(
-                progress = { animatedProgress },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(10.dp)
-                    .clip(RoundedCornerShape(5.dp))
-                    .testTag("conversion_linear_progress"),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+            // Real LinearProgressIndicator: determinate only when the
+            // encoder actually reports a percentage; indeterminate
+            // while progress is unavailable, so the bar never pretends
+            // to know a percent it does not have.
+            if (progress.progressAvailable) {
+                LinearProgressIndicator(
+                    progress = { animatedProgress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(10.dp)
+                        .clip(RoundedCornerShape(5.dp))
+                        .testTag("conversion_linear_progress"),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            } else {
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(10.dp)
+                        .clip(RoundedCornerShape(5.dp))
+                        .testTag("conversion_linear_progress_indeterminate"),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "This device's encoder doesn't report progress — elapsed time is live",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
 
             Spacer(modifier = Modifier.height(14.dp))
 
