@@ -52,15 +52,17 @@ second launches the app with a real `ACTION_SEND` share intent and
 requires the shared video to load. The runner script is
 `tool/smoke-test.sh`.
 
-Progress — what the emulator actually proved (v0.1.1 smoke run
-42648740990, raw `Transformer.getProgress()` states logged on every
-poll; 0=NOT_STARTED, 1=WAITING, 2=AVAILABLE, 3=UNAVAILABLE):
+Progress — what the emulator actually proved (v0.1.1 smoke runs
+42656146569 and 42659639343, raw `Transformer.getProgress()` states
+logged on every poll; 0=NOT_STARTED, 1=WAITING, 2=AVAILABLE,
+3=UNAVAILABLE):
 - **The % DOES ramp — on the 720p path.** Run 2 (720p preset,
-  Presentation scale effect): percents seen 0, 6, 36, 38, 44, 52,
-  74, 85, 98, 99 over 89s, 160 of 164 polls AVAILABLE. The bar
-  ramps for real whenever the encode is slow enough to observe.
+  Presentation scale effect): percents seen 0, 3, 24, 31, 56, 85,
+  99 over 89s, 192 of 195 polls AVAILABLE (second green run:
+  0, 2, 4, 18, …, 97, 99 over 54s). The bar ramps for real
+  whenever the encode is slow enough to observe.
 - **On the fast Original path it jumps 0 → 99.** Run 1 (Original,
-  no effects): the state stayed WAITING for ~24s of setup, became
+  no effects): the state stayed WAITING for the ~16s setup, became
   AVAILABLE once at 99%, and the export finished ~1s later. The
   earlier "percent stays 0 for the whole export" reading was wrong
   in detail: it was never UNAVAILABLE (state 3 never appeared), it
