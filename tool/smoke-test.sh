@@ -79,8 +79,8 @@ adb shell ls /sdcard/smoke-video-*.mp4 2>/dev/null | tr -d '\r' | while read -r 
 done
 ls -l "$OUT"/smoke-video-*.mp4 2>/dev/null | tee -a "$LOG" || say "no video chunks pulled"
 
-# --- Pull in-test screenshots ---
-adb pull /sdcard/Android/data/dev.dzianisv.convert264/files/smoke-shots "$OUT/screenshots" 2>&1 | tee -a "$LOG" || say "no in-test screenshots pulled"
+# --- Pull in-test screenshots (public Pictures dir — see ScreenshotHelper.kt) ---
+adb pull /sdcard/Pictures/Convert264-shots "$OUT/screenshots" 2>&1 | tee -a "$LOG" || say "no in-test screenshots pulled"
 find "$OUT/screenshots" -name "*.png" 2>/dev/null | tee -a "$LOG" || true
 
 # --- Output-file verification (the real outcome, not just the UI) ---
