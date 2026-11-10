@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
@@ -34,6 +35,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
@@ -89,7 +91,14 @@ fun TrimVideoPreview(
     videoWidth: Int,
     videoHeight: Int,
     trimRange: ClosedFloatingPointRange<Float>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /**
+     * Caps the preview frame height (detail screen: the whole
+     * screen must fit without scrolling, and a portrait video's
+     * aspect ratio would otherwise make the frame ~675dp tall).
+     * The frame crops to fill — it is a preview, not a player.
+     */
+    maxPreviewHeight: Dp = Dp.Unspecified
 ) {
     if (sourceUri == null) return
     val context = LocalContext.current
@@ -176,7 +185,14 @@ fun TrimVideoPreview(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(aspectRatio),
+                .aspectRatio(aspectRatio)
+                .then(
+                    if (maxPreviewHeight != Dp.Unspecified) {
+                        Modifier.heightIn(max = maxPreviewHeight)
+                    } else {
+                        Modifier
+                    }
+                ),
             contentAlignment = Alignment.Center
         ) {
             if (playing) {

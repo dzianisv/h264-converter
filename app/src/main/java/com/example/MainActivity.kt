@@ -47,13 +47,14 @@ class MainActivity : ComponentActivity() {
      * null or wildcard type, so the stream is accepted whenever it looks
      * like a video by its content type or file extension instead.
      * Only the first video is loaded; the rest are ignored.
+     * Every video that looks like a video joins the queue.
      */
     private fun handleIntent(intent: Intent?) {
         if (intent == null) return
         when (intent.action) {
             Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE, Intent.ACTION_VIEW -> {
-                collectSharedUris(intent).firstOrNull { isVideoUri(it) }
-                    ?.let { viewModel.loadVideo(it) }
+                val uris = collectSharedUris(intent).filter { isVideoUri(it) }
+                if (uris.isNotEmpty()) viewModel.addVideos(uris)
             }
         }
     }

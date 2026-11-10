@@ -63,6 +63,6 @@ jobs:
           files: app/build/outputs/apk/release/app-release.apk
           generate_release_notes: true
           body: |
-            Convert264 ${{ github.ref_name }} — clean, ad-free H.264 MP4 converter (native Kotlin + Jetpack Compose, Media3 Transformer).
+            Convert264 ${{ github.ref_name }} — clean, ad-free universal video converter (native Kotlin + Jetpack Compose, FFmpeg engine): queue, codec/container/audio choice, per-file trim.
 
             **Signing note:** this APK is signed with a throwaway keystore generated in CI. A future properly-signed build will need a reinstall, not an update.

@@ -2,17 +2,17 @@
 # Convert264 emulator smoke test (run inside android-emulator-runner).
 # Runs the in-process Compose instrumented tests
 # (app/src/androidTest/.../Convert264SmokeTest.kt +
-#  ShareIntentSmokeTest.kt) via connectedDebugAndroidTest — no
-# uiautomator dumps, no adb UI driving, which proved unreliable on
-# the slow GitHub Actions emulator (System UI ANRs, empty dumps for
-# minutes at a time).
+#  ShareIntentSmokeTest.kt + FfmpegSpikeTest.kt) via
+# connectedDebugAndroidTest — no uiautomator dumps, no adb UI
+# driving, which proved unreliable on the slow GitHub Actions
+# emulator (System UI ANRs, empty dumps for minutes at a time).
 #
 # Evidence: everything lands in tool/smoke-screenshots/<run-id>/
 # (run-id is unique per run, so nothing is ever overwritten):
-#   - in-test screenshots (launch / sample loaded / converting /
-#     success / share-intent) pulled from the app's external files dir
+#   - in-test screenshots (launch / queue / settings / detail /
+#     converting / done / share-intent) pulled from the app's external files dir
 #   - screen-recorded video chunks of the whole run (best effort)
-#   - every output _h264.mp4, ffprobed
+#   - every output file (_vp9.mkv in v0.2.0), ffprobed
 #   - smoke.log + the SMOKE lines from the JUnit XML
 # Afterwards the workflow uploads tool/smoke-screenshots/ as an
 # artifact (retention 30 days).
@@ -131,7 +131,7 @@ find "$OUT/screenshots" -name "*.png" 2>/dev/null | tee -a "$LOG" || true
 # --- Output-file verification (the real outcome, not just the UI) ---
 say "=== output file checks ==="
 adb shell ls -l /sdcard/Movies/Convert264/ 2>&1 | tee -a "$LOG"
-for OUT_FILE in $(adb shell ls /sdcard/Movies/Convert264/ 2>/dev/null | tr -d '\r' | grep -E '_h264(_[0-9]+)?\.mp4'); do
+for OUT_FILE in $(adb shell ls /sdcard/Movies/Convert264/ 2>/dev/null | tr -d '\r' | grep -E '\.(mp4|mkv|mov|webm)$'); do
   say "output file: $OUT_FILE"
   OUT_SIZE=$(adb shell stat -c %s "/sdcard/Movies/Convert264/$OUT_FILE" 2>/dev/null | tr -d '\r')
   say "output size bytes: $OUT_SIZE"
@@ -140,7 +140,7 @@ for OUT_FILE in $(adb shell ls /sdcard/Movies/Convert264/ 2>/dev/null | tr -d '\
   if command -v ffprobe >/dev/null 2>&1; then
     ffprobe -v error -show_entries format=duration,size -show_entries stream=codec_name,width,height -of default=noprint_wrappers=1 "$OUT/$SAFE_NAME" 2>&1 | tee -a "$LOG"
     OUT_DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$OUT/$SAFE_NAME" 2>/dev/null)
-    say "output duration (ffprobe): ${OUT_DUR}s — expected ~15s (sample trimmed to 15s)"
+    say "output duration (ffprobe): ${OUT_DUR}s — expected ~3s (sample clip, untrimmed)"
   fi
 done
 

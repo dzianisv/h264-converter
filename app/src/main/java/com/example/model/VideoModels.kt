@@ -14,6 +14,12 @@ data class VideoInfo(
     val thumbnailBitmap: Bitmap?
 )
 
+/**
+ * Legacy resolution presets from the Media3 engine (v0.1.x).
+ * Kept only so old history rows still decode; v0.2.0 uses
+ * [ConversionSettings.quality] (bitrate) instead, and resolution
+ * is always the source resolution.
+ */
 enum class QualityPreset(
     val label: String,
     val description: String,
@@ -30,10 +36,10 @@ data class ConversionProgress(
     val totalTrimDurationMs: Long = 0L,
     val elapsedSeconds: Long = 0L,
     /**
-     * True only when Media3 actually reported a percentage
-     * (Transformer.getProgress() == PROGRESS_STATE_AVAILABLE).
-     * When false, [percent] is 0 and means "unknown", NOT "0% done" —
-     * the UI must render an indeterminate bar, never a determinate 0%.
+     * True only when the encoder actually reported a percentage
+     * (ffmpeg statistics callback). When false, [percent] is 0
+     * and means "unknown", NOT "0% done" — the UI must render an
+     * indeterminate bar, never a determinate 0%.
      */
     val progressAvailable: Boolean = false
 )
@@ -45,12 +51,31 @@ data class ConversionResult(
     val sizeBytes: Long,
     val durationMs: Long,
     val originalSizeBytes: Long,
-    val originalDurationMs: Long
+    val originalDurationMs: Long,
+    /** Short target summary, e.g. "MKV · VP9 · Opus". */
+    val targetLabel: String = "",
 )
 
-sealed interface ConversionState {
-    data object Idle : ConversionState
-    data class Converting(val progress: ConversionProgress) : ConversionState
-    data class Success(val result: ConversionResult) : ConversionState
-    data class Error(val message: String) : ConversionState
+/**
+ * One entry of the conversion queue. Each item carries its own
+ * trim range and its own settings (default = the main screen's
+ * settings when the file was added; the detail screen edits them
+ * per file and marks the item customized, so later changes to the
+ * main-screen settings no longer overwrite it).
+ */
+data class QueueItem(
+    val id: String,
+    val video: VideoInfo,
+    val trimRange: ClosedFloatingPointRange<Float>,
+    val settings: ConversionSettings,
+    val customized: Boolean = false,
+    val status: QueueItemStatus = QueueItemStatus.Queued,
+)
+
+sealed interface QueueItemStatus {
+    data object Queued : QueueItemStatus
+    data class Converting(val progress: ConversionProgress) : QueueItemStatus
+    data object Paused : QueueItemStatus
+    data class Done(val result: ConversionResult) : QueueItemStatus
+    data class Error(val message: String) : QueueItemStatus
 }
