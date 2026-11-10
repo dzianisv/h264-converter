@@ -62,6 +62,16 @@ import kotlinx.coroutines.withContext
  * screenshots. PlayerView adds nothing here — its controller is
  * disabled anyway and play/pause is a standard IconButton below.
  *
+ * One trap: a paused player on a slow device can take seconds to
+ * output its first frame, and until then the TextureView is black.
+ * So a real frame extracted with MediaMetadataRetriever covers the
+ * preview until the player reports its first rendered frame — the
+ * user never sees a black box, and everything shown is a real frame
+ * of the same video. Once the player is rendering, the still is
+ * removed and the live surface takes over (it keeps its last frame
+ * while a seek is in flight, so dragging a trim handle never
+ * flashes black either).
+ *
  * Works for the same URIs the converter loads (content:// from SAF
  * and shares, file:// for the generated sample clip) — ExoPlayer
  * resolves them through the ContentResolver, no file path needed.
@@ -93,6 +103,7 @@ fun TrimVideoPreview(
     }
 
     var previewFailed by remember(sourceUri) { mutableStateOf(false) }
+    var firstFrameRendered by remember(sourceUri) { mutableStateOf(false) }
     var isPlaying by remember(sourceUri) { mutableStateOf(false) }
     var previewPositionMs by remember(sourceUri) { mutableStateOf(startMs) }
 
@@ -104,6 +115,10 @@ fun TrimVideoPreview(
             addListener(object : Player.Listener {
                 override fun onPlayerError(error: PlaybackException) {
                     previewFailed = true
+                }
+
+                override fun onRenderedFirstFrame() {
+                    firstFrameRendered = true
                 }
             })
             prepare()
@@ -157,22 +172,26 @@ fun TrimVideoPreview(
                 .aspectRatio(aspectRatio),
             contentAlignment = Alignment.Center
         ) {
-            if (!previewFailed) {
-                AndroidView(
-                    factory = { ctx ->
-                        TextureView(ctx).apply {
-                            player.setVideoTextureView(this)
-                        }
-                    },
-                    onRelease = { textureView ->
-                        player.clearVideoTextureView(textureView)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(aspectRatio)
-                        .testTag("trim_video_preview")
-                )
-            } else {
+            // The live surface is always composed — the player can
+            // only render into it once it exists.
+            AndroidView(
+                factory = { ctx ->
+                    TextureView(ctx).apply {
+                        player.setVideoTextureView(this)
+                    }
+                },
+                onRelease = { textureView ->
+                    player.clearVideoTextureView(textureView)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(aspectRatio)
+                    .testTag("trim_video_preview")
+            )
+            // Until the player has actually rendered a frame (or if
+            // it never can), cover the surface with a real frame of
+            // the same video — never a black box.
+            if (previewFailed || !firstFrameRendered) {
                 TrimFallbackFrame(
                     sourceUri = sourceUri,
                     seekMs = startMs,
@@ -222,10 +241,12 @@ fun TrimVideoPreview(
 }
 
 /**
- * Single-frame fallback when ExoPlayer cannot play the source:
- * one representative frame at the trim start, extracted on a
- * background thread. A static frame is still more useful than a
- * blank box, and it proves the file itself is readable.
+ * Single-frame still of the source: one representative frame at the
+ * trim start, extracted on a background thread. Used both when
+ * ExoPlayer cannot play the source at all, and as the cover until
+ * the player has rendered its first frame — a static real frame is
+ * still more useful than a blank box, and it proves the file itself
+ * is readable.
  */
 @Composable
 private fun TrimFallbackFrame(

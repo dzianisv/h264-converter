@@ -286,6 +286,16 @@ class Convert264SmokeTest {
             .performScrollTo()
             .assertIsDisplayed()
         println("SMOKE trim preview play button shown")
+        // Prove the LIVE player renders, not just the still cover:
+        // play for 3s and screenshot again — the sample clip draws
+        // its frame number on every frame, so a later frame number
+        // in the shot proves the surface is really playing.
+        composeRule.onNodeWithTag("trim_preview_play_button").performClick()
+        Thread.sleep(3_000)
+        captureScreenshot(composeRule, "02b-preview-playing")
+        println("SMOKE trim preview playing screenshot taken")
+        composeRule.onNodeWithTag("trim_preview_play_button").performClick()
+        println("SMOKE trim preview paused again")
 
         // 3. Run 1: Original preset (no scale effect).
         val out1 = runConversion("run1-original", null)
