@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
      * plausible carrier is checked, in order: EXTRA_STREAM (single Uri
      * or list), clipData, intent.data. The MIME type is NOT trusted as
      * a gate — Files, Drive and some messengers share videos with a
-     * null or */* type, so the stream is accepted whenever it looks
+     * null or wildcard type, so the stream is accepted whenever it looks
      * like a video by its content type or file extension instead.
      * Only the first video is loaded; the rest are ignored.
      */

@@ -26,14 +26,14 @@ import org.junit.Test
  *    ACTION_SEND_MULTIPLE with video/*, ACTION_VIEW with a
  *    content:// URI + video/* type). This is what the share sheet
  *    and "Open with" use; if it fails here, the app never appears
- *    in the list at all. (A null or */* type can NOT resolve — no
- *    filter can match it without a blanket */* filter, which would
+ *    in the list at all. (A null or wildcard type can NOT resolve —
+ *    no filter can match it without a blanket wildcard filter, which would
  *    put the app in every share sheet on the phone. That is a
  *    platform limitation, not a bug in this app.)
  *
  * 2. HANDLING — launching MainActivity with a real share intent
  *    (EXTRA_STREAM, clipData-only, SEND_MULTIPLE, null type,
- *    */* type) must load the video. The null/*/* cases are tested
+ *    wildcard type) must load the video. The null/wildcard cases are tested
  *    with the intent pinned to our own activity, because
  *    resolution cannot match them (see above) — they prove the
  *    handler, not the filter.
