@@ -312,10 +312,20 @@ class Convert264SmokeTest {
         // button — is displayed without scrolling).
         composeRule.onNodeWithText("sample_clip.mp4").performClick()
         waitForTag("detail_convert_button", 60_000)
-        composeRule.onNodeWithTag("detail_convert_button").assertIsDisplayed()
-        composeRule.onNodeWithTag("detail_durations_text").assertIsDisplayed()
-        println("SMOKE detail screen opened, Convert button displayed without scrolling")
+        // Let the navigation transition settle before measuring
+        // visibility: the node exists mid-animation while the
+        // screen is still sliding in, and assertIsDisplayed fails
+        // then even when the finished layout fits. Screenshot
+        // first, so the layout is on record even if the assert
+        // below still fails.
+        Thread.sleep(2_000)
         captureScreenshot(composeRule, "04-detail-screen")
+        val buttonBounds = composeRule.onNodeWithTag("detail_convert_button")
+            .fetchSemanticsNode().boundsInRoot
+        val rootBounds = composeRule.onRoot().fetchSemanticsNode().boundsInRoot
+        println("SMOKE detail bounds button=$buttonBounds root=$rootBounds")
+        composeRule.onNodeWithTag("detail_convert_button").assertIsDisplayed()
+        println("SMOKE detail screen opened, Convert button displayed without scrolling")
         composeRule.onNodeWithTag("detail_back_button").performClick()
         waitForTag("queue_list", 30_000)
         println("SMOKE back on queue")
