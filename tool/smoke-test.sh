@@ -114,6 +114,34 @@ gradle connectedDebugAndroidTest --no-daemon 2>&1 | tee -a "$LOG"
 RC=${PIPESTATUS[0]}
 say "connectedDebugAndroidTest exit code: $RC"
 
+# Infra flake: the emulator sometimes goes unresponsive during
+# the (multi-minute) build, and Gradle then reports "Skipping
+# device 'emulator-5554': Unknown API Level" / "No compatible
+# devices connected" at install time — 0 tests ran, nothing
+# about the app was exercised (killed run 42920684814). Retry
+# once after the device answers again instead of failing the
+# run on it. The tests are idempotent (outputs never
+# overwrite), so a retry is safe.
+if [ "$RC" != "0" ] && grep -q -E "Unknown API Level|No compatible devices" "$LOG"; then
+  say "infra flake detected (device unresponsive at install time) — retrying once"
+  API=""
+  for i in $(seq 1 36); do
+    API=$(timeout 20 adb shell getprop ro.build.version.sdk 2>/dev/null | tr -d '\r')
+    if [ "$API" = "35" ]; then
+      say "device API level queryable again: $API"
+      break
+    fi
+    sleep 5
+  done
+  if [ "$API" = "35" ]; then
+    gradle connectedDebugAndroidTest --no-daemon 2>&1 | tee -a "$LOG"
+    RC=${PIPESTATUS[0]}
+    say "retry connectedDebugAndroidTest exit code: $RC"
+  else
+    say "device never became queryable again — emulator infra failure, retry the run"
+  fi
+fi
+
 stop_recording
 
 # --- Pull screen-recorded video chunks (written to /data/local/tmp:
