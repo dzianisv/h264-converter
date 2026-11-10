@@ -3,6 +3,7 @@ package com.example.ui.components
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.view.TextureView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,7 +39,6 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.PlayerView
 import com.example.util.FormatUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -46,18 +46,21 @@ import kotlinx.coroutines.withContext
 
 /**
  * Live preview of the video being trimmed, using the stock Media3
- * UI (ExoPlayer + PlayerView) — not a custom player.
+ * player (ExoPlayer) rendering into a plain TextureView — not a
+ * custom player.
  *
  * The preview shows the frame at the current trim position: dragging
  * a trim handle seeks the preview to that handle, so the user sees
  * the frame they are cutting at. Play plays the trimmed range only,
  * muted (volume 0 — no audio surprise), and pauses at the trim end.
  *
- * PlayerView is forced onto a TextureView surface: the default
- * SurfaceView renders on a separate surface that screenshots cannot
- * capture, so a SurfaceView preview would photograph as a black box.
- * A TextureView renders inside the view hierarchy, so the frame is
- * visible both on screen and in test screenshots.
+ * A TextureView (not PlayerView's default SurfaceView) is used
+ * deliberately: a SurfaceView renders on a separate surface that
+ * screenshots cannot capture, so a SurfaceView preview would
+ * photograph as a black box. A TextureView renders inside the view
+ * hierarchy, so the frame is visible both on screen and in test
+ * screenshots. PlayerView adds nothing here — its controller is
+ * disabled anyway and play/pause is a standard IconButton below.
  *
  * Works for the same URIs the converter loads (content:// from SAF
  * and shares, file:// for the generated sample clip) — ExoPlayer
@@ -157,11 +160,12 @@ fun TrimVideoPreview(
             if (!previewFailed) {
                 AndroidView(
                     factory = { ctx ->
-                        PlayerView(ctx).apply {
-                            this.player = player
-                            useController = false
-                            setVideoSurfaceType(PlayerView.VIDEO_SURFACE_TYPE_TEXTURE_VIEW)
+                        TextureView(ctx).apply {
+                            player.setVideoTextureView(this)
                         }
+                    },
+                    onRelease = { textureView ->
+                        player.clearVideoTextureView(textureView)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
