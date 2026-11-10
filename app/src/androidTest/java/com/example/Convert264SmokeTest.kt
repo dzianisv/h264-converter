@@ -256,7 +256,11 @@ class Convert264SmokeTest {
         assertEquals(
             "Expected 1 queue thumbnail rendered",
             1,
-            composeRule.onAllNodesWithTag("queue_item_thumbnail")
+            // The thumbnail Image lives inside the row's
+            // clickable ListItem, which merges descendants into
+            // the row node — in the merged tree the Image's tag
+            // is gone, so count it in the unmerged tree.
+            composeRule.onAllNodesWithTag("queue_item_thumbnail", useUnmergedTree = true)
                 .fetchSemanticsNodes().size,
         )
         println("SMOKE sample loaded: thumbnail + $expectedDuration shown in queue")
@@ -272,7 +276,10 @@ class Convert264SmokeTest {
         assertEquals(
             "Expected 2 queue thumbnails rendered",
             2,
-            composeRule.onAllNodesWithTag("queue_item_thumbnail")
+            // See the 1-thumbnail assertion above: the row's
+            // clickable merges the Image's tag away in the
+            // merged tree.
+            composeRule.onAllNodesWithTag("queue_item_thumbnail", useUnmergedTree = true)
                 .fetchSemanticsNodes().size,
         )
         composeRule.onNodeWithText("sample_clip_2.mp4").assertIsDisplayed()

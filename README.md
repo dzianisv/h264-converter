@@ -57,9 +57,10 @@ Video bitrate presets: Low · 2 Mbps, Medium · 5 Mbps, High ·
 has one: x264/x265 `ultrafast…veryslow` (default `medium`), VP9
 `cpu-used 0–5` (default `2 · Balanced`).
 
-Deliberately left out: AV1 (libaom-av1) — not in v0.2.0; the spike
-measured its encode time on the emulator and the result is in the
-spike log (see the v0.2.0 release notes); video merge/join;
+Deliberately left out: AV1 (libaom-av1) — the v0.2.0 spike
+proved it unusable on the emulator: a 3s clip at cpu-used 8
+(fastest) did not finish in 150s (0 bytes out), while H.264
+took 47s and VP9 79s for the same clip; video merge/join;
 resolution control (dropped with the Media3 engine — source
 resolution only).
 
