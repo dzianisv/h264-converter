@@ -1,6 +1,5 @@
 package com.example
 
-import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
@@ -13,7 +12,6 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.espresso.IdlingResourceTimeoutException
