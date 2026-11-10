@@ -60,9 +60,13 @@ fun captureScreenshot(
             )
         }
         println("SMOKE screenshot saved: $name.png (${bitmap.width}x${bitmap.height})")
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
         // Screenshots are evidence, not the test — never fail the run
-        // because a capture failed on a slow emulator.
+        // because a capture failed on a slow emulator. PixelCopy
+        // throws AssertionError ("Failed waiting for PixelCopy!"),
+        // not Exception, when the emulator's compositor is
+        // unresponsive — catch Throwable so the best-effort
+        // contract above actually holds.
         println("SMOKE screenshot FAILED for $name: ${e.message}")
     }
 }
