@@ -41,7 +41,7 @@ import org.junit.Test
  * Flow, twice (run 1: Original preset, run 2: 720p preset — the 720p
  * run exercises the Presentation scale-effect path, to check whether
  * Media3 reports progress on a different encode path):
- *   Try Sample Clip -> trim END to 15s via Exact Input -> Convert
+ *   Try sample clip -> trim END to 15s via Exact input -> Convert
  *   -> converting status bar shown -> "Conversion Complete!" with
  *   Open + Share -> real _h264.mp4 output file on disk.
  *
@@ -123,7 +123,7 @@ class Convert264SmokeTest {
         // which progress is unavailable, and a 5s clip then encodes
         // in ~2s — the percent jumps 0 -> 100 with no observable
         // intermediates. A 15s clip encodes for ~60s+.
-        composeRule.onNodeWithText("Exact Input").performClick()
+        composeRule.onNodeWithText("Exact input").performClick()
         waitForText("Set Exact Trim Times")
         composeRule.onNodeWithTag("exact_end_input").performTextClearance()
         composeRule.onNodeWithTag("exact_end_input").performTextInput("15")
@@ -160,7 +160,7 @@ class Convert264SmokeTest {
             }
         }
         try {
-            waitForText("CONVERTING TO H.264...")
+            waitForTag("conversion_status_card")
             println("SMOKE $label: converting status bar shown")
             captureScreenshot(composeRule, "03-converting-$label")
             waitUntilWithIdleRetry(300_000) {
@@ -255,14 +255,14 @@ class Convert264SmokeTest {
     @Test
     fun sampleClipConvertsEndToEnd() {
         // 1. Launch screen.
-        waitForText("Try Sample", 120_000)
+        waitForText("Try sample clip", 120_000)
         captureScreenshot(composeRule, "01-launch")
-        composeRule.onNodeWithText("Try Sample").performClick()
+        composeRule.onNodeWithText("Try sample clip").performClick()
 
         // 2. Sample loaded (generation is wall-clock bound on a slow
         // emulator: 90 frames can take ~90s to encode on first run;
         // the file is cached in the app cache dir afterwards).
-        waitForText("SOURCE VIDEO", 240_000)
+        waitForTag("selected_video_card", 240_000)
         println("SMOKE sample loaded")
         captureScreenshot(composeRule, "02-sample-loaded")
 
@@ -275,9 +275,9 @@ class Convert264SmokeTest {
         composeRule.onNodeWithTag("convert_another_button")
             .performScrollTo()
             .performClick()
-        waitForText("Try Sample", 120_000)
-        composeRule.onNodeWithText("Try Sample").performClick()
-        waitForText("SOURCE VIDEO", 120_000)
+        waitForText("Try sample clip", 120_000)
+        composeRule.onNodeWithText("Try sample clip").performClick()
+        waitForTag("selected_video_card", 120_000)
         println("SMOKE sample reloaded for run 2 (cached file)")
         val out2 = runConversion("run2-720p", "preset_p720")
         assertTrue("Run 2 produced no output file on disk", out2 != null)

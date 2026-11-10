@@ -43,6 +43,17 @@ jobs:
           grep -q "versionName='${GITHUB_REF_NAME#v}'" /tmp/badging.txt
           grep -q "uses-permission: name='android.permission.READ_EXTERNAL_STORAGE'" /tmp/badging.txt
           echo "Manifest audit passed"
+      - name: Audit share intent filters in the built APK
+        run: |
+          AAPT2=$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)
+          "$AAPT2" dump xmltree app/build/outputs/apk/release/app-release.apk AndroidManifest.xml | tee /tmp/manifest-tree.txt
+          grep -q "android.intent.action.SEND" /tmp/manifest-tree.txt
+          grep -q "android.intent.action.SEND_MULTIPLE" /tmp/manifest-tree.txt
+          grep -q "android.intent.action.VIEW" /tmp/manifest-tree.txt
+          grep -q 'android:mimeType.*="video/\*"' /tmp/manifest-tree.txt
+          grep -q 'android:scheme.*="content"' /tmp/manifest-tree.txt
+          grep -q 'android:scheme.*="file"' /tmp/manifest-tree.txt
+          echo "Share intent filters present in shipped APK (SEND, SEND_MULTIPLE, VIEW + video/*, content/file schemes)"
       - name: Check release APK is not obfuscated
         run: |
           unzip -p app/build/outputs/apk/release/app-release.apk classes.dex | strings | grep -q 'Lkotlin/coroutines/Continuation;' && echo "dex not obfuscated (Continuation descriptor present)"

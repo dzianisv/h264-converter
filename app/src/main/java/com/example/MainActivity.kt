@@ -1,9 +1,11 @@
 package com.example
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.OpenableColumns
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -35,26 +37,91 @@ class MainActivity : ComponentActivity() {
         handleIntent(intent)
     }
 
+    /**
+     * Accepts a video shared or opened from any sender.
+     *
+     * Real senders differ in how they hand the video over, so every
+     * plausible carrier is checked, in order: EXTRA_STREAM (single Uri
+     * or list), clipData, intent.data. The MIME type is NOT trusted as
+     * a gate — Files, Drive and some messengers share videos with a
+     * null or */* type, so the stream is accepted whenever it looks
+     * like a video by its content type or file extension instead.
+     * Only the first video is loaded; the rest are ignored.
+     */
     private fun handleIntent(intent: Intent?) {
         if (intent == null) return
-
-        val action = intent.action
-        val type = intent.type
-
-        if (Intent.ACTION_SEND == action && type?.startsWith("video/") == true) {
-            // Video shared via Android Share Sheet (ACTION_SEND)
-            val streamUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                intent.getParcelableExtra(Intent.EXTRA_STREAM)
+        when (intent.action) {
+            Intent.ACTION_SEND, Intent.ACTION_SEND_MULTIPLE, Intent.ACTION_VIEW -> {
+                collectSharedUris(intent).firstOrNull { isVideoUri(it) }
+                    ?.let { viewModel.loadVideo(it) }
             }
-
-            val finalUri = streamUri ?: intent.clipData?.getItemAt(0)?.uri ?: intent.data
-            finalUri?.let { viewModel.loadVideo(it) }
-        } else if (Intent.ACTION_VIEW == action && (type?.startsWith("video/") == true || intent.data != null)) {
-            // Video opened via File Manager or external app (ACTION_VIEW)
-            intent.data?.let { viewModel.loadVideo(it) }
         }
+    }
+
+    private fun collectSharedUris(intent: Intent): List<Uri> {
+        val uris = mutableListOf<Uri>()
+
+        // EXTRA_STREAM: a single Uri (ACTION_SEND) or a list
+        // (ACTION_SEND_MULTIPLE — some senders also send a list
+        // with ACTION_SEND, and vice versa, so check both).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)?.let { uris += it }
+            intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri::class.java)
+                ?.let { uris += it }
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)?.let { uris += it }
+            @Suppress("DEPRECATION")
+            intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)?.let { uris += it }
+        }
+
+        // clipData: some senders (notably share sheets) put the
+        // stream here and leave EXTRA_STREAM empty.
+        intent.clipData?.let { clip ->
+            for (i in 0 until clip.itemCount) {
+                clip.getItemAt(i)?.uri?.let { uris += it }
+            }
+        }
+
+        // intent.data: ACTION_VIEW, and some ACTION_SEND senders.
+        intent.data?.let { uris += it }
+
+        return uris.distinct()
+    }
+
+    private fun isVideoUri(uri: Uri): Boolean {
+        // ContentResolver type is authoritative when the provider
+        // reports one.
+        try {
+            val type = contentResolver.getType(uri)
+            if (type != null) return type.startsWith("video/")
+        } catch (_: Exception) {
+            // Fall through to the extension check.
+        }
+        // Fallback: file extension from the display name or path.
+        val name = displayNameOf(uri).ifBlank { uri.lastPathSegment.orEmpty() }
+        val ext = name.substringAfterLast('.', "").lowercase()
+        return ext in VIDEO_EXTENSIONS
+    }
+
+    private fun displayNameOf(uri: Uri): String {
+        return try {
+            contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+                ?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val idx = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                        if (idx != -1) cursor.getString(idx) ?: "" else ""
+                    } else ""
+                } ?: ""
+        } catch (_: Exception) {
+            ""
+        }
+    }
+
+    companion object {
+        private val VIDEO_EXTENSIONS = setOf(
+            "mp4", "m4v", "mov", "mkv", "avi", "webm",
+            "3gp", "3gpp", "ts", "mts", "m2ts", "wmv", "flv", "mpg", "mpeg"
+        )
     }
 }

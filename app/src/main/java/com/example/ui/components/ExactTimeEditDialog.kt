@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -26,7 +25,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.util.FormatUtils
 
 @Composable
@@ -72,8 +70,7 @@ fun ExactTimeEditDialog(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .testTag("exact_start_input"),
-                    shape = RoundedCornerShape(12.dp)
+                        .testTag("exact_start_input")
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -90,8 +87,7 @@ fun ExactTimeEditDialog(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .testTag("exact_end_input"),
-                    shape = RoundedCornerShape(12.dp)
+                        .testTag("exact_end_input")
                 )
 
                 if (errorMessage != null) {
@@ -106,7 +102,7 @@ fun ExactTimeEditDialog(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Total video duration: ${FormatUtils.formatDuration(totalDurationMs)}",
-                    fontSize = 11.sp,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
