@@ -44,12 +44,19 @@ android {
     release {
       isCrunchPngs = false
       isMinifyEnabled = false
+      // FFmpegKit ships native libs for all ABIs; the release APK
+      // only needs the ARM ABIs (sideloaded to phones, incl. Pixel).
+      ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
       // Do not remove or modify this signingConfig assignment. It is necessary for Android apps in
       // AI Studio.
       signingConfig = signingConfigs.getByName("release")
     }
     debug {
+      // Emulator smoke builds run on x86_64 only — packaging the
+      // ARM FFmpeg .so files as well would triple the debug APK
+      // for no benefit.
+      ndk { abiFilters += "x86_64" }
       // Do not remove or modify this signingConfig assignment. It is necessary for Android apps in
       // AI Studio.
       signingConfig = signingConfigs.getByName("debugConfig")
@@ -102,6 +109,10 @@ dependencies {
   implementation(libs.androidx.media3.effect)
   implementation(libs.androidx.media3.common)
   implementation(libs.androidx.media3.exoplayer)
+  // FFmpeg engine for the universal converter (v0.2.0 spike):
+  // full-gpl build = libx264, libx265, libvpx, libaom, libmp3lame,
+  // libopus, libvorbis — the codecs Media3 Transformer cannot do.
+  implementation(libs.ffmpeg.kit.full.gpl)
   // implementation(libs.androidx.datastore.preferences)
   implementation(libs.androidx.lifecycle.runtime.compose)
   implementation(libs.androidx.lifecycle.runtime.ktx)
