@@ -44,9 +44,11 @@ android {
     release {
       isCrunchPngs = false
       isMinifyEnabled = false
-      // FFmpegKit ships native libs for all ABIs; the release APK
-      // only needs the ARM ABIs (sideloaded to phones, incl. Pixel).
-      ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
+      // FFmpegKit ships native libs for arm64-v8a + x86_64 only
+      // (the maintained fork publishes no 32-bit ABIs); the
+      // release APK only needs the ARM64 ABI (sideloaded to
+      // phones, incl. Pixel).
+      ndk { abiFilters += "arm64-v8a" }
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
       // Do not remove or modify this signingConfig assignment. It is necessary for Android apps in
       // AI Studio.
@@ -112,6 +114,12 @@ dependencies {
   // FFmpeg engine for the universal converter (v0.2.0 spike):
   // full-gpl build = libx264, libx265, libvpx, libaom, libmp3lame,
   // libopus, libvorbis — the codecs Media3 Transformer cannot do.
+  // NOTE: upstream com.arthenica:ffmpeg-kit was retired Jan 2025
+  // and its binaries were REMOVED from Maven Central Apr 1, 2025
+  // (Gradle: "Could not find com.arthenica:ffmpeg-kit-full-gpl:6.0").
+  // The maintained fork dev.ffmpegkit-maintained republishes the
+  // same artifacts under the same package (com.arthenica.ffmpegkit)
+  // and API — only the group ID changed. 8.1.7 = FFmpeg 8.1 LTS.
   implementation(libs.ffmpeg.kit.full.gpl)
   // implementation(libs.androidx.datastore.preferences)
   implementation(libs.androidx.lifecycle.runtime.compose)

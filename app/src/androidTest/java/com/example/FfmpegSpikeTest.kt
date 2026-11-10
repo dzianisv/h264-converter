@@ -19,9 +19,15 @@ import org.junit.Test
  * FFmpeg spike for the v0.2.0 universal converter (branch spike/ffmpeg).
  *
  * Proves, on the real CI emulator, that:
- *  1. com.arthenica:ffmpeg-kit-full-gpl:6.0 resolves from Maven Central
- *     and the app builds with it (if this file even compiles, that
- *     part is proven by the build itself).
+ *  1. dev.ffmpegkit-maintained:ffmpeg-kit-full-gpl:8.1.7 resolves
+ *     from Maven Central and the app builds with it (if this file
+ *     even compiles, that part is proven by the build itself).
+ *     NOTE: the original com.arthenica:ffmpeg-kit-full-gpl:6.0
+ *     was retired and REMOVED from Maven Central Apr 1, 2025 —
+ *     Gradle cannot find it at all. The maintained fork is the
+ *     drop-in replacement: same artifact names, same package
+ *     (com.arthenica.ffmpegkit), same API, only the group ID
+ *     changed.
  *  2. A real conversion runs: sample clip -> MP4/H.264/AAC.
  *  3. A real conversion runs: sample clip -> MKV/VP9/Opus.
  *  4. AV1 timing: sample clip -> WEBM/AV1/Opus, capped — the test
