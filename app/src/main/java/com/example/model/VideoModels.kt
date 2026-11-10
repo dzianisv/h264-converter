@@ -14,22 +14,6 @@ data class VideoInfo(
     val thumbnailBitmap: Bitmap?
 )
 
-/**
- * Legacy resolution presets from the Media3 engine (v0.1.x).
- * Kept only so old history rows still decode; v0.2.0 uses
- * [ConversionSettings.quality] (bitrate) instead, and resolution
- * is always the source resolution.
- */
-enum class QualityPreset(
-    val label: String,
-    val description: String,
-    val targetHeight: Int?
-) {
-    ORIGINAL("Original", "Keep original resolution", null),
-    P1080("1080p", "Full HD (1920x1080 max)", 1080),
-    P720("720p", "HD (1280x720 max)", 720)
-}
-
 data class ConversionProgress(
     val percent: Int = 0,
     val currentTrimProgressMs: Long = 0L,

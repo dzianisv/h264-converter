@@ -185,7 +185,9 @@ class FfmpegTranscoder(private val context: Context) {
             },
             { statistics: Statistics ->
                 statsSeen = true
-                val outputTimeMs = statistics.time
+                // Statistics.getTime() is a Double (ms) in
+                // ffmpeg-kit 8.x; the rest of the app is Long ms.
+                val outputTimeMs = statistics.time.toLong()
                 val percent = ((outputTimeMs * 100) / totalTrimDurationMs)
                     .toInt().coerceIn(0, 100)
                 val elapsedSec = (System.currentTimeMillis() - startTime) / 1000
