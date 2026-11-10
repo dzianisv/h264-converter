@@ -23,8 +23,8 @@ import org.junit.Test
  *
  * 1. RESOLUTION — PackageManager.queryIntentActivities must list
  *    Convert264 for the intents real senders fire (ACTION_SEND and
- *    ACTION_SEND_MULTIPLE with video/*, ACTION_VIEW with a
- *    content:// URI + video/* type). This is what the share sheet
+ *    ACTION_SEND_MULTIPLE with a video type, ACTION_VIEW with a
+ *    content:// URI + a video type). This is what the share sheet
  *    and "Open with" use; if it fails here, the app never appears
  *    in the list at all. (A null or wildcard type can NOT resolve —
  *    no filter can match it without a blanket wildcard filter, which would
@@ -98,7 +98,7 @@ class ShareIntentSmokeTest {
         println("SMOKE share-resolve: ACTION_SEND_MULTIPLE video/* resolves")
 
         // "Open with" from Files / Gallery: ACTION_VIEW with BOTH a
-        // content:// URI and a video/* type. The old mimeType-only
+        // content:// URI and a video type. The old mimeType-only
         // VIEW filter could never match this — it needed a scheme too.
         val view = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, "video/mp4")
@@ -175,7 +175,7 @@ class ShareIntentSmokeTest {
         val uri = sampleUri()
 
         // Files / Drive / some messengers share videos with a null
-        // or */* type. These intents cannot resolve through the
+        // or wildcard type. These intents cannot resolve through the
         // filter (see class doc), so the intent is pinned — this
         // proves the handler accepts the stream anyway.
         for (type in listOf<String?>(null, "*/*")) {
