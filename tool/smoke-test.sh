@@ -48,6 +48,28 @@ if [ "$API" != "35" ]; then
   say "device never became queryable (last API level='$API') — emulator infra failure, retry the run"
   exit 2
 fi
+# boot_completed + a queryable API level is NOT enough: on some
+# runs the system server is still coming up and the package/activity
+# services are not registered yet, so the test APK install then
+# fails with "cmd: Can't find service: package" (killed the
+# v0.2.0 spike run 42884094684 — the build had succeeded and 0
+# tests ran). Do not start Gradle until both services answer.
+say "waiting for package + activity services to be registered"
+SERVICES_OK=""
+for i in $(seq 1 36); do
+  PKG=$(adb shell service check package 2>/dev/null | tr -d '\r')
+  ACT=$(adb shell service check activity 2>/dev/null | tr -d '\r')
+  if echo "$PKG" | grep -q "found" && echo "$ACT" | grep -q "found"; then
+    SERVICES_OK=1
+    say "package + activity services ready ($PKG / $ACT)"
+    break
+  fi
+  sleep 5
+done
+if [ -z "$SERVICES_OK" ]; then
+  say "package/activity services never became available — emulator infra failure, retry the run"
+  exit 2
+fi
 say "boot completed; letting the system settle (first-boot dexopt, ANRs)"
 sleep 90
 # Digital Wellbeing ANRs on first boot; absent on AOSP images —
