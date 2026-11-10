@@ -228,8 +228,23 @@ class Convert264SmokeTest {
         // No 0-byte phantom rows in MediaStore: publishFinalFile used
         // to insert a MediaStore row unconditionally and only write
         // bytes into it when the direct copy failed, leaving an empty
-        // "<name> (1).mp4" entry next to every real file.
-        val emptyRows = mediaStoreHits.filter { it.contains("bytes=0") }
+        // "<name> (1).mp4" entry next to every real file. That is
+        // fixed — but the row for a real file is created by the ASYNC
+        // MediaScanner, which can still show bytes=0/durationMs=0
+        // seconds after the success screen (the file itself is
+        // complete on disk; killed the v0.1.2 validation run in
+        // run 2). So poll until the scanner catches up (bounded) and
+        // only fail on a row that STAYS empty — a genuinely stuck
+        // 0-byte row still fails.
+        var settledHits = mediaStoreHits
+        var emptyRows = settledHits.filter { it.contains("bytes=0") }
+        val settleDeadline = System.currentTimeMillis() + 60_000
+        while (emptyRows.isNotEmpty() && System.currentTimeMillis() < settleDeadline) {
+            Thread.sleep(2_000)
+            settledHits = queryMediaStore()
+            emptyRows = settledHits.filter { it.contains("bytes=0") }
+        }
+        println("SMOKE $label: MediaStore after settle: $settledHits")
         assertTrue(
             "MediaStore has 0-byte phantom entries after $label: $emptyRows",
             emptyRows.isEmpty(),
