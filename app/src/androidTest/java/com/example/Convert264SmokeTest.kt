@@ -274,23 +274,26 @@ class Convert264SmokeTest {
         // the file is cached in the app cache dir afterwards).
         waitForTag("selected_video_card", 240_000)
         println("SMOKE sample loaded")
-        // The trim screen must show the video: the ExoPlayer preview
-        // has to exist AND have had time to render its first frame
-        // before the screenshot is taken, or the shot proves nothing.
-        waitForTag("trim_video_preview", 120_000)
-        composeRule.onNodeWithTag("trim_video_preview").performScrollTo()
+        // The trim screen must show the video: the paused preview is
+        // a real extracted frame (Compose Image), which has to exist
+        // AND have had time to be extracted before the screenshot is
+        // taken, or the shot proves nothing.
+        waitForTag("trim_preview_still", 120_000)
+        composeRule.onNodeWithTag("trim_preview_still").performScrollTo()
         Thread.sleep(4_000)
-        println("SMOKE trim preview present, frame settle waited")
+        println("SMOKE trim preview still present, frame settle waited")
         captureScreenshot(composeRule, "02-sample-loaded")
         composeRule.onNodeWithTag("trim_preview_play_button")
             .performScrollTo()
             .assertIsDisplayed()
         println("SMOKE trim preview play button shown")
-        // Prove the LIVE player renders, not just the still cover:
-        // play for 3s and screenshot again — the sample clip draws
-        // its frame number on every frame, so a later frame number
-        // in the shot proves the surface is really playing.
+        // Prove the LIVE player renders, not just the still: play
+        // for 3s and screenshot again — the sample clip draws its
+        // frame number on every frame, and the position readout
+        // advances while playing, so playback is observable even
+        // where the emulator cannot photograph the live surface.
         composeRule.onNodeWithTag("trim_preview_play_button").performClick()
+        waitForTag("trim_video_preview", 30_000)
         Thread.sleep(3_000)
         captureScreenshot(composeRule, "02b-preview-playing")
         println("SMOKE trim preview playing screenshot taken")

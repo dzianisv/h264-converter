@@ -1,5 +1,6 @@
 package com.example.ui.components
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.net.Uri
@@ -45,39 +46,39 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 /**
- * Live preview of the video being trimmed, using the stock Media3
- * player (ExoPlayer) rendering into a plain TextureView — not a
- * custom player.
+ * Video preview for the trim screen: the user must SEE what they
+ * are cutting.
  *
- * The preview shows the frame at the current trim position: dragging
- * a trim handle seeks the preview to that handle, so the user sees
- * the frame they are cutting at. Play plays the trimmed range only,
- * muted (volume 0 — no audio surprise), and pauses at the trim end.
+ * Two layers, deliberately NOT stacked:
+ * - Paused (the state the trim screen is in most of the time): a
+ *   real frame of the video, extracted with MediaMetadataRetriever
+ *   at the current trim position and drawn as a plain Compose
+ *   Image. Dragging a trim handle re-extracts the frame at the
+ *   moved handle (debounced 300ms), so the still follows the cut.
+ *   A Compose Image is always visible — on screen and in
+ *   screenshots — which a live video surface is not guaranteed to
+ *   be (see below).
+ * - Playing: the stock Media3 ExoPlayer rendering into a
+ *   TextureView, playing the trimmed range only, muted (volume 0 —
+ *   no audio surprise), pausing at the trim end and parking back
+ *   at the trim start.
  *
- * A TextureView (not PlayerView's default SurfaceView) is used
- * deliberately: a SurfaceView renders on a separate surface that
- * screenshots cannot capture, so a SurfaceView preview would
- * photograph as a black box. A TextureView renders inside the view
- * hierarchy, so the frame is visible both on screen and in test
- * screenshots. PlayerView adds nothing here — its controller is
- * disabled anyway and play/pause is a standard IconButton below.
- *
- * One trap: a paused player on a slow device can take seconds to
- * output its first frame, and until then the TextureView is black.
- * So a real frame extracted with MediaMetadataRetriever covers the
- * preview until the player reports its first rendered frame — the
- * user never sees a black box, and everything shown is a real frame
- * of the same video. Once the player is rendering, the still is
- * removed and the live surface takes over (it keeps its last frame
- * while a seek is in flight, so dragging a trim handle never
- * flashes black either).
+ * Why not a live surface all the time? A TextureView is a real
+ * Android View, and child Views paint above Compose-drawn siblings
+ * in the same window — a still frame drawn by Compose underneath
+ * it is hidden, not overlaid. And on a slow emulator a paused
+ * player can take seconds to output its first frame, leaving a
+ * black box (exactly what the v0.1.5 screenshot showed). So the
+ * still is the preview when paused, and the live surface only
+ * appears while actually playing — when the player is provably
+ * rendering. The still is a real frame of the same video either
+ * way, never a placeholder.
  *
  * Works for the same URIs the converter loads (content:// from SAF
- * and shares, file:// for the generated sample clip) — ExoPlayer
- * resolves them through the ContentResolver, no file path needed.
- * If ExoPlayer cannot play a source at all, the preview falls back
- * to a single representative frame extracted with
- * MediaMetadataRetriever instead of a blank box.
+ * and shares, file:// for the generated sample clip) — both the
+ * retriever and ExoPlayer resolve them through the
+ * ContentResolver, no file path needed. If ExoPlayer cannot play a
+ * source, play is refused and the still stays.
  *
  * The player is released when the preview leaves composition or the
  * source changes, so it never holds the file while converting.
@@ -103,9 +104,9 @@ fun TrimVideoPreview(
     }
 
     var previewFailed by remember(sourceUri) { mutableStateOf(false) }
-    var firstFrameRendered by remember(sourceUri) { mutableStateOf(false) }
-    var isPlaying by remember(sourceUri) { mutableStateOf(false) }
+    var playing by remember(sourceUri) { mutableStateOf(false) }
     var previewPositionMs by remember(sourceUri) { mutableStateOf(startMs) }
+    var stillBitmap by remember(sourceUri) { mutableStateOf<Bitmap?>(null) }
 
     val player = remember(sourceUri) {
         ExoPlayer.Builder(appContext).build().apply {
@@ -115,10 +116,7 @@ fun TrimVideoPreview(
             addListener(object : Player.Listener {
                 override fun onPlayerError(error: PlaybackException) {
                     previewFailed = true
-                }
-
-                override fun onRenderedFirstFrame() {
-                    firstFrameRendered = true
+                    playing = false
                 }
             })
             prepare()
@@ -129,9 +127,10 @@ fun TrimVideoPreview(
         onDispose { player.release() }
     }
 
-    // Follow the trim handles: when the start handle moves, show the
-    // frame at the new start; when the end handle moves, show the
-    // frame at the new end.
+    // Follow the trim handles: when the start handle moves, the
+    // preview goes to the new start; when the end handle moves, to
+    // the new end. The player is seeked too, so pressing play starts
+    // from the frame being shown.
     var lastStartMs by remember(sourceUri) { mutableStateOf(startMs) }
     var lastEndMs by remember(sourceUri) { mutableStateOf(endMs) }
     LaunchedEffect(trimRange) {
@@ -146,16 +145,24 @@ fun TrimVideoPreview(
         lastEndMs = endMs
     }
 
+    // Extract the still frame for the current preview position.
+    // Debounced: while the user drags, every move restarts the
+    // delay, so only the settled position is extracted.
+    LaunchedEffect(sourceUri, previewPositionMs) {
+        delay(300)
+        stillBitmap = extractFrame(context, sourceUri, previewPositionMs)
+    }
+
     // While playing, stop at the trim end and park back at the start.
-    LaunchedEffect(isPlaying) {
-        while (isPlaying) {
+    LaunchedEffect(playing) {
+        while (playing) {
             val pos = player.currentPosition
             previewPositionMs = pos
             if (endMs > startMs && pos >= endMs) {
                 player.pause()
                 player.seekTo(startMs)
                 previewPositionMs = startMs
-                isPlaying = false
+                playing = false
             } else {
                 delay(200)
             }
@@ -172,31 +179,42 @@ fun TrimVideoPreview(
                 .aspectRatio(aspectRatio),
             contentAlignment = Alignment.Center
         ) {
-            // The live surface is always composed — the player can
-            // only render into it once it exists.
-            AndroidView(
-                factory = { ctx ->
-                    TextureView(ctx).apply {
-                        player.setVideoTextureView(this)
-                    }
-                },
-                onRelease = { textureView ->
-                    player.clearVideoTextureView(textureView)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(aspectRatio)
-                    .testTag("trim_video_preview")
-            )
-            // Until the player has actually rendered a frame (or if
-            // it never can), cover the surface with a real frame of
-            // the same video — never a black box.
-            if (previewFailed || !firstFrameRendered) {
-                TrimFallbackFrame(
-                    sourceUri = sourceUri,
-                    seekMs = startMs,
-                    aspectRatio = aspectRatio
+            if (playing) {
+                AndroidView(
+                    factory = { ctx ->
+                        TextureView(ctx).apply {
+                            player.setVideoTextureView(this)
+                        }
+                    },
+                    onRelease = { textureView ->
+                        player.clearVideoTextureView(textureView)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(aspectRatio)
+                        .testTag("trim_video_preview")
                 )
+            } else {
+                if (stillBitmap != null) {
+                    Image(
+                        bitmap = stillBitmap!!.asImageBitmap(),
+                        contentDescription = "Video frame at trim position",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(aspectRatio)
+                            .testTag("trim_preview_still"),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.VideoFile,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .testTag("trim_preview_still")
+                    )
+                }
             }
         }
 
@@ -206,24 +224,25 @@ fun TrimVideoPreview(
         ) {
             IconButton(
                 onClick = {
-                    if (isPlaying) {
+                    if (playing) {
                         player.pause()
-                        isPlaying = false
-                    } else {
+                        previewPositionMs = player.currentPosition
+                        playing = false
+                    } else if (!previewFailed) {
                         if (player.currentPosition >= endMs ||
                             player.currentPosition < startMs
                         ) {
                             player.seekTo(startMs)
                         }
                         player.play()
-                        isPlaying = true
+                        playing = true
                     }
                 },
                 modifier = Modifier.testTag("trim_preview_play_button")
             ) {
                 Icon(
-                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = if (isPlaying) "Pause preview" else "Play preview",
+                    imageVector = if (playing) Icons.Default.Pause else Icons.Default.PlayArrow,
+                    contentDescription = if (playing) "Pause preview" else "Play preview",
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
@@ -240,62 +259,21 @@ fun TrimVideoPreview(
     }
 }
 
-/**
- * Single-frame still of the source: one representative frame at the
- * trim start, extracted on a background thread. Used both when
- * ExoPlayer cannot play the source at all, and as the cover until
- * the player has rendered its first frame — a static real frame is
- * still more useful than a blank box, and it proves the file itself
- * is readable.
- */
-@Composable
-private fun TrimFallbackFrame(
-    sourceUri: Uri,
-    seekMs: Long,
-    aspectRatio: Float,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-    var bitmap by remember(sourceUri) { mutableStateOf<Bitmap?>(null) }
-    LaunchedEffect(sourceUri) {
-        bitmap = withContext(Dispatchers.IO) {
-            try {
-                MediaMetadataRetriever().use { retriever ->
-                    retriever.setDataSource(context, sourceUri)
-                    retriever.getFrameAtTime(
-                        seekMs * 1000,
-                        MediaMetadataRetriever.OPTION_CLOSEST_SYNC
-                    )
-                }
-            } catch (_: Exception) {
-                null
-            }
-        }
-    }
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .aspectRatio(aspectRatio)
-            .testTag("trim_preview_fallback"),
-        contentAlignment = Alignment.Center
-    ) {
-        if (bitmap != null) {
-            Image(
-                bitmap = bitmap!!.asImageBitmap(),
-                contentDescription = "Video frame at trim start",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(aspectRatio),
-                contentScale = ContentScale.Crop
-            )
-        } else {
-            Icon(
-                imageVector = Icons.Default.VideoFile,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(48.dp)
+/** One frame of [uri] at [positionMs], or null if unreadable. */
+private suspend fun extractFrame(
+    context: Context,
+    uri: Uri,
+    positionMs: Long
+): Bitmap? = withContext(Dispatchers.IO) {
+    try {
+        MediaMetadataRetriever().use { retriever ->
+            retriever.setDataSource(context, uri)
+            retriever.getFrameAtTime(
+                positionMs * 1000,
+                MediaMetadataRetriever.OPTION_CLOSEST_SYNC
             )
         }
+    } catch (_: Exception) {
+        null
     }
 }
