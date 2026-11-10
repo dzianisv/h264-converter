@@ -4,7 +4,7 @@ Clean, ad-free Android video converter: pick a video (or share one from
 File Manager), trim start/end, convert to H.264 MP4.
 
 - Native Android, Kotlin + Jetpack Compose, Material 3
-- Pick via Storage Access Framework (USB-OTG flash drives work) or via
+- Pick via Storage Access Framework or via
   Android Share intent (`ACTION_SEND video/*`)
 - Transcoder: AndroidX Media3 Transformer — H.264 video + AAC audio, MP4
   (FFmpeg could not be bundled in the Google AI Studio environment the

@@ -8,9 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Usb
 import androidx.compose.material.icons.filled.VideoFile
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -102,17 +100,6 @@ fun VideoPickerCard(
                 text = "MKV · MOV · AVI · MP4 · WEBM",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            AssistChip(
-                onClick = {},
-                label = { Text("USB-OTG ready") },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Usb,
-                        contentDescription = null
-                    )
-                }
             )
         }
     } else {

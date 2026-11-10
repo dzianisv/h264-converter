@@ -1,5 +1,6 @@
 package com.example.ui.components
 
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,9 @@ fun TrimControlCard(
     onAdjustStart: (Long) -> Unit,
     onAdjustEnd: (Long) -> Unit,
     onOpenExactEditDialog: () -> Unit,
+    sourceUri: Uri? = null,
+    videoWidth: Int = 0,
+    videoHeight: Int = 0,
     modifier: Modifier = Modifier
 ) {
     val startMs = trimRange.start.toLong().coerceAtLeast(0L)
@@ -60,6 +64,15 @@ fun TrimControlCard(
                     Text("Exact input")
                 }
             }
+
+            // Live preview above the slider: the frame at the trim
+            // position, so the user sees what they are cutting.
+            TrimVideoPreview(
+                sourceUri = sourceUri,
+                videoWidth = videoWidth,
+                videoHeight = videoHeight,
+                trimRange = trimRange
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

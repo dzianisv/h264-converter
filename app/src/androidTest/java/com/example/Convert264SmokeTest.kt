@@ -256,6 +256,16 @@ class Convert264SmokeTest {
     fun sampleClipConvertsEndToEnd() {
         // 1. Launch screen.
         waitForText("Try sample clip", 120_000)
+        // The "USB-OTG ready" chip was an unproven claim (OTG was
+        // never tested on a real device with a real drive) and was
+        // removed in v0.1.5 — no OTG/USB claim may appear anywhere.
+        assertTrue(
+            "Launch screen still shows an unproven OTG claim",
+            composeRule.onAllNodesWithText("OTG", substring = true)
+                .fetchSemanticsNodes().isEmpty() &&
+                composeRule.onAllNodesWithText("USB", substring = true)
+                    .fetchSemanticsNodes().isEmpty()
+        )
         captureScreenshot(composeRule, "01-launch")
         composeRule.onNodeWithText("Try sample clip").performClick()
 
@@ -264,7 +274,18 @@ class Convert264SmokeTest {
         // the file is cached in the app cache dir afterwards).
         waitForTag("selected_video_card", 240_000)
         println("SMOKE sample loaded")
+        // The trim screen must show the video: the ExoPlayer preview
+        // has to exist AND have had time to render its first frame
+        // before the screenshot is taken, or the shot proves nothing.
+        waitForTag("trim_video_preview", 120_000)
+        composeRule.onNodeWithTag("trim_video_preview").performScrollTo()
+        Thread.sleep(4_000)
+        println("SMOKE trim preview present, frame settle waited")
         captureScreenshot(composeRule, "02-sample-loaded")
+        composeRule.onNodeWithTag("trim_preview_play_button")
+            .performScrollTo()
+            .assertIsDisplayed()
+        println("SMOKE trim preview play button shown")
 
         // 3. Run 1: Original preset (no scale effect).
         val out1 = runConversion("run1-original", null)

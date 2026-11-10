@@ -80,7 +80,9 @@ fun MainScreen(
 
     var showExactTimeDialog by remember { mutableStateOf(false) }
 
-    // Storage Access Framework picker (Supports Internal Storage, USB-OTG flash drives, SD cards)
+    // Storage Access Framework picker: lets the user pick from
+    // internal storage, an attached drive, or an SD card, wherever
+    // the system file picker exposes it.
     val pickVideoLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
@@ -215,6 +217,9 @@ fun MainScreen(
                     onAdjustStart = { viewModel.adjustTrimStart(it) },
                     onAdjustEnd = { viewModel.adjustTrimEnd(it) },
                     onOpenExactEditDialog = { showExactTimeDialog = true },
+                    sourceUri = selectedVideo?.uri,
+                    videoWidth = selectedVideo?.width ?: 0,
+                    videoHeight = selectedVideo?.height ?: 0,
                     modifier = Modifier.widthIn(max = 680.dp)
                 )
 
