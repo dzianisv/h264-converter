@@ -115,14 +115,16 @@ RC=${PIPESTATUS[0]}
 say "connectedDebugAndroidTest exit code: $RC"
 
 # Infra flake: the emulator sometimes goes unresponsive during
-# the (multi-minute) build, and Gradle then reports "Skipping
-# device 'emulator-5554': Unknown API Level" / "No compatible
-# devices connected" at install time — 0 tests ran, nothing
-# about the app was exercised (killed run 42920684814). Retry
-# once after the device answers again instead of failing the
-# run on it. The tests are idempotent (outputs never
-# overwrite), so a retry is safe.
-if [ "$RC" != "0" ] && grep -q -E "Unknown API Level|No compatible devices" "$LOG"; then
+# the (multi-minute) build, and Gradle then fails at install time
+# with "Skipping device 'emulator-5554': Unknown API Level" /
+# "No compatible devices connected" / "Cannot install split APKs
+# with API level < 21" (ddmlib loses the device's API level when
+# it cannot query it) — 0 tests ran, nothing about the app was
+# exercised (killed runs 42920684814 and 42923401415). Retry once
+# after the device answers again instead of failing the run on
+# it. The tests are idempotent (outputs never overwrite), so a
+# retry is safe.
+if [ "$RC" != "0" ] && grep -q -E "Unknown API Level|No compatible devices|Cannot install split APKs|Failed to install split APK" "$LOG"; then
   say "infra flake detected (device unresponsive at install time) — retrying once"
   API=""
   for i in $(seq 1 36); do
