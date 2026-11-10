@@ -194,6 +194,19 @@ class Convert264SmokeTest {
         println("SMOKE queue: 2 entries (${vm.queue.value.map { it.video.name }})")
     }
 
+    /** Trims every queue item to 5s (see step 3 for why). */
+    private fun trimAllTo5s() {
+        composeRule.runOnUiThread {
+            for (item in vm.queue.value) {
+                if (item.video.durationMs > 5_000L) {
+                    vm.setTrimEndMs(item.id, 5_000L)
+                }
+            }
+        }
+        Thread.sleep(1_000)
+        println("SMOKE queue trimmed to 5s per file")
+    }
+
     /** Picks one option from a settings dropdown (tag -> menu text). */
     private fun selectDropdownOption(dropdownTag: String, optionText: String) {
         composeRule.onNodeWithTag(dropdownTag).performClick()
@@ -229,20 +242,26 @@ class Convert264SmokeTest {
         // 2. Sample clip -> one queue entry.
         composeRule.onNodeWithText("Try sample clip").performClick()
         waitForQueueSize(1, 240_000)
-        // The sample is 3s long: the row must show its duration,
-        // and the thumbnail must be a real extracted frame (the
-        // ViewModel holds the bitmap the row renders).
+        // The row must show the clip's duration, and the
+        // thumbnail must be a real extracted frame (the
+        // ViewModel holds the bitmap the row renders). The
+        // duration is read from the ViewModel, not hardcoded:
+        // on a slow emulator the generated sample's frames are
+        // timestamped in wall-clock as they encode, so it can
+        // report ~37s instead of 3s.
         waitUntilWithIdleRetry(120_000) {
             vm.queue.value.firstOrNull()?.video?.thumbnailBitmap != null
         }
-        waitForTextSubstring("00:03", 30_000)
+        val sampleDurationMs = vm.queue.value.first().video.durationMs
+        val expectedDuration = com.example.util.FormatUtils.formatDuration(sampleDurationMs)
+        waitForTextSubstring(expectedDuration, 30_000)
         assertEquals(
             "Expected 1 queue thumbnail rendered",
             1,
             composeRule.onAllNodesWithTag("queue_item_thumbnail")
                 .fetchSemanticsNodes().size,
         )
-        println("SMOKE sample loaded: thumbnail + 00:03 shown in queue")
+        println("SMOKE sample loaded: thumbnail + $expectedDuration shown in queue")
         captureScreenshot(composeRule, "02a-queue-1-entry")
 
         // 3. Second clip -> 2 entries, both with thumbnails.
@@ -261,6 +280,12 @@ class Convert264SmokeTest {
         composeRule.onNodeWithText("sample_clip_2.mp4").assertIsDisplayed()
         println("SMOKE queue: 2 entries with thumbnails + durations")
         captureScreenshot(composeRule, "02b-queue-2-entries")
+
+        // Trim both files to 5s (the generated sample can report
+        // ~37s on a slow emulator — encoding the full length in
+        // VP9 twice would take many minutes; 5s still proves a
+        // real VP9/MKV encode with trim applied).
+        trimAllTo5s()
 
         // 4. Settings: MKV container, VP9 video, Opus audio.
         // The container drives the other lists, so pick it first
@@ -312,6 +337,9 @@ class Convert264SmokeTest {
         waitForText("Select Video to Convert", 30_000)
         println("SMOKE Clear queue: empty state shown")
         addBothClips()
+        // Re-adding resets the trim range to the full clip, so
+        // trim to 5s again (same reason as step 3).
+        trimAllTo5s()
         // The re-added files take the current global settings.
         assertTrue(
             "Re-added files did not take the MKV/VP9/Opus settings",

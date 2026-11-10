@@ -140,7 +140,7 @@ for OUT_FILE in $(adb shell ls /sdcard/Movies/Convert264/ 2>/dev/null | tr -d '\
   if command -v ffprobe >/dev/null 2>&1; then
     ffprobe -v error -show_entries format=duration,size -show_entries stream=codec_name,width,height -of default=noprint_wrappers=1 "$OUT/$SAFE_NAME" 2>&1 | tee -a "$LOG"
     OUT_DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$OUT/$SAFE_NAME" 2>/dev/null)
-    say "output duration (ffprobe): ${OUT_DUR}s — expected ~3s (sample clip, untrimmed)"
+    say "output duration (ffprobe): ${OUT_DUR}s — expected ~5s (sample trimmed to 5s in the smoke test)"
   fi
 done
 
