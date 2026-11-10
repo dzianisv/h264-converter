@@ -18,6 +18,7 @@ import com.example.util.VideoMetadataHelper
 import java.io.File
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -346,7 +347,16 @@ class ConverterViewModel(application: Application) : AndroidViewModel(applicatio
                             if (cont.isActive) cont.resume(RunOutcome.Cancelled)
                         },
                     )
-                } catch (e: Exception) {
+                } catch (e: CancellationException) {
+                    // Job cancellation must propagate — it is how
+                    // pause/stop reaches this coroutine.
+                    throw e
+                } catch (e: Throwable) {
+                    // Engine failures are Errors as well as
+                    // Exceptions (e.g. NoClassDefFoundError when a
+                    // native/library dependency is missing at
+                    // runtime). They must land as a queue-item
+                    // Error, never crash the app.
                     if (cont.isActive) {
                         cont.resume(RunOutcome.Error(e.localizedMessage ?: "Conversion failed"))
                     }

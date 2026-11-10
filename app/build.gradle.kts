@@ -121,6 +121,16 @@ dependencies {
   // same artifacts under the same package (com.arthenica.ffmpegkit)
   // and API — only the group ID changed. 8.1.7 = FFmpeg 8.1 LTS.
   implementation(libs.ffmpeg.kit.full.gpl)
+  // FFmpegKit needs smart-exception-java at RUNTIME
+  // (FFmpegKitConfig.<clinit> references
+  // com.arthenica.smartexception.java.Exceptions), but the fork's
+  // published 8.1.7 POM declares NO dependencies at all — the
+  // library's own build.gradle declares it as api, and the fork
+  // itself fixed the POM later (commit 8d05f55), but 8.1.7 ships
+  // without it. Without this line every FFmpegKit call dies with
+  // NoClassDefFoundError (killed spike run 42887700284). The
+  // artifact is still on Maven Central (verified HTTP 200).
+  implementation(libs.smart.exception.java)
   // implementation(libs.androidx.datastore.preferences)
   implementation(libs.androidx.lifecycle.runtime.compose)
   implementation(libs.androidx.lifecycle.runtime.ktx)
