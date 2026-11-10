@@ -124,7 +124,7 @@ fun DetailScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             // Preview: the real frame at the trim position (capped
             // height — the screen must not scroll, and a portrait
@@ -135,7 +135,7 @@ fun DetailScreen(
                 videoWidth = video.width,
                 videoHeight = video.height,
                 trimRange = trimRange,
-                maxPreviewHeight = 170.dp
+                maxPreviewHeight = 140.dp
             )
 
             // Durations, one line.

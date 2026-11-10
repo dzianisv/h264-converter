@@ -87,8 +87,8 @@ fun ConversionSettingsCard(
             .testTag("conversion_settings_card")
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(if (compact) 12.dp else 16.dp),
+            verticalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 12.dp)
         ) {
             Text(
                 text = "Conversion settings",
