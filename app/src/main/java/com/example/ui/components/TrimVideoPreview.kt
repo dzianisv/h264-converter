@@ -212,7 +212,7 @@ fun TrimVideoPreview(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier
                             .size(48.dp)
-                            .testTag("trim_preview_still")
+                            .testTag("trim_preview_placeholder")
                     )
                 }
             }
@@ -259,7 +259,16 @@ fun TrimVideoPreview(
     }
 }
 
-/** One frame of [uri] at [positionMs], or null if unreadable. */
+/**
+ * One frame of [uri] at [positionMs], or null if unreadable.
+ *
+ * The retriever is picky about exact timestamps: the same call that
+ * works at 1s can return null at 0 for a given file (the thumbnail
+ * helper in VideoMetadataHelper already falls back the same way),
+ * so try the requested position twice (closest sync, then closest
+ * frame) and finally the start of the file. Logs the outcome so a
+ * smoke run can show whether extraction worked or silently failed.
+ */
 private suspend fun extractFrame(
     context: Context,
     uri: Uri,
@@ -268,12 +277,24 @@ private suspend fun extractFrame(
     try {
         MediaMetadataRetriever().use { retriever ->
             retriever.setDataSource(context, uri)
-            retriever.getFrameAtTime(
+            val frame = retriever.getFrameAtTime(
                 positionMs * 1000,
                 MediaMetadataRetriever.OPTION_CLOSEST_SYNC
+            ) ?: retriever.getFrameAtTime(
+                positionMs * 1000,
+                MediaMetadataRetriever.OPTION_CLOSEST
+            ) ?: retriever.getFrameAtTime(
+                0L,
+                MediaMetadataRetriever.OPTION_CLOSEST
             )
+            println(
+                "TRIM-PREVIEW extractFrame uri=$uri positionMs=$positionMs " +
+                    "frame=${if (frame != null) "${frame.width}x${frame.height}" else "null"}"
+            )
+            frame
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        println("TRIM-PREVIEW extractFrame FAILED uri=$uri: ${e.message}")
         null
     }
 }

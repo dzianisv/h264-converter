@@ -275,13 +275,14 @@ class Convert264SmokeTest {
         waitForTag("selected_video_card", 240_000)
         println("SMOKE sample loaded")
         // The trim screen must show the video: the paused preview is
-        // a real extracted frame (Compose Image), which has to exist
-        // AND have had time to be extracted before the screenshot is
-        // taken, or the shot proves nothing.
+        // a real extracted frame (Compose Image). Wait for the frame
+        // itself — the placeholder icon carries a different tag, so
+        // this gate fails if extraction never produces a frame
+        // instead of screenshotting an icon and calling it a video.
         waitForTag("trim_preview_still", 120_000)
         composeRule.onNodeWithTag("trim_preview_still").performScrollTo()
-        Thread.sleep(4_000)
-        println("SMOKE trim preview still present, frame settle waited")
+        Thread.sleep(1_000)
+        println("SMOKE trim preview still frame shown")
         captureScreenshot(composeRule, "02-sample-loaded")
         composeRule.onNodeWithTag("trim_preview_play_button")
             .performScrollTo()
