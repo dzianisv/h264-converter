@@ -19,7 +19,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -188,9 +188,9 @@ fun ConversionStatusBar(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Cancel Button — plain default Material OutlinedButton,
+            // Cancel Button — plain default Material TextButton,
             // no custom shape, colors, or sizing.
-            OutlinedButton(
+            TextButton(
                 onClick = onCancelClick,
                 modifier = Modifier
                     .fillMaxWidth()
