@@ -168,12 +168,22 @@ private fun TrimTimeBox(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
-            TextButton(onClick = onMinus1s) { Text("-1s") }
-            TextButton(onClick = onMinusTenth) { Text("-0.1s") }
-            TextButton(onClick = onPlusTenth) { Text("+0.1s") }
-            TextButton(onClick = onPlus1s) { Text("+1s") }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                TextButton(onClick = onMinus1s) { Text("-1s") }
+                TextButton(onClick = onMinusTenth) { Text("-0.1s") }
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                TextButton(onClick = onPlusTenth) { Text("+0.1s") }
+                TextButton(onClick = onPlus1s) { Text("+1s") }
+            }
         }
     }
 }
