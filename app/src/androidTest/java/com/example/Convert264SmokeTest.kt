@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.android.ComposeNotIdleException
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -13,6 +14,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.test.espresso.IdlingResourceTimeoutException
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.model.ConversionState
@@ -63,16 +65,47 @@ class Convert264SmokeTest {
     val composeRule = createAndroidComposeRule<MainActivity>()
 
     private fun waitForText(text: String, timeoutMs: Long = 60_000) {
-        composeRule.waitUntil(timeoutMs) {
+        waitUntilWithIdleRetry(timeoutMs) {
             composeRule.onAllNodesWithText(text)
                 .fetchSemanticsNodes().isNotEmpty()
         }
     }
 
     private fun waitForTag(tag: String, timeoutMs: Long = 60_000) {
-        composeRule.waitUntil(timeoutMs) {
+        waitUntilWithIdleRetry(timeoutMs) {
             composeRule.onAllNodesWithTag(tag)
                 .fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
+    /**
+     * waitUntil with retries around Compose idle timeouts: under the
+     * 720p encode load this emulator's compositor goes unresponsive
+     * and fetchSemanticsNodes throws ComposeNotIdleException instead
+     * of returning "not found yet" (killed the v0.1.2 smoke run in
+     * run 2). Retry until the deadline — the gate (text/tag appears)
+     * is unchanged, only transient busy-compositor periods are
+     * tolerated.
+     */
+    private fun waitUntilWithIdleRetry(timeoutMs: Long, condition: () -> Boolean) {
+        val deadline = System.currentTimeMillis() + timeoutMs
+        var lastError: Throwable? = null
+        while (true) {
+            val remaining = deadline - System.currentTimeMillis()
+            if (remaining <= 0) {
+                if (lastError != null) throw lastError
+                fail("Timed out waiting for condition after ${timeoutMs}ms")
+            }
+            try {
+                composeRule.waitUntil(remaining) { condition() }
+                return
+            } catch (e: ComposeNotIdleException) {
+                lastError = e
+                Thread.sleep(2_000)
+            } catch (e: IdlingResourceTimeoutException) {
+                lastError = e
+                Thread.sleep(2_000)
+            }
         }
     }
 
@@ -130,7 +163,7 @@ class Convert264SmokeTest {
             waitForText("CONVERTING TO H.264...")
             println("SMOKE $label: converting status bar shown")
             captureScreenshot(composeRule, "03-converting-$label")
-            composeRule.waitUntil(300_000) {
+            waitUntilWithIdleRetry(300_000) {
                 composeRule.onAllNodesWithText("Conversion Complete!")
                     .fetchSemanticsNodes().isNotEmpty() ||
                     composeRule.onAllNodesWithTag("conversion_error_card")
