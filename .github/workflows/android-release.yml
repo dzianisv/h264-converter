@@ -46,7 +46,7 @@ jobs:
       - name: Audit share intent filters in the built APK
         run: |
           AAPT2=$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)
-          "$AAPT2" dump xmltree app/build/outputs/apk/release/app-release.apk AndroidManifest.xml | tee /tmp/manifest-tree.txt
+          "$AAPT2" dump xmltree --file AndroidManifest.xml app/build/outputs/apk/release/app-release.apk | tee /tmp/manifest-tree.txt
           grep -q "android.intent.action.SEND" /tmp/manifest-tree.txt
           grep -q "android.intent.action.SEND_MULTIPLE" /tmp/manifest-tree.txt
           grep -q "android.intent.action.VIEW" /tmp/manifest-tree.txt
