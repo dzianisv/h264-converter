@@ -64,6 +64,38 @@ class Convert264SmokeTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<MainActivity>()
 
+    /** No chip/claim text may appear on the launch screen. */
+    private fun assertNoLaunchClaimText() {
+        val forbidden = listOf("OTG", "USB", "Offline", "No Ads", "Browse videos")
+        for (text in forbidden) {
+            assertTrue(
+                "Launch screen still shows \"$text\"",
+                composeRule.onAllNodesWithText(text, substring = true)
+                    .fetchSemanticsNodes().isEmpty(),
+            )
+        }
+    }
+
+    /**
+     * Toggle system night mode via UiMode and recreate the activity
+     * so the Compose theme re-reads isSystemInDarkTheme(). The
+     * shell command is best-effort: if the toggle or the recreate
+     * fails, the test fails loudly instead of screenshotting the
+     * wrong mode and calling it dark.
+     */
+    private fun setNightMode(night: Boolean) {
+        val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        val fd = uiAutomation.executeShellCommand(
+            "cmd uimode night ${if (night) "yes" else "no"}",
+        )
+        // Let the command land before closing its output pipe.
+        Thread.sleep(1_000)
+        fd?.close()
+        composeRule.runOnUiThread { composeRule.activity.recreate() }
+        waitForText("Try sample clip", 60_000)
+        Thread.sleep(1_000)
+    }
+
     private fun waitForText(text: String, timeoutMs: Long = 60_000) {
         waitUntilWithIdleRetry(timeoutMs) {
             composeRule.onAllNodesWithText(text)
@@ -256,17 +288,24 @@ class Convert264SmokeTest {
     fun sampleClipConvertsEndToEnd() {
         // 1. Launch screen.
         waitForText("Try sample clip", 120_000)
-        // The "USB-OTG ready" chip was an unproven claim (OTG was
-        // never tested on a real device with a real drive) and was
-        // removed in v0.1.5 — no OTG/USB claim may appear anywhere.
-        assertTrue(
-            "Launch screen still shows an unproven OTG claim",
-            composeRule.onAllNodesWithText("OTG", substring = true)
-                .fetchSemanticsNodes().isEmpty() &&
-                composeRule.onAllNodesWithText("USB", substring = true)
-                    .fetchSemanticsNodes().isEmpty()
-        )
+        // No chips or claims on the launch screen: the "USB-OTG
+        // ready" chip was an unproven claim and was removed in
+        // v0.1.5; the "100% Offline • No Ads" chip, the formats
+        // chip, and the "Browse videos" button were removed in
+        // v0.1.9 — the empty state is now just the headline and
+        // a plus button. None of that text may appear anywhere.
+        assertNoLaunchClaimText()
         captureScreenshot(composeRule, "01-launch")
+        // Dark-mode launch screenshot: the user is on dark mode,
+        // so the launch screen must be proven native-looking in
+        // night mode too. Toggle UiMode, recreate the activity so
+        // the Compose theme re-reads isSystemInDarkTheme(),
+        // screenshot, then restore light mode before the rest of
+        // the test runs.
+        setNightMode(true)
+        assertNoLaunchClaimText()
+        captureScreenshot(composeRule, "01b-launch-dark")
+        setNightMode(false)
         composeRule.onNodeWithText("Try sample clip").performClick()
 
         // 2. Sample loaded (generation is wall-clock bound on a slow

@@ -8,9 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.VideoFile
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -28,10 +29,13 @@ import com.example.model.VideoInfo
 import com.example.util.FormatUtils
 
 /**
- * Empty state: one job, one primary action. The whole block is a
- * plain centered column — no card, no border, no custom chip row —
- * so it can sit vertically centered in the screen instead of
- * crowding the top.
+ * Empty state: one job, one action. Headline plus a big standard
+ * plus button — nothing else. No chips, no badges, no format list,
+ * no claims about the device. The whole block is a plain centered
+ * column — no card, no border — so it can sit vertically centered
+ * in the screen instead of crowding the top. It looks native
+ * because it is only stock Material 3: the theme's own colors
+ * (dynamic color on the phone) and the Material type scale.
  *
  * Source loaded: a standard Card holding a standard ListItem.
  */
@@ -49,58 +53,34 @@ fun VideoPickerCard(
                 .testTag("pick_video_card")
                 .padding(vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Icon(
-                imageVector = Icons.Default.VideoFile,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(72.dp)
-            )
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = "Convert any video to H.264",
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                Text(
-                    text = "Pick a video, or share one here. Everything stays on your device — no uploads, no ads.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = onPickVideoClick,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag("select_video_button")
-                ) {
-                    Text("Browse videos")
-                }
-
-                onTrySampleClick?.let { onSample ->
-                    TextButton(
-                        onClick = onSample,
-                        modifier = Modifier.testTag("try_sample_clip_button")
-                    ) {
-                        Text("Try sample clip")
-                    }
-                }
-            }
-
             Text(
-                text = "MKV · MOV · AVI · MP4 · WEBM",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = "Select Video to Convert",
+                style = MaterialTheme.typography.headlineSmall
             )
+
+            FilledTonalIconButton(
+                onClick = onPickVideoClick,
+                modifier = Modifier
+                    .size(72.dp)
+                    .testTag("select_video_button")
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Select video to convert",
+                    modifier = Modifier.size(36.dp)
+                )
+            }
+
+            onTrySampleClick?.let { onSample ->
+                TextButton(
+                    onClick = onSample,
+                    modifier = Modifier.testTag("try_sample_clip_button")
+                ) {
+                    Text("Try sample clip")
+                }
+            }
         }
     } else {
         Card(
