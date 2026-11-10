@@ -84,15 +84,17 @@ fun TrimControlCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = buildString {
-                            append(FormatUtils.formatDuration(trimmedDurationMs))
-                            if (savedDurationMs > 500L) {
-                                append(" (-${FormatUtils.formatDuration(savedDurationMs)})")
-                            }
-                        },
+                        text = FormatUtils.formatDuration(trimmedDurationMs),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
+                    if (savedDurationMs > 500L) {
+                        Text(
+                            text = "−${FormatUtils.formatDuration(savedDurationMs)} shorter",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
 
