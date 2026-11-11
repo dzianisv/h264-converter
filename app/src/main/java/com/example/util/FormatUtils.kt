@@ -49,16 +49,22 @@ object FormatUtils {
     }
 
     /**
-     * Given an original file name, returns a non-overwriting output file name
-     * following the format: <original>_h264.mp4, <original>_h264_1.mp4, etc.
+     * Given an original file name, returns a non-overwriting output
+     * file name: <original>_<suffix>.<extension>, e.g.
+     * clip_vp9.mkv, clip_h264.mp4, clip_h264_1.mp4.
      */
-    fun generateUniqueOutputName(originalName: String, targetDirectory: File): String {
+    fun generateUniqueOutputName(
+        originalName: String,
+        targetDirectory: File,
+        suffix: String,
+        extension: String,
+    ): String {
         val baseName = sanitizeFileName(originalName.substringBeforeLast('.'))
-        var candidate = "${baseName}_h264.mp4"
+        var candidate = "${baseName}_$suffix.$extension"
         var counter = 1
 
         while (File(targetDirectory, candidate).exists()) {
-            candidate = "${baseName}_h264_${counter}.mp4"
+            candidate = "${baseName}_${suffix}_$counter.$extension"
             counter++
         }
         return candidate

@@ -1,68 +1,77 @@
 package com.example
 
-import android.content.Context
+import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.android.ComposeNotIdleException
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.performTextClearance
-import androidx.compose.ui.test.performTextInput
-import androidx.test.espresso.IdlingResourceTimeoutException
+import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
+import androidx.test.espresso.IdlingResourceTimeoutException
 import androidx.test.platform.app.InstrumentationRegistry
-import com.example.model.ConversionState
-import com.example.transcoder.TranscodeDiagnostics
+import com.example.model.QueueItemStatus
+import com.example.util.SampleVideoProvider
 import com.example.viewmodel.ConverterViewModel
 import java.io.File
 import java.util.Collections
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 
 /**
- * End-to-end smoke test for Convert264, run on a real emulator via
- * `gradle connectedDebugAndroidTest` (see .github/workflows/emulator-smoke.yml).
+ * End-to-end smoke test for Convert264 v0.2.0 (FFmpeg engine,
+ * queue UI), run on a real emulator via `gradle
+ * connectedDebugAndroidTest` (see .github/workflows/emulator-smoke.yml).
  *
  * Runs in-process (no uiautomator dumps, no adb UI driving), which is
  * the only reliable way to drive the UI on the slow GitHub Actions
  * emulator: the system there ANRs repeatedly and uiautomator dumps
  * return empty for minutes at a time.
  *
- * Flow, twice (run 1: Original preset, run 2: 720p preset — the 720p
- * run exercises the Presentation scale-effect path, to check whether
- * Media3 reports progress on a different encode path):
- *   Try sample clip -> trim END to 15s via Exact input -> Convert
- *   -> converting status bar shown -> "Conversion Complete!" with
- *   Open + Share -> real _h264.mp4 output file on disk.
+ * Flow:
+ *   1. Launch (light + dark screenshots, no chips/claims).
+ *   2. "Try sample clip" -> one queue entry with a real thumbnail
+ *      frame + a duration.
+ *   3. A second generated clip joins the queue -> 2 entries.
+ *   4. Settings dropdowns: Container MKV, Video VP9, Audio Opus
+ *      (dropdown-open screenshot) -> summary "MKV · VP9 · Opus".
+ *   5. Tap an entry -> detail screen opens, Convert button is
+ *      displayed without scrolling (the screen fits on one page).
+ *   6. Play -> converting card -> Stop returns the file to Queued.
+ *   7. Clear queue empties it; re-add both files.
+ *   8. Play -> Pause (row shows "Paused") -> Play resumes ->
+ *      both files Done, real _vp9.mkv files on disk.
  *
  * Screenshots are captured in-test at every step
  * (see ScreenshotHelper.kt) and pulled by tool/smoke-test.sh into
  * tool/smoke-screenshots/<run-id>/ — they are the layout evidence
  * and must be looked at, not just collected.
  *
- * Progress: the test records Media3's RAW progress state on every
- * poll (see TranscodeDiagnostics: 0=NOT_STARTED, 1=WAITING,
- * 2=AVAILABLE, 3=UNAVAILABLE) and the max percent/elapsed seen.
- * The % is NOT gated — on this emulator's software encoder
- * getProgress() has never become AVAILABLE, so the bar cannot ramp
- * here and that needs a real device. What IS gated: the converting
- * status bar is shown, the elapsed time advances (live feedback even
- * without a percent), and the conversion completes.
+ * Progress: ffmpeg reports real percent via its statistics
+ * callback. The test records percents seen while converting and
+ * gates on at least one real (available) percent — a 0% that never
+ * moves would fail.
  */
 class Convert264SmokeTest {
 
     @get:Rule
     val composeRule = createAndroidComposeRule<MainActivity>()
+
+    private val vm: ConverterViewModel
+        get() = ViewModelProvider(composeRule.activity)[ConverterViewModel::class.java]
 
     /** No chip/claim text may appear on the launch screen. */
     private fun assertNoLaunchClaimText() {
@@ -103,6 +112,13 @@ class Convert264SmokeTest {
         }
     }
 
+    private fun waitForTextSubstring(text: String, timeoutMs: Long = 60_000) {
+        waitUntilWithIdleRetry(timeoutMs) {
+            composeRule.onAllNodesWithText(text, substring = true)
+                .fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
     private fun waitForTag(tag: String, timeoutMs: Long = 60_000) {
         waitUntilWithIdleRetry(timeoutMs) {
             composeRule.onAllNodesWithTag(tag)
@@ -111,13 +127,12 @@ class Convert264SmokeTest {
     }
 
     /**
-     * waitUntil with retries around Compose idle timeouts: under the
-     * 720p encode load this emulator's compositor goes unresponsive
-     * and fetchSemanticsNodes throws ComposeNotIdleException instead
-     * of returning "not found yet" (killed the v0.1.2 smoke run in
-     * run 2). Retry until the deadline — the gate (text/tag appears)
-     * is unchanged, only transient busy-compositor periods are
-     * tolerated.
+     * waitUntil with retries around Compose idle timeouts: under
+     * encode load this emulator's compositor goes unresponsive and
+     * fetchSemanticsNodes throws ComposeNotIdleException instead of
+     * returning "not found yet". Retry until the deadline — the
+     * gate (text/tag appears) is unchanged, only transient
+     * busy-compositor periods are tolerated.
      */
     private fun waitUntilWithIdleRetry(timeoutMs: Long, condition: () -> Boolean) {
         val deadline = System.currentTimeMillis() + timeoutMs
@@ -141,151 +156,67 @@ class Convert264SmokeTest {
         }
     }
 
-    /** Runs one conversion end to end and returns the output file found. */
-    private fun runConversion(label: String, presetTag: String?): File? {
-        if (presetTag != null) {
-            composeRule.onNodeWithTag(presetTag)
-                .performScrollTo()
-                .performClick()
-            println("SMOKE $label: preset $presetTag selected")
+    /** Waits until the queue holds exactly [count] items. */
+    private fun waitForQueueSize(count: Int, timeoutMs: Long = 120_000) {
+        waitUntilWithIdleRetry(timeoutMs) { vm.queue.value.size == count }
+    }
+
+    /** The on-device sample clip (generated + cached by SampleVideoProvider). */
+    private fun sampleUri(): Uri {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val uri = runBlocking {
+            SampleVideoProvider.getOrCreateSampleVideo(targetContext)
         }
+        assertTrue("Sample video could not be generated", uri != null)
+        return uri!!
+    }
 
-        // Trim END to 15s via the Exact Input dialog. 15s (not 5s):
-        // on this emulator the Media3 setup phase takes ~20s during
-        // which progress is unavailable, and a 5s clip then encodes
-        // in ~2s — the percent jumps 0 -> 100 with no observable
-        // intermediates. A 15s clip encodes for ~60s+.
-        composeRule.onNodeWithText("Exact input").performClick()
-        waitForText("Set Exact Trim Times")
-        composeRule.onNodeWithTag("exact_end_input").performTextClearance()
-        composeRule.onNodeWithTag("exact_end_input").performTextInput("15")
-        composeRule.onNodeWithText("Apply").performClick()
-        waitForText("00:15")
-        println("SMOKE $label: trim applied, end time 00:15")
+    /**
+     * A second generated clip: a copy of the sample file under its
+     * own name, so the queue holds two distinct entries.
+     */
+    private fun secondClipUri(): Uri {
+        val ctx = InstrumentationRegistry.getInstrumentation().targetContext
+        val sampleFile = File(ctx.cacheDir, "sample_clip.mp4")
+        assertTrue("Sample clip file missing from cache", sampleFile.exists())
+        val secondFile = File(ctx.cacheDir, "sample_clip_2.mp4")
+        sampleFile.copyTo(secondFile, overwrite = true)
+        return FileProvider.getUriForFile(ctx, "${ctx.packageName}.fileprovider", secondFile)
+    }
 
-        // Convert (button is below the fold — scroll to it first).
-        composeRule.onNodeWithTag("convert_button")
-            .performScrollTo()
-            .performClick()
+    /** Adds both clips through the ViewModel (same path as the SAF picker). */
+    private fun addBothClips() {
+        val uri1 = sampleUri()
+        val uri2 = secondClipUri()
+        composeRule.runOnUiThread { vm.addVideos(listOf(uri1, uri2)) }
+        waitForQueueSize(2)
+        println("SMOKE queue: 2 entries (${vm.queue.value.map { it.video.name }})")
+    }
 
-        // Observe the ViewModel's conversionState from a background
-        // thread at 200ms intervals: percents seen, max elapsed, and
-        // whether progress was ever reported as available.
-        val vm = ViewModelProvider(composeRule.activity)[ConverterViewModel::class.java]
-        val seenPercents = Collections.synchronizedSet(mutableSetOf<Int>())
-        var maxElapsed = 0L
-        var sawAvailable = false
-        var pollCount = 0
-        val stop = AtomicBoolean(false)
-        val poller = thread(start = true) {
-            while (!stop.get()) {
-                val state = vm.conversionState.value
-                if (state is ConversionState.Converting) {
-                    seenPercents.add(state.progress.percent)
-                    if (state.progress.elapsedSeconds > maxElapsed) {
-                        maxElapsed = state.progress.elapsedSeconds
-                    }
-                    if (state.progress.progressAvailable) sawAvailable = true
-                    pollCount++
+    /** Trims every queue item to 5s (see step 3 for why). */
+    private fun trimAllTo5s() {
+        composeRule.runOnUiThread {
+            for (item in vm.queue.value) {
+                if (item.video.durationMs > 5_000L) {
+                    vm.setTrimEndMs(item.id, 5_000L)
                 }
-                Thread.sleep(200)
             }
         }
-        try {
-            waitForTag("conversion_status_card")
-            println("SMOKE $label: converting status bar shown")
-            captureScreenshot(composeRule, "03-converting-$label")
-            waitUntilWithIdleRetry(300_000) {
-                composeRule.onAllNodesWithText("Conversion Complete!")
-                    .fetchSemanticsNodes().isNotEmpty() ||
-                    composeRule.onAllNodesWithTag("conversion_error_card")
-                        .fetchSemanticsNodes().isNotEmpty()
-            }
-        } finally {
-            stop.set(true)
-            poller.join(5_000)
-        }
-        val stateCounts = TranscodeDiagnostics.lastRunStateCounts
-        val maxPercent = TranscodeDiagnostics.lastRunMaxPercent
-        println(
-            "SMOKE $label PROGRESS-DIAG polls=$pollCount percents=$seenPercents " +
-                "maxElapsed=${maxElapsed}s sawAvailable=$sawAvailable " +
-                "rawStates=$stateCounts maxPercent=$maxPercent " +
-                "(states: 0=NOT_STARTED 1=WAITING 2=AVAILABLE 3=UNAVAILABLE)",
-        )
-        if (composeRule.onAllNodesWithTag("conversion_error_card")
-                .fetchSemanticsNodes().isNotEmpty()
-        ) {
-            fail("Conversion failed in the app UI (error card shown) [$label]")
-        }
-        assertTrue(
-            "Conversion did not complete within 300s [$label]; percents seen: $seenPercents",
-            composeRule.onAllNodesWithText("Conversion Complete!")
-                .fetchSemanticsNodes().isNotEmpty(),
-        )
-        assertTrue(
-            "Converting state was never observed during the export [$label]; polls: $pollCount",
-            pollCount > 0,
-        )
-        assertTrue(
-            "Elapsed time never advanced during the export [$label] — the " +
-                "status bar gave no live feedback at all",
-            maxElapsed > 0,
-        )
-        assertTrue(
-            "No Media3 progress-state diagnostics were recorded [$label] — " +
-                "the progress investigation has no data",
-            stateCounts.isNotEmpty(),
-        )
+        Thread.sleep(1_000)
+        println("SMOKE queue trimmed to 5s per file")
+    }
 
-        // Success screen with Open + Share.
-        composeRule.onNodeWithText("Open").assertIsDisplayed()
-        composeRule.onNodeWithText("Share").assertIsDisplayed()
-        println("SMOKE $label: success screen shown with Open + Share")
-        captureScreenshot(composeRule, "04-success-$label")
-
-        // A real output file on disk.
-        val out = newestOutputFile()
-        val mediaStoreHits = queryMediaStore()
-        println("SMOKE $label: output dir contents: ${outputDirListing()}")
-        println("SMOKE $label: MediaStore Convert264 entries: $mediaStoreHits")
-        assertTrue(
-            "No _h264.mp4 output in Movies/Convert264 and none in MediaStore " +
-                "[$label] (dir: ${outputDirListing()}, MediaStore: $mediaStoreHits)",
-            out != null || mediaStoreHits.isNotEmpty(),
-        )
-        if (out != null) {
-            println("SMOKE $label OUTPUT file=${out.name} bytes=${out.length()}")
-        }
-        // No 0-byte phantom rows in MediaStore: publishFinalFile used
-        // to insert a MediaStore row unconditionally and only write
-        // bytes into it when the direct copy failed, leaving an empty
-        // "<name> (1).mp4" entry next to every real file. That is
-        // fixed — but the row for a real file is created by the ASYNC
-        // MediaScanner, which can still show bytes=0/durationMs=0
-        // seconds after the success screen (the file itself is
-        // complete on disk; killed the v0.1.2 validation run in
-        // run 2). So poll until the scanner catches up (bounded) and
-        // only fail on a row that STAYS empty — a genuinely stuck
-        // 0-byte row still fails.
-        var settledHits = mediaStoreHits
-        var emptyRows = settledHits.filter { it.contains("bytes=0") }
-        val settleDeadline = System.currentTimeMillis() + 60_000
-        while (emptyRows.isNotEmpty() && System.currentTimeMillis() < settleDeadline) {
-            Thread.sleep(2_000)
-            settledHits = queryMediaStore()
-            emptyRows = settledHits.filter { it.contains("bytes=0") }
-        }
-        println("SMOKE $label: MediaStore after settle: $settledHits")
-        assertTrue(
-            "MediaStore has 0-byte phantom entries after $label: $emptyRows",
-            emptyRows.isEmpty(),
-        )
-        return out
+    /** Picks one option from a settings dropdown (tag -> menu text). */
+    private fun selectDropdownOption(dropdownTag: String, optionText: String) {
+        composeRule.onNodeWithTag(dropdownTag).performClick()
+        waitForText(optionText, 30_000)
+        composeRule.onNodeWithText(optionText).performClick()
+        waitForText(optionText, 30_000)
+        println("SMOKE settings: $dropdownTag -> $optionText")
     }
 
     @Test
-    fun sampleClipConvertsEndToEnd() {
+    fun queueConvertsEndToEndWithFfmpeg() {
         // 1. Launch screen.
         waitForText("Try sample clip", 120_000)
         // No chips or claims on the launch screen: the "USB-OTG
@@ -306,58 +237,240 @@ class Convert264SmokeTest {
         assertNoLaunchClaimText()
         captureScreenshot(composeRule, "01b-launch-dark")
         setNightMode(false)
+
+        // 2. Sample clip -> one queue entry.
         composeRule.onNodeWithText("Try sample clip").performClick()
+        waitForQueueSize(1, 240_000)
+        // The row must show the clip's duration, and the
+        // thumbnail must be a real extracted frame (the
+        // ViewModel holds the bitmap the row renders). The
+        // duration is read from the ViewModel, not hardcoded:
+        // on a slow emulator the generated sample's frames are
+        // timestamped in wall-clock as they encode, so it can
+        // report ~37s instead of 3s.
+        waitUntilWithIdleRetry(120_000) {
+            vm.queue.value.firstOrNull()?.video?.thumbnailBitmap != null
+        }
+        val sampleDurationMs = vm.queue.value.first().video.durationMs
+        val expectedDuration = com.example.util.FormatUtils.formatDuration(sampleDurationMs)
+        waitForTextSubstring(expectedDuration, 30_000)
+        assertEquals(
+            "Expected 1 queue thumbnail rendered",
+            1,
+            // The thumbnail Image lives inside the row's
+            // clickable ListItem, which merges descendants into
+            // the row node — in the merged tree the Image's tag
+            // is gone, so count it in the unmerged tree.
+            composeRule.onAllNodesWithTag("queue_item_thumbnail", useUnmergedTree = true)
+                .fetchSemanticsNodes().size,
+        )
+        println("SMOKE sample loaded: thumbnail + $expectedDuration shown in queue")
+        captureScreenshot(composeRule, "02a-queue-1-entry")
 
-        // 2. Sample loaded (generation is wall-clock bound on a slow
-        // emulator: 90 frames can take ~90s to encode on first run;
-        // the file is cached in the app cache dir afterwards).
-        waitForTag("selected_video_card", 240_000)
-        println("SMOKE sample loaded")
-        // The trim screen must show the video: the paused preview is
-        // a real extracted frame (Compose Image). Wait for the frame
-        // itself — the placeholder icon carries a different tag, so
-        // this gate fails if extraction never produces a frame
-        // instead of screenshotting an icon and calling it a video.
-        waitForTag("trim_preview_still", 120_000)
-        composeRule.onNodeWithTag("trim_preview_still").performScrollTo()
-        Thread.sleep(1_000)
-        println("SMOKE trim preview still frame shown")
-        captureScreenshot(composeRule, "02-sample-loaded")
-        composeRule.onNodeWithTag("trim_preview_play_button")
-            .performScrollTo()
-            .assertIsDisplayed()
-        println("SMOKE trim preview play button shown")
-        // Prove the LIVE player renders, not just the still: play
-        // for 3s and screenshot again — the sample clip draws its
-        // frame number on every frame, and the position readout
-        // advances while playing, so playback is observable even
-        // where the emulator cannot photograph the live surface.
-        composeRule.onNodeWithTag("trim_preview_play_button").performClick()
-        waitForTag("trim_video_preview", 30_000)
-        Thread.sleep(3_000)
-        captureScreenshot(composeRule, "02b-preview-playing")
-        println("SMOKE trim preview playing screenshot taken")
-        composeRule.onNodeWithTag("trim_preview_play_button").performClick()
-        println("SMOKE trim preview paused again")
+        // 3. Second clip -> 2 entries, both with thumbnails.
+        val uri2 = secondClipUri()
+        composeRule.runOnUiThread { vm.addVideos(listOf(uri2)) }
+        waitForQueueSize(2)
+        waitUntilWithIdleRetry(120_000) {
+            vm.queue.value.all { it.video.thumbnailBitmap != null }
+        }
+        assertEquals(
+            "Expected 2 queue thumbnails rendered",
+            2,
+            // See the 1-thumbnail assertion above: the row's
+            // clickable merges the Image's tag away in the
+            // merged tree.
+            composeRule.onAllNodesWithTag("queue_item_thumbnail", useUnmergedTree = true)
+                .fetchSemanticsNodes().size,
+        )
+        composeRule.onNodeWithText("sample_clip_2.mp4").assertIsDisplayed()
+        println("SMOKE queue: 2 entries with thumbnails + durations")
+        captureScreenshot(composeRule, "02b-queue-2-entries")
 
-        // 3. Run 1: Original preset (no scale effect).
-        val out1 = runConversion("run1-original", null)
-        assertTrue("Run 1 produced no output file on disk", out1 != null)
+        // Trim both files to 5s (the generated sample can report
+        // ~37s on a slow emulator — encoding the full length in
+        // VP9 twice would take many minutes; 5s still proves a
+        // real VP9/MKV encode with trim applied).
+        trimAllTo5s()
 
-        // 4. Run 2: 720p preset (Presentation scale effect — a
-        // different encode path; does Media3 report progress there?).
-        composeRule.onNodeWithTag("convert_another_button")
-            .performScrollTo()
-            .performClick()
-        waitForText("Try sample clip", 120_000)
-        composeRule.onNodeWithText("Try sample clip").performClick()
-        waitForTag("selected_video_card", 120_000)
-        println("SMOKE sample reloaded for run 2 (cached file)")
-        val out2 = runConversion("run2-720p", "preset_p720")
-        assertTrue("Run 2 produced no output file on disk", out2 != null)
+        // 4. Settings: MKV container, VP9 video, Opus audio.
+        // The container drives the other lists, so pick it first
+        // (VP9 is not a valid MP4 video codec — the menu would
+        // not even list it). Then open the video-codec dropdown
+        // for the dropdown-open screenshot, then pick VP9 + Opus.
+        selectDropdownOption("dropdown_container", "Matroska (MKV)")
+        composeRule.onNodeWithTag("dropdown_video_codec").performClick()
+        waitForText("VP9", 30_000)
+        captureScreenshot(composeRule, "03-settings-dropdown-open")
+        composeRule.onNodeWithText("VP9").performClick()
+        selectDropdownOption("dropdown_audio_codec", "Opus")
+        waitForTextSubstring("MKV · VP9 · Opus", 30_000)
+        println("SMOKE settings: MKV · VP9 · Opus selected")
+        captureScreenshot(composeRule, "03b-settings-selected")
+
+        // 5. Detail screen: tap the first entry, check the screen
+        // fits on one page (its bottom element — the Convert
+        // button — is displayed without scrolling).
+        composeRule.onNodeWithText("sample_clip.mp4").performClick()
+        waitForTag("detail_convert_button", 60_000)
+        // Let the navigation transition settle before measuring
+        // visibility: the node exists mid-animation while the
+        // screen is still sliding in, and assertIsDisplayed fails
+        // then even when the finished layout fits. Screenshot
+        // first, so the layout is on record even if the assert
+        // below still fails.
+        Thread.sleep(2_000)
+        captureScreenshot(composeRule, "04-detail-screen")
+        val buttonBounds = composeRule.onNodeWithTag("detail_convert_button")
+            .fetchSemanticsNode().boundsInRoot
+        val rootBounds = composeRule.onRoot().fetchSemanticsNode().boundsInRoot
+        println("SMOKE detail bounds button=$buttonBounds root=$rootBounds")
+        composeRule.onNodeWithTag("detail_convert_button").assertIsDisplayed()
+        println("SMOKE detail screen opened, Convert button displayed without scrolling")
+        composeRule.onNodeWithTag("detail_back_button").performClick()
+        waitForTag("queue_list", 30_000)
+        println("SMOKE back on queue")
+
+        // 6. Play -> converting card -> Stop returns the file to Queued.
+        composeRule.onNodeWithTag("play_queue_button").performClick()
+        waitForTag("conversion_status_card", 60_000)
+        println("SMOKE converting card shown after Play")
+        captureScreenshot(composeRule, "05-converting")
+        composeRule.onNodeWithTag("stop_queue_button").performClick()
+        waitUntilWithIdleRetry(60_000) {
+            vm.queue.value.all { it.status is QueueItemStatus.Queued } &&
+                vm.queue.value.isNotEmpty()
+        }
         assertTrue(
-            "Run 2 output is the same file as run 1 — expected a second file",
-            out2 != out1,
+            "Stop did not return the queue to Queued",
+            vm.queue.value.all { it.status is QueueItemStatus.Queued },
+        )
+        println("SMOKE Stop: queue back to Queued")
+
+        // 7. Clear queue empties it; re-add both files.
+        composeRule.onNodeWithTag("clear_queue_button").performClick()
+        waitForQueueSize(0)
+        waitForText("Select Video to Convert", 30_000)
+        println("SMOKE Clear queue: empty state shown")
+        addBothClips()
+        // Re-adding resets the trim range to the full clip, so
+        // trim to 5s again (same reason as step 3).
+        trimAllTo5s()
+        // The re-added files take the current global settings.
+        assertTrue(
+            "Re-added files did not take the MKV/VP9/Opus settings",
+            vm.queue.value.all { it.settings.targetSummary.contains("MKV · VP9 · Opus") },
+        )
+
+        // 8. Play -> Pause -> Play resumes -> both files Done.
+        // Observe the queue from a background thread: percents
+        // seen, and whether ffmpeg ever reported a real percent.
+        val seenPercents = Collections.synchronizedSet(mutableSetOf<Int>())
+        var sawAvailable = false
+        var sawConverting = false
+        val stop = AtomicBoolean(false)
+        val poller = thread(start = true) {
+            while (!stop.get()) {
+                val item = vm.queue.value.firstOrNull()
+                val status = item?.status
+                if (status is QueueItemStatus.Converting) {
+                    sawConverting = true
+                    if (status.progress.progressAvailable) {
+                        sawAvailable = true
+                        seenPercents.add(status.progress.percent)
+                    }
+                }
+                Thread.sleep(200)
+            }
+        }
+        try {
+            composeRule.onNodeWithTag("play_queue_button").performClick()
+            waitForTag("conversion_status_card", 60_000)
+            println("SMOKE second run converting")
+            // Pause mid-encode: the row must show Paused.
+            composeRule.onNodeWithTag("pause_queue_button").performClick()
+            waitUntilWithIdleRetry(60_000) {
+                vm.queue.value.any { it.status is QueueItemStatus.Paused }
+            }
+            waitForTextSubstring("Paused", 30_000)
+            println("SMOKE Pause: first file Paused")
+            captureScreenshot(composeRule, "05b-paused")
+            // Resume: Play restarts the paused file from scratch
+            // (ffmpeg has no pause/resume — progress visibly resets).
+            composeRule.onNodeWithTag("play_queue_button").performClick()
+            waitUntilWithIdleRetry(300_000) {
+                vm.queue.value.size == 2 &&
+                    vm.queue.value.all { it.status is QueueItemStatus.Done }
+            }
+        } finally {
+            stop.set(true)
+            poller.join(5_000)
+        }
+        println(
+            "SMOKE queue PROGRESS percents=$seenPercents " +
+                "sawConverting=$sawConverting sawAvailable=$sawAvailable",
+        )
+        assertTrue(
+            "Converting state was never observed during the queue run",
+            sawConverting,
+        )
+        assertTrue(
+            "ffmpeg never reported a real percent during the queue run " +
+                "(percents seen: $seenPercents)",
+            sawAvailable,
+        )
+        assertTrue(
+            "Both queue files must be Done",
+            vm.queue.value.all { it.status is QueueItemStatus.Done },
+        )
+        // Done rows offer Open + Share per file.
+        assertEquals(
+            "Expected Open action on both Done rows",
+            2,
+            composeRule.onAllNodesWithContentDescription("Open converted video")
+                .fetchSemanticsNodes().size,
+        )
+        assertEquals(
+            "Expected Share action on both Done rows",
+            2,
+            composeRule.onAllNodesWithContentDescription("Share converted video")
+                .fetchSemanticsNodes().size,
+        )
+        println("SMOKE queue Done: Open + Share on both rows")
+        captureScreenshot(composeRule, "06-queue-done")
+
+        // 9. Real MKV files on disk: two _vp9.mkv outputs.
+        val outs = newestOutputFiles()
+        val mediaStoreHits = queryMediaStore()
+        println("SMOKE output dir contents: ${outputDirListing()}")
+        println("SMOKE MediaStore Convert264 entries: $mediaStoreHits")
+        assertTrue(
+            "Expected 2 _vp9.mkv outputs in Movies/Convert264 " +
+                "(dir: ${outputDirListing()}, MediaStore: $mediaStoreHits)",
+            outs.size >= 2,
+        )
+        for (out in outs) {
+            println("SMOKE OUTPUT file=${out.name} bytes=${out.length()}")
+            assertTrue("Output ${out.name} is empty", out.length() > 0)
+        }
+        // No 0-byte phantom rows in MediaStore: the row for a real
+        // file is created by the ASYNC MediaScanner, which can
+        // still show bytes=0 seconds after the success screen (the
+        // file itself is complete on disk). Poll until the scanner
+        // catches up (bounded) and only fail on a row that STAYS
+        // empty.
+        var settledHits = mediaStoreHits
+        var emptyRows = settledHits.filter { it.contains("bytes=0") }
+        val settleDeadline = System.currentTimeMillis() + 60_000
+        while (emptyRows.isNotEmpty() && System.currentTimeMillis() < settleDeadline) {
+            Thread.sleep(2_000)
+            settledHits = queryMediaStore()
+            emptyRows = settledHits.filter { it.contains("bytes=0") }
+        }
+        println("SMOKE MediaStore after settle: $settledHits")
+        assertTrue(
+            "MediaStore has 0-byte phantom entries: $emptyRows",
+            emptyRows.isEmpty(),
         )
     }
 
@@ -369,16 +482,16 @@ class Convert264SmokeTest {
     private fun outputDirListing(): List<String> =
         outputDir().listFiles()?.map { "${it.name} (${it.length()} bytes)" } ?: emptyList()
 
-    private fun newestOutputFile(): File? = outputDir().listFiles()
-        // Output names are <base>_h264.mp4, <base>_h264_1.mp4, ...
+    private fun newestOutputFiles(): List<File> = outputDir().listFiles()
+        // Output names are <base>_vp9.mkv, <base>_vp9_1.mkv, ...
         // (see FormatUtils.generateUniqueOutputName) — a plain
-        // endsWith("_h264.mp4") misses the _1/_2 files, which is
-        // exactly how run 2 once "found" run 1's file again.
+        // endsWith("_vp9.mkv") misses the _1/_2 files.
         ?.filter { it.length() > 0 && OUTPUT_NAME_REGEX.containsMatchIn(it.name) }
-        ?.maxByOrNull { it.lastModified() }
+        ?.sortedByDescending { it.lastModified() }
+        ?: emptyList()
 
     companion object {
-        private val OUTPUT_NAME_REGEX = Regex("""_h264(_\d+)?\.mp4$""")
+        private val OUTPUT_NAME_REGEX = Regex("""_vp9(_\d+)?\.mkv$""")
     }
 
     private fun queryMediaStore(): List<String> {

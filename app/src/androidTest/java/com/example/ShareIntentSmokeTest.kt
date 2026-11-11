@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.util.SampleVideoProvider
@@ -33,10 +34,10 @@ import org.junit.Test
  *
  * 2. HANDLING — launching MainActivity with a real share intent
  *    (EXTRA_STREAM, clipData-only, SEND_MULTIPLE, null type,
- *    wildcard type) must load the video. The null/wildcard cases are tested
- *    with the intent pinned to our own activity, because
- *    resolution cannot match them (see above) — they prove the
- *    handler, not the filter.
+ *    wildcard type) must load the video into the queue. The
+ *    null/wildcard cases are tested with the intent pinned to our
+ *    own activity, because resolution cannot match them (see
+ *    above) — they prove the handler, not the filter.
  *
  * The shared URI is the on-device sample clip (generated + cached by
  * SampleVideoProvider), so no external file is needed.
@@ -64,7 +65,7 @@ class ShareIntentSmokeTest {
 
     private fun waitForVideoLoaded() {
         composeRule.waitUntil(180_000) {
-            composeRule.onAllNodesWithTag("selected_video_card")
+            composeRule.onAllNodesWithText("sample_clip.mp4", substring = true)
                 .fetchSemanticsNodes().isNotEmpty()
         }
     }
@@ -128,7 +129,7 @@ class ShareIntentSmokeTest {
         }
         ActivityScenario.launch<MainActivity>(intent).use {
             waitForVideoLoaded()
-            println("SMOKE share-intent: shared video loaded (source card shown)")
+            println("SMOKE share-intent: shared video loaded into the queue")
             captureScreenshot(composeRule, "05-share-intent-loaded")
         }
     }
@@ -165,7 +166,7 @@ class ShareIntentSmokeTest {
         }
         ActivityScenario.launch<MainActivity>(intent).use {
             waitForVideoLoaded()
-            println("SMOKE share-intent: SEND_MULTIPLE loaded the first video")
+            println("SMOKE share-intent: SEND_MULTIPLE loaded both videos into the queue")
         }
     }
 

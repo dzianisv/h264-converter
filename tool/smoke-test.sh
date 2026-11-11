@@ -2,17 +2,17 @@
 # Convert264 emulator smoke test (run inside android-emulator-runner).
 # Runs the in-process Compose instrumented tests
 # (app/src/androidTest/.../Convert264SmokeTest.kt +
-#  ShareIntentSmokeTest.kt) via connectedDebugAndroidTest — no
-# uiautomator dumps, no adb UI driving, which proved unreliable on
-# the slow GitHub Actions emulator (System UI ANRs, empty dumps for
-# minutes at a time).
+#  ShareIntentSmokeTest.kt + FfmpegSpikeTest.kt) via
+# connectedDebugAndroidTest — no uiautomator dumps, no adb UI
+# driving, which proved unreliable on the slow GitHub Actions
+# emulator (System UI ANRs, empty dumps for minutes at a time).
 #
 # Evidence: everything lands in tool/smoke-screenshots/<run-id>/
 # (run-id is unique per run, so nothing is ever overwritten):
-#   - in-test screenshots (launch / sample loaded / converting /
-#     success / share-intent) pulled from the app's external files dir
+#   - in-test screenshots (launch / queue / settings / detail /
+#     converting / done / share-intent) pulled from the app's external files dir
 #   - screen-recorded video chunks of the whole run (best effort)
-#   - every output _h264.mp4, ffprobed
+#   - every output file (_vp9.mkv in v0.2.0), ffprobed
 #   - smoke.log + the SMOKE lines from the JUnit XML
 # Afterwards the workflow uploads tool/smoke-screenshots/ as an
 # artifact (retention 30 days).
@@ -46,6 +46,28 @@ for i in $(seq 1 36); do
 done
 if [ "$API" != "35" ]; then
   say "device never became queryable (last API level='$API') — emulator infra failure, retry the run"
+  exit 2
+fi
+# boot_completed + a queryable API level is NOT enough: on some
+# runs the system server is still coming up and the package/activity
+# services are not registered yet, so the test APK install then
+# fails with "cmd: Can't find service: package" (killed the
+# v0.2.0 spike run 42884094684 — the build had succeeded and 0
+# tests ran). Do not start Gradle until both services answer.
+say "waiting for package + activity services to be registered"
+SERVICES_OK=""
+for i in $(seq 1 36); do
+  PKG=$(adb shell service check package 2>/dev/null | tr -d '\r')
+  ACT=$(adb shell service check activity 2>/dev/null | tr -d '\r')
+  if echo "$PKG" | grep -q "found" && echo "$ACT" | grep -q "found"; then
+    SERVICES_OK=1
+    say "package + activity services ready ($PKG / $ACT)"
+    break
+  fi
+  sleep 5
+done
+if [ -z "$SERVICES_OK" ]; then
+  say "package/activity services never became available — emulator infra failure, retry the run"
   exit 2
 fi
 say "boot completed; letting the system settle (first-boot dexopt, ANRs)"
@@ -92,6 +114,36 @@ gradle connectedDebugAndroidTest --no-daemon 2>&1 | tee -a "$LOG"
 RC=${PIPESTATUS[0]}
 say "connectedDebugAndroidTest exit code: $RC"
 
+# Infra flake: the emulator sometimes goes unresponsive during
+# the (multi-minute) build, and Gradle then fails at install time
+# with "Skipping device 'emulator-5554': Unknown API Level" /
+# "No compatible devices connected" / "Cannot install split APKs
+# with API level < 21" (ddmlib loses the device's API level when
+# it cannot query it) — 0 tests ran, nothing about the app was
+# exercised (killed runs 42920684814 and 42923401415). Retry once
+# after the device answers again instead of failing the run on
+# it. The tests are idempotent (outputs never overwrite), so a
+# retry is safe.
+if [ "$RC" != "0" ] && grep -q -E "Unknown API Level|No compatible devices|Cannot install split APKs|Failed to install split APK" "$LOG"; then
+  say "infra flake detected (device unresponsive at install time) — retrying once"
+  API=""
+  for i in $(seq 1 36); do
+    API=$(timeout 20 adb shell getprop ro.build.version.sdk 2>/dev/null | tr -d '\r')
+    if [ "$API" = "35" ]; then
+      say "device API level queryable again: $API"
+      break
+    fi
+    sleep 5
+  done
+  if [ "$API" = "35" ]; then
+    gradle connectedDebugAndroidTest --no-daemon 2>&1 | tee -a "$LOG"
+    RC=${PIPESTATUS[0]}
+    say "retry connectedDebugAndroidTest exit code: $RC"
+  else
+    say "device never became queryable again — emulator infra failure, retry the run"
+  fi
+fi
+
 stop_recording
 
 # --- Pull screen-recorded video chunks (written to /data/local/tmp:
@@ -109,7 +161,7 @@ find "$OUT/screenshots" -name "*.png" 2>/dev/null | tee -a "$LOG" || true
 # --- Output-file verification (the real outcome, not just the UI) ---
 say "=== output file checks ==="
 adb shell ls -l /sdcard/Movies/Convert264/ 2>&1 | tee -a "$LOG"
-for OUT_FILE in $(adb shell ls /sdcard/Movies/Convert264/ 2>/dev/null | tr -d '\r' | grep -E '_h264(_[0-9]+)?\.mp4'); do
+for OUT_FILE in $(adb shell ls /sdcard/Movies/Convert264/ 2>/dev/null | tr -d '\r' | grep -E '\.(mp4|mkv|mov|webm)$'); do
   say "output file: $OUT_FILE"
   OUT_SIZE=$(adb shell stat -c %s "/sdcard/Movies/Convert264/$OUT_FILE" 2>/dev/null | tr -d '\r')
   say "output size bytes: $OUT_SIZE"
@@ -118,7 +170,7 @@ for OUT_FILE in $(adb shell ls /sdcard/Movies/Convert264/ 2>/dev/null | tr -d '\
   if command -v ffprobe >/dev/null 2>&1; then
     ffprobe -v error -show_entries format=duration,size -show_entries stream=codec_name,width,height -of default=noprint_wrappers=1 "$OUT/$SAFE_NAME" 2>&1 | tee -a "$LOG"
     OUT_DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$OUT/$SAFE_NAME" 2>/dev/null)
-    say "output duration (ffprobe): ${OUT_DUR}s — expected ~15s (sample trimmed to 15s)"
+    say "output duration (ffprobe): ${OUT_DUR}s — expected ~5s (sample trimmed to 5s in the smoke test)"
   fi
 done
 

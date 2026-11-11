@@ -31,6 +31,7 @@ import com.example.util.FormatUtils
 fun ConversionStatusBar(
     progress: ConversionProgress,
     onCancelClick: () -> Unit,
+    title: String = "Converting…",
     modifier: Modifier = Modifier
 ) {
     val animatedProgress by animateFloatAsState(
@@ -53,8 +54,11 @@ fun ConversionStatusBar(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Converting to H.264…",
-                    style = MaterialTheme.typography.titleMedium
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
                 )
                 Text(
                     // When the encoder does not report progress, "0%"
