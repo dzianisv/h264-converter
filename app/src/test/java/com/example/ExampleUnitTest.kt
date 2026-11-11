@@ -40,21 +40,27 @@ class ExampleUnitTest {
         val tempDir = File(System.getProperty("java.io.tmpdir"), "convert264_test_${System.currentTimeMillis()}")
         tempDir.mkdirs()
 
-        val name1 = FormatUtils.generateUniqueOutputName("vacation.mov", tempDir, "_h264", "mp4")
+        // The suffix is a bare short name (e.g. "h264") — the
+        // function adds the underscore. The v0.1.x test passed
+        // "_h264" and produced a double underscore; that broke
+        // the gate on the v0.2.0 tag (runs 42937353496 /
+        // 42937356024) because the smoke workflow never runs
+        // unit tests, so the branch never exercised this test.
+        val name1 = FormatUtils.generateUniqueOutputName("vacation.mov", tempDir, "h264", "mp4")
         assertEquals("vacation_h264.mp4", name1)
 
         // Create the file so it exists
         File(tempDir, name1).createNewFile()
 
-        val name2 = FormatUtils.generateUniqueOutputName("vacation.mov", tempDir, "_h264", "mp4")
+        val name2 = FormatUtils.generateUniqueOutputName("vacation.mov", tempDir, "h264", "mp4")
         assertEquals("vacation_h264_1.mp4", name2)
 
         File(tempDir, name2).createNewFile()
-        val name3 = FormatUtils.generateUniqueOutputName("vacation.mov", tempDir, "_h264", "mp4")
+        val name3 = FormatUtils.generateUniqueOutputName("vacation.mov", tempDir, "h264", "mp4")
         assertEquals("vacation_h264_2.mp4", name3)
 
         // A different codec/container gets its own name.
-        val mkvName = FormatUtils.generateUniqueOutputName("vacation.mov", tempDir, "_vp9", "mkv")
+        val mkvName = FormatUtils.generateUniqueOutputName("vacation.mov", tempDir, "vp9", "mkv")
         assertEquals("vacation_vp9.mkv", mkvName)
 
         tempDir.deleteRecursively()
