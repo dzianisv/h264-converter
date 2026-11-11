@@ -104,7 +104,7 @@ fun ConversionSettingsCard(
                         label = "Container",
                         options = Container.entries,
                         selected = settings.container,
-                        optionLabel = { it.label },
+                        optionLabel = { it.shortLabel },
                         onSelect = { onSettingsChange(settings.copy(container = it)) },
                         testTag = "dropdown_container",
                         modifier = Modifier.weight(1f)
@@ -136,7 +136,7 @@ fun ConversionSettingsCard(
                         label = "Quality",
                         options = QualityPreset.entries,
                         selected = settings.quality,
-                        optionLabel = { it.label },
+                        optionLabel = { it.shortLabel },
                         onSelect = { preset ->
                             if (preset == QualityPreset.CUSTOM) {
                                 showBitrateDialog = true
@@ -254,6 +254,11 @@ private fun <T> SettingsDropdown(
             value = optionLabel(selected),
             onValueChange = {},
             readOnly = true,
+            // Single line: a long value must ellipsize, never
+            // grow the field taller (in the compact two-column
+            // grid a wrapped value made the row ~76dp and pushed
+            // the detail screen over the fold).
+            singleLine = true,
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),

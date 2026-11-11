@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -317,12 +318,34 @@ private fun CompactTrimTime(
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            TextButton(onClick = { onAdjust(-1000L) }) { Text("-1s") }
-            TextButton(onClick = { onAdjust(-100L) }) { Text("-0.1s") }
-            TextButton(onClick = { onAdjust(100L) }) { Text("+0.1s") }
-            TextButton(onClick = { onAdjust(1000L) }) { Text("+1s") }
+            // Each button takes an equal quarter: at half-screen
+            // width the four default TextButtons overflowed and
+            // the "+1s" was clipped off the edge (run 42926135450
+            // detail screenshot). Tight padding is still the
+            // standard TextButton, just less empty space.
+            val buttonPadding = PaddingValues(horizontal = 2.dp, vertical = 0.dp)
+            TextButton(
+                onClick = { onAdjust(-1000L) },
+                contentPadding = buttonPadding,
+                modifier = Modifier.weight(1f)
+            ) { Text("-1s", maxLines = 1) }
+            TextButton(
+                onClick = { onAdjust(-100L) },
+                contentPadding = buttonPadding,
+                modifier = Modifier.weight(1f)
+            ) { Text("-0.1s", maxLines = 1) }
+            TextButton(
+                onClick = { onAdjust(100L) },
+                contentPadding = buttonPadding,
+                modifier = Modifier.weight(1f)
+            ) { Text("+0.1s", maxLines = 1) }
+            TextButton(
+                onClick = { onAdjust(1000L) },
+                contentPadding = buttonPadding,
+                modifier = Modifier.weight(1f)
+            ) { Text("+1s", maxLines = 1) }
         }
     }
 }

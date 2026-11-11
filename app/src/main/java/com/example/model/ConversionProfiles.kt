@@ -52,26 +52,30 @@ enum class AudioCodec(
 
 enum class Container(
     val label: String,
+    /** Short label for the compact (two-column) settings grid. */
+    val shortLabel: String,
     val extension: String,
     /** ffmpeg muxer name. */
     val muxer: String,
     val mimeType: String,
 ) {
-    MP4("MP4", "mp4", "mp4", "video/mp4"),
-    MKV("Matroska (MKV)", "mkv", "matroska", "video/x-matroska"),
-    MOV("MOV", "mov", "mov", "video/quicktime"),
-    WEBM("WebM", "webm", "webm", "video/webm"),
+    MP4("MP4", "MP4", "mp4", "mp4", "video/mp4"),
+    MKV("Matroska (MKV)", "MKV", "mkv", "matroska", "video/x-matroska"),
+    MOV("MOV", "MOV", "mov", "mov", "video/quicktime"),
+    WEBM("WebM", "WebM", "webm", "webm", "video/webm"),
 }
 
 /** Video bitrate presets. CUSTOM takes [ConversionSettings.customVideoBitrateKbps]. */
 enum class QualityPreset(
     val label: String,
+    /** Short label for the compact (two-column) settings grid. */
+    val shortLabel: String,
     val videoBitrateKbps: Int?,
 ) {
-    LOW("Low · 2 Mbps", 2000),
-    MEDIUM("Medium · 5 Mbps", 5000),
-    HIGH("High · 10 Mbps", 10000),
-    CUSTOM("Custom bitrate…", null),
+    LOW("Low · 2 Mbps", "2 Mbps", 2000),
+    MEDIUM("Medium · 5 Mbps", "5 Mbps", 5000),
+    HIGH("High · 10 Mbps", "10 Mbps", 10000),
+    CUSTOM("Custom bitrate…", "Custom…", null),
 }
 
 /**

@@ -8,11 +8,12 @@ import android.view.TextureView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
@@ -97,6 +98,12 @@ fun TrimVideoPreview(
      * screen must fit without scrolling, and a portrait video's
      * aspect ratio would otherwise make the frame ~675dp tall).
      * The frame crops to fill — it is a preview, not a player.
+     *
+     * The cap is computed as an explicit height (BoxWithConstraints),
+     * NOT aspectRatio + heightIn: aspectRatio sets minHeight to
+     * width/ratio, and a minHeight beats a heightIn max, so the
+     * cap silently did nothing and the frame rendered ~255dp tall
+     * (killed the v0.2.0 detail fit check in run 42926135450).
      */
     maxPreviewHeight: Dp = Dp.Unspecified
 ) {
@@ -182,54 +189,55 @@ fun TrimVideoPreview(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(aspectRatio)
-                .then(
-                    if (maxPreviewHeight != Dp.Unspecified) {
-                        Modifier.heightIn(max = maxPreviewHeight)
-                    } else {
-                        Modifier
-                    }
-                ),
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            if (playing) {
-                AndroidView(
-                    factory = { ctx ->
-                        TextureView(ctx).apply {
-                            player.setVideoTextureView(this)
-                        }
-                    },
-                    onRelease = { textureView ->
-                        player.clearVideoTextureView(textureView)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(aspectRatio)
-                        .testTag("trim_video_preview")
-                )
+            val frameHeight = if (maxPreviewHeight != Dp.Unspecified) {
+                minOf(maxWidth / aspectRatio, maxPreviewHeight)
             } else {
-                if (stillBitmap != null) {
-                    Image(
-                        bitmap = stillBitmap!!.asImageBitmap(),
-                        contentDescription = "Video frame at trim position",
+                maxWidth / aspectRatio
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(frameHeight),
+                contentAlignment = Alignment.Center
+            ) {
+                if (playing) {
+                    AndroidView(
+                        factory = { ctx ->
+                            TextureView(ctx).apply {
+                                player.setVideoTextureView(this)
+                            }
+                        },
+                        onRelease = { textureView ->
+                            player.clearVideoTextureView(textureView)
+                        },
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(aspectRatio)
-                            .testTag("trim_preview_still"),
-                        contentScale = ContentScale.Crop
+                            .fillMaxSize()
+                            .testTag("trim_video_preview")
                     )
                 } else {
-                    Icon(
-                        imageVector = Icons.Default.VideoFile,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .testTag("trim_preview_placeholder")
-                    )
+                    if (stillBitmap != null) {
+                        Image(
+                            bitmap = stillBitmap!!.asImageBitmap(),
+                            contentDescription = "Video frame at trim position",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .testTag("trim_preview_still"),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.VideoFile,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .testTag("trim_preview_placeholder")
+                        )
+                    }
                 }
             }
         }
