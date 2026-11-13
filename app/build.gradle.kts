@@ -16,8 +16,8 @@ android {
     applicationId = "dev.dzianisv.convert264"
     minSdk = 24
     targetSdk = 36
-    versionCode = 11
-    versionName = "0.2.0"
+    versionCode = 12
+    versionName = "0.2.1"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
@@ -107,6 +107,9 @@ dependencies {
   implementation(libs.androidx.compose.ui.graphics)
   implementation(libs.androidx.compose.ui.tooling.preview)
   implementation(libs.androidx.core.ktx)
+  // Play in-app review (v0.2.1): the feedback loop for the Play
+  // Store launch — prompt once, after the 3rd successful conversion.
+  implementation(libs.play.review.ktx)
   implementation(libs.androidx.media3.transformer)
   implementation(libs.androidx.media3.effect)
   implementation(libs.androidx.media3.common)

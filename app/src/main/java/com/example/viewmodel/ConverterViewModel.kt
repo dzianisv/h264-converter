@@ -1,6 +1,7 @@
 package com.example.viewmodel
 
 import android.app.Application
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,6 +14,7 @@ import com.example.model.QueueItem
 import com.example.model.QueueItemStatus
 import com.example.model.coerceSettings
 import com.example.transcoder.FfmpegTranscoder
+import com.example.util.ReviewPrompt
 import com.example.util.SampleVideoProvider
 import com.example.util.VideoMetadataHelper
 import java.io.File
@@ -57,6 +59,26 @@ class ConverterViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val _globalSettings = MutableStateFlow(coerceSettings(ConversionSettings()))
     val globalSettings: StateFlow<ConversionSettings> = _globalSettings.asStateFlow()
+
+    // Play review prompt (v0.2.1): count successful conversions in
+    // SharedPreferences; the prompt is due once, at the 3rd success.
+    private val prefs = context.getSharedPreferences("convert264", Context.MODE_PRIVATE)
+    private val _reviewDue = MutableStateFlow(false)
+    val reviewDue: StateFlow<Boolean> = _reviewDue.asStateFlow()
+
+    private fun recordSuccessfulConversion() {
+        val count = prefs.getInt("successful_conversions", 0) + 1
+        prefs.edit().putInt("successful_conversions", count).apply()
+        if (ReviewPrompt.shouldAsk(count, prefs.getBoolean("review_asked", false))) {
+            _reviewDue.value = true
+        }
+    }
+
+    /** The review flow ran (shown, skipped, or failed) — never ask again. */
+    fun markReviewRequested() {
+        prefs.edit().putBoolean("review_asked", true).apply()
+        _reviewDue.value = false
+    }
 
     private val _isLoadingVideo = MutableStateFlow(false)
     val isLoadingVideo: StateFlow<Boolean> = _isLoadingVideo.asStateFlow()
@@ -273,6 +295,7 @@ class ConverterViewModel(application: Application) : AndroidViewModel(applicatio
                         updateItem(item.id) {
                             it.copy(status = QueueItemStatus.Done(outcome.result))
                         }
+                        recordSuccessfulConversion()
                         viewModelScope.launch(Dispatchers.IO) {
                             historyDao.insert(
                                 ConversionHistoryEntity(

@@ -21,6 +21,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,6 +36,7 @@ import com.example.ui.components.ConversionSettingsCard
 import com.example.ui.components.ConversionStatusBar
 import com.example.ui.components.QueueItemRow
 import com.example.ui.components.VideoPickerCard
+import com.example.util.ReviewPrompt
 import com.example.viewmodel.ConverterViewModel
 
 /**
@@ -212,6 +214,19 @@ fun QueueScreen(
                         onDeleteItem = { viewModel.deleteHistoryItem(it) },
                         onClearAll = { viewModel.clearAllHistory() }
                     )
+                }
+
+                // Play Store feedback (v0.2.1): a plain link to the
+                // listing. The automatic prompt fires once, after the
+                // 3rd conversion; this is here for anyone who wants
+                // to rate sooner.
+                item {
+                    TextButton(
+                        onClick = { ReviewPrompt.openStoreListing(context) },
+                        modifier = Modifier.testTag("rate_app_button")
+                    ) {
+                        Text(text = "Rate Convert264 on Google Play")
+                    }
                 }
             }
 

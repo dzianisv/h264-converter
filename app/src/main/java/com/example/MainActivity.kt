@@ -10,8 +10,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.example.ui.MainScreen
 import com.example.ui.theme.Convert264Theme
+import com.example.util.ReviewPrompt
 import com.example.viewmodel.ConverterViewModel
 
 class MainActivity : ComponentActivity() {
@@ -26,6 +30,17 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             Convert264Theme {
+                // Play review prompt (v0.2.1): once, after the 3rd
+                // successful conversion. Play decides whether to show
+                // it; whatever it does, we never ask again.
+                val reviewDue by viewModel.reviewDue.collectAsState()
+                LaunchedEffect(reviewDue) {
+                    if (reviewDue) {
+                        ReviewPrompt.launch(this@MainActivity) {
+                            viewModel.markReviewRequested()
+                        }
+                    }
+                }
                 MainScreen(viewModel = viewModel)
             }
         }

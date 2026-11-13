@@ -35,6 +35,14 @@ jobs:
         run: gradle testDebugUnitTest --no-daemon
       - name: Build release APK
         run: gradle assembleRelease --no-daemon
+      # Play Store needs an AAB, not the APK. Built from the same
+      # tag so the store build is byte-identical in code to the
+      # sideload APK. Signing note: CI signs with a throwaway
+      # keystore — the AAB is a build artifact, NOT the Play upload.
+      # The first Play upload must use a stable upload keystore
+      # (see tool/play-store/listing.md).
+      - name: Build release AAB (Play Store upload)
+        run: gradle bundleRelease --no-daemon
       - name: Audit merged manifest in the built APK
         run: |
           AAPT2=$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)
@@ -60,7 +68,9 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           name: Convert264 ${{ github.ref_name }}
-          files: app/build/outputs/apk/release/app-release.apk
+          files: |
+            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/bundle/release/app-release.aab
           generate_release_notes: true
           body: |
             Convert264 ${{ github.ref_name }} — clean, ad-free universal video converter (native Kotlin + Jetpack Compose, FFmpeg engine): queue, codec/container/audio choice, per-file trim.
