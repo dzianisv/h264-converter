@@ -34,3 +34,20 @@ new evidence.
   created; hourly supervisor deferred until Stage 1. Decider: owner
   (directed the daily run) + Muse (recorded reason: pre-launch, no live
   users, hourly checks would be noise).
+
+- 2026-11-14 — Name "Convert264" REOPENED for rethink. Decider: owner.
+  Reason: "264" means nothing to a normal person; it reads like a
+  version number. The Nov 12 naming decision is open again pending his
+  pick. Checked: VidConvert and VidConverter already on Play;
+  VidSwitch and ReVid clear; all four .com domains registered.
+- 2026-11-14 — product-framework adopted as the operating framework
+  (dispatcher + 12 lanes from dzianisv/product-framework; product file
+  products/convert264.md; 4-role job set complete). Decider: owner
+  (directed the install) + Muse. Reason: the framework is now the
+  single home; the Nov 13 hourly-supervisor deferral is superseded
+  by the new framework.
+- 2026-11-14 — Payment model marked UNDECIDED in the product file
+  (framework: MVP with payment first; app edge: free/no ads/no
+  account). Decider: owner (pending). Reason: a real fork — scale
+  waits for the first paying customer per the framework, but the
+  launch edge is free. Never invent a price or a tier.

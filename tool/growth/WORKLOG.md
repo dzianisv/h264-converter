@@ -17,7 +17,7 @@ Close with a dated reason.
   https://dzianisv.github.io/h264-converter/ — pure HTML+CSS, no JS;
   title 45 chars, meta 144 chars, OG tags, robots.txt, sitemap.xml,
   llms.txt. GitHub Pages enabled from docs/ on main. Owner: Muse.
-- [ ] WL-05 Real-Pixel test of v0.2.1 (queue, MKV output, dark mode, share
+- [ ] WL-05 Real-Pixel test of v0.2.2 (queue, MKV output, dark mode, share
   sheet, OTG with a real drive). Only he has the phone. Owner: founder.
   Due: Nov 19.
 - [ ] WL-07 Competitor study: top 5 video converters on Play — rating, 1-star
@@ -35,6 +35,30 @@ Close with a dated reason.
   Owner: founder. No date.
 - [ ] WL-11 Score the searches to win (searches.md) on relevance,
   difficulty, search volume. Owner: Muse. Due: Nov 20.
+- [ ] WL-13 App name — pick a name people understand. 'Convert264'
+  reopened Nov 14 (owner): '264' means nothing to a normal person.
+  Checked: VidConvert TAKEN on Play (Vinson Developers, $0.89, live
+  since Sep 2026) + older VidConvert by Acro Media Studio; VidConverter
+  taken on Play too; 'Video Converter' is the incumbent's name
+  (VidSoftLab, 4.6 stars, 12K reviews, 100K+ downloads). Clear on Play:
+  VidSwitch (recommended — says 'switch video formats', brandable,
+  title 'VidSwitch – Video Converter' is 27 chars), ReVid (short but
+  unclear). All four .com domains registered. Rename is display name +
+  store title + repo/landing copy only — applicationId never changes.
+  Owner: founder (his pick).
+- [ ] WL-14 Payment model — stay free vs one-time pro unlock vs
+  subscription. Framework rule (MVP with payment first, Nov 14): payment
+  ships in the MVP, scale waits for the first paying customer. The app's
+  edge as launched is free / no ads / no account — a real fork. Never
+  invent a price or a tier. Owner: founder.
+- [ ] WL-15 PostHog: install the Android SDK + run the self-driving
+  wizard on the landing page; project key in the Secure Vault only.
+  Owner: founder (PostHog project) / Muse (SDK + wizard).
+- [x] WL-16 product-framework adopted Nov 14: dispatcher + 12 lanes
+  installed from dzianisv/product-framework; product file
+  products/convert264.md created + pushed; 4-role job set complete
+  (daily loop + hourly supervisor added). Supersedes the Nov 13
+  hourly-supervisor deferral. Owner: Muse.
 
 ## Done
 

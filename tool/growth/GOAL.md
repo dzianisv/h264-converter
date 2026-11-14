@@ -98,3 +98,15 @@ listing live, Sentry receiving events, issues enabled (done: issues enabled,
   `tool/growth/competitors.md`. Reviews: `tool/growth/reviews.md`.
   Experiments: `tool/growth/experiments.md`. History:
   `tool/growth/history.md`.
+
+## Framework adoption (Nov 14, 2026)
+
+- product-framework adopted: dispatcher + 12 lanes installed from
+  dzianisv/product-framework; product file products/convert264.md
+  (pushed to the framework repo). Local copies in
+  ~/workspace/custom-skills/ and ~/workspace/products/convert264.md.
+- Job set now complete (4 roles): daily loop ~09:48 WITA, hourly
+  supervisor every 1h, daily growth sweep ~09:48 WITA, weekly
+  reflection Mondays ~09:48 WITA.
+- Open owner decisions: app name (WL-13), payment model (WL-14),
+  PostHog project (WL-15).
