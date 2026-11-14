@@ -26,18 +26,20 @@ Publish on Google Play, not buggy. Make it the top video converting app.
 listing live, Sentry receiving events, issues enabled (done: issues enabled,
 0 open, verified Nov 13).
 
-## Baseline (Nov 13, 2026 — measured; unknown where unmeasurable)
+## Baseline (Nov 14, 2026 — measured; unknown where unmeasurable)
 
 - Downloads: unknown — not on Play. Unblock: Play Console account.
 - Rating / reviews: unknown — same unblock.
-- Open GitHub issues: 0 (issue #1 fixed and closed Nov 14, shipped as
-  v0.2.2).
+- Open GitHub issues: 0 (verified Nov 14, 2026 — `gh issue list` empty;
+  issue #1 fixed and closed Nov 14, shipped as v0.2.2).
 - Sentry: not installed. Unblock: Sentry DSN (needs a Sentry project).
 - Store state: not created. Unblock: Play Console account ($25).
-- Landing page: live Nov 14 — https://dzianisv.github.io/h264-converter/ (GitHub Pages, docs/ on main).
-- Latest build: v0.2.2 (tag; Release published Nov 14, 2026; smoke test
-  GREEN on run 43546002038 — WL-12 fix for the 0-byte MKV reported Done,
-  issue #1 closed). AAB 35.9 MB + APK 54.8 MB on the release.
+- Landing page: live Nov 14 — https://dzianisv.github.io/h264-converter/ (GitHub Pages, docs/ on main; HTTP 200 re-verified Nov 14).
+- Latest build: v0.2.4 (tag; Release published Nov 14, 2026 15:11 UTC,
+  APK + AAB; smoke test GREEN on re-run 43608544016 — WL-17 full error
+  UI, first attempt failed on a ComposeNotIdle emulator flake, re-run
+  passed). Previous: v0.2.2 (smoke GREEN on run 43546002038 — WL-12 fix
+  for the 0-byte MKV reported Done, issue #1 closed).
 
 ## Scoreboard (updated weekly, Mondays)
 
@@ -45,7 +47,7 @@ listing live, Sentry receiving events, issues enabled (done: issues enabled,
 | --- | --- | --- |
 | Downloads | unknown | 100 |
 | Play rating | unknown | 4.5+ |
-| Open GitHub issues | 1 (issue #1, fix in flight) | 0 |
+| Open GitHub issues | 0 | 0 |
 | Sentry repeats | n/a (not installed) | 0 |
 | Store listing conversion | unknown | measure at 100 installs |
 | Activation (first real conversion) | unknown | measure at 100 installs |

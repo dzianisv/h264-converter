@@ -37,20 +37,6 @@ Close with a dated reason.
   Owner: founder. No date.
 - [ ] WL-11 Score the searches to win (searches.md) on relevance,
   difficulty, search volume. Owner: Muse. Due: Nov 20.
-- [x] WL-17 Full error UI (Nov 14, 2026): ConversionError(summary,
-  details) end to end — full ffmpeg log tail (30 lines, never
-  truncated) + return code + file/target; plain-language summary
-  (ErrorMessages); ErrorDetailsCard shared by queue row + detail
-  screen (selectable scrollable details, Copy error, Try again).
-  PR #3 merged (54f077e). v0.2.3 FAILED its smoke check — test
-  compile error (assertDoesNotExist unresolved), NOT an app bug;
-  per release discipline the v0.2.3 release + tag were deleted and
-  the fix shipped as v0.2.4 (PR #4: assertCountEquals + PR gate now
-  compiles instrumented tests). v0.2.4 Release + PR green; smoke run
-  43608544016 first attempt FAILED (queue test hit ComposeNotIdle in
-  setNightMode before any conversion ran; error-details + share-intent
-  tests passed) — re-run started 2026-11-14 15:47 UTC, verdict pending
-  (next hourly run settles it). Owner: Muse.
 - [ ] WL-18 Pixel 9a conversion failure — root cause unknown. The
   v0.2.2 error line was too short to read. Needs Den's copied error
   details from v0.2.3 (tap the failed row → Show details → Copy
@@ -82,6 +68,23 @@ Close with a dated reason.
   hourly-supervisor deferral. Owner: Muse.
 
 ## Done
+
+- [x] WL-17 Full error UI (Nov 14, 2026): ConversionError(summary,
+  details) end to end — full ffmpeg log tail (30 lines, never
+  truncated) + return code + file/target; plain-language summary
+  (ErrorMessages); ErrorDetailsCard shared by queue row + detail
+  screen (selectable scrollable details, Copy error, Try again).
+  PR #3 merged (54f077e). v0.2.3 FAILED its smoke check — test
+  compile error (assertDoesNotExist unresolved), NOT an app bug;
+  per release discipline the v0.2.3 release + tag were deleted and
+  the fix shipped as v0.2.4 (PR #4: assertCountEquals + PR gate now
+  compiles instrumented tests). v0.2.4 Release + PR green; smoke run
+  43608544016 first attempt FAILED (queue test hit ComposeNotIdle in
+  setNightMode before any conversion ran; error-details + share-intent
+  tests passed) — re-run started 2026-11-14 15:47 UTC, verdict
+  SETTLED Nov 14 ~16:36 UTC: smoke re-run SUCCESS (job "smoke"
+  success, 48m58s), v0.2.4 verified green. Done Nov 14, 2026.
+  Owner: Muse.
 
 - [x] WL-12 Fix smoke failure: 0-byte MKV reported Done (issue #1).
   Per-session transcoder lifecycle + empty-file guard (PR #2, merge
