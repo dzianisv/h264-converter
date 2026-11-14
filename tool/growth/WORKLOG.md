@@ -40,7 +40,11 @@ Close with a dated reason.
   truncated) + return code + file/target; plain-language summary
   (ErrorMessages); ErrorDetailsCard shared by queue row + detail
   screen (selectable scrollable details, Copy error, Try again).
-  PR #3 merged (54f077e). Shipped as v0.2.3. Owner: Muse.
+  PR #3 merged (54f077e). v0.2.3 FAILED its smoke check — test
+  compile error (assertDoesNotExist unresolved), NOT an app bug;
+  per release discipline the v0.2.3 release + tag were deleted and
+  the fix shipped as v0.2.4 (PR #4: assertCountEquals + PR gate now
+  compiles instrumented tests). Owner: Muse.
 - [ ] WL-18 Pixel 9a conversion failure — root cause unknown. The
   v0.2.2 error line was too short to read. Needs Den's copied error
   details from v0.2.3 (tap the failed row → Show details → Copy
