@@ -30,14 +30,16 @@ listing live, Sentry receiving events, issues enabled (done: issues enabled,
 
 - Downloads: unknown — not on Play. Unblock: Play Console account.
 - Rating / reviews: unknown — same unblock.
-- Open GitHub issues: 0 (verified via API Nov 13).
+- Open GitHub issues: 1 (issue #1, smoke 0-byte bug, filed Nov 13;
+  fix WL-12 in flight as v0.2.2).
 - Sentry: not installed. Unblock: Sentry DSN (needs a Sentry project).
 - Store state: not created. Unblock: Play Console account ($25).
 - Landing page: none. Unblock: hosting decision (proposal: GitHub Pages
   from this repo, free).
-- Latest build: v0.2.1 (tag; Release + PR green; smoke test failed on an
-  emulator boot flake — adb daemon unreachable, snapshot failed to load —
-  re-run started Nov 13; AAB 35.9 MB + APK 54.8 MB on the release).
+- Latest build: v0.2.1 (tag; Release + PR green; **smoke re-run FAILED
+  Nov 13 with a real bug** — run 43375580799: first queue file converted
+  to a 0-byte MKV yet shown Done; issue #1, fix WL-12 in flight, ships as
+  v0.2.2). AAB 35.9 MB + APK 54.8 MB on the release.
 
 ## Scoreboard (updated weekly, Mondays)
 
@@ -45,7 +47,7 @@ listing live, Sentry receiving events, issues enabled (done: issues enabled,
 | --- | --- | --- |
 | Downloads | unknown | 100 |
 | Play rating | unknown | 4.5+ |
-| Open GitHub issues | 0 | 0 |
+| Open GitHub issues | 1 (issue #1, fix in flight) | 0 |
 | Sentry repeats | n/a (not installed) | 0 |
 | Store listing conversion | unknown | measure at 100 installs |
 | Activation (first real conversion) | unknown | measure at 100 installs |

@@ -20,6 +20,9 @@ Close with a dated reason.
   Due: Nov 19.
 - [ ] WL-07 Competitor study: top 5 video converters on Play — rating, 1-star
   complaints, screenshots, update cadence. Owner: Muse. Due: Nov 20.
+  First pass DONE Nov 13 (competitors.md): all 5 rated + complaints +
+  cadence from Play/AppBrain. Remaining: screenshots bar from the live
+  listings + deeper 1-star sampling.
 - [ ] WL-08 First useful article: a how-to that works without the app
   (mention Convert264 once, at the end). Owner: Muse. Due: Nov 26 (week 2).
 - [ ] WL-09 Video join — build it or drop it. Open question to the founder

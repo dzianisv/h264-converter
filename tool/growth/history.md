@@ -23,3 +23,12 @@
   goal file, Work Log, Decision Log, growth folder, daily sweep +
   weekly reflection jobs. v0.2.1 smoke test failed on an emulator boot
   flake (adb unreachable); re-run started.
+- **Nov 13 (evening sweep)** — v0.2.1 smoke re-run (run 43375580799)
+  FAILED with a real bug, not the boot flake: first queue file converted
+  to a 0-byte MKV yet shown Done. Root cause verified from logcat + code:
+  a late completion callback from a cancelled FFmpeg session deletes the
+  new run's staging files, and success never checks the published file.
+  Filed issue #1; fix WL-12 dispatched (ships as v0.2.2). Competitor
+  study first pass done (competitors.md): Inverse AI 4.5★/182K, VidSoftLab
+  4.5★/8M installs (stale since Nov 2025), SilentLexx 3.8★; repeated
+  1-star themes are ads, paywalled formats, and dead/corrupt outputs.
