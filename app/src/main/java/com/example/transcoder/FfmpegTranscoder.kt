@@ -11,11 +11,13 @@ import androidx.core.content.FileProvider
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.ReturnCode
 import com.arthenica.ffmpegkit.Statistics
+import com.example.model.ConversionError
 import com.example.model.ConversionProgress
 import com.example.model.ConversionResult
 import com.example.model.ConversionSettings
 import com.example.model.VideoInfo
 import com.example.model.buildFfmpegCommand
+import com.example.util.ErrorMessages
 import com.example.util.FormatUtils
 import java.io.File
 import java.io.FileInputStream
@@ -81,7 +83,7 @@ class FfmpegTranscoder(private val context: Context) {
         settings: ConversionSettings,
         onProgress: (ConversionProgress) -> Unit,
         onSuccess: (ConversionResult) -> Unit,
-        onError: (String) -> Unit,
+        onError: (ConversionError) -> Unit,
         /** Called when the run was cancelled via [cancel] (pause / stop). */
         onCancelled: () -> Unit = {},
     ) = withContext(Dispatchers.IO) {
@@ -112,13 +114,27 @@ class FfmpegTranscoder(private val context: Context) {
                 FileOutputStream(stagedInput).use { out -> input.copyTo(out) }
             } ?: run {
                 cleanupStaging(stagedInput, stagedOutput)
-                withContext(Dispatchers.Main) { onError("Cannot read the source video.") }
+                withContext(Dispatchers.Main) {
+                    onError(
+                        ConversionError(
+                            summary = "Couldn't read the video file.",
+                            details = "Cannot read the source video.\nFile: ${videoInfo.name}",
+                        )
+                    )
+                }
                 return@withContext
             }
         } catch (e: Exception) {
             cleanupStaging(stagedInput, stagedOutput)
             withContext(Dispatchers.Main) {
-                onError("Cannot read the source video: ${e.localizedMessage ?: "unknown error"}")
+                onError(
+                    ConversionError(
+                        summary = "Couldn't read the video file.",
+                        details = "Cannot read the source video: " +
+                            "${e.localizedMessage ?: "unknown error"}\n" +
+                            "File: ${videoInfo.name}",
+                    )
+                )
             }
             return@withContext
         }
@@ -174,7 +190,13 @@ class FfmpegTranscoder(private val context: Context) {
                             mimeType = settings.container.mimeType,
                         )
                         if (!published || !finalOutputFile.exists() || finalOutputFile.length() <= 0L) {
-                            onError("Conversion produced an empty file. Please try again.")
+                            onError(
+                                ConversionError(
+                                    summary = "The conversion produced an empty file.",
+                                    details = "FFmpeg reported success but wrote 0 bytes.\n" +
+                                        "File: ${videoInfo.name} → ${settings.targetSummary}",
+                                )
+                            )
                         } else {
                             val finalSize = finalOutputFile.length()
                             val contentUri = try {
@@ -199,16 +221,30 @@ class FfmpegTranscoder(private val context: Context) {
                             onSuccess(result)
                         }
                     } catch (e: Exception) {
-                        onError("Failed to save final video: ${e.localizedMessage ?: "Unknown error"}")
+                        onError(
+                            ConversionError(
+                                summary = "Couldn't save the converted video.",
+                                details = "Failed to save final video: " +
+                                    "${e.localizedMessage ?: "Unknown error"}\n" +
+                                    "File: ${videoInfo.name} → ${settings.targetSummary}",
+                            )
+                        )
                     } finally {
                         cleanupStaging(stagedInput, stagedOutput)
                         if (currentSession === handle) currentSession = null
                     }
                 } else {
-                    val tail = lastLogs.takeLast(3).joinToString(" | ").take(300)
+                    // The full log tail, never truncated: WL-17.
+                    // The old code kept 3 lines cut to 300 chars,
+                    // which hid the real cause on the user's phone.
+                    val tail = synchronized(lastLogs) { lastLogs.joinToString("\n") }
                     onError(
-                        "Conversion failed (ffmpeg rc=${rc?.value}): " +
-                            tail.ifBlank { "no ffmpeg output captured" },
+                        ConversionError(
+                            summary = ErrorMessages.summarizeFfmpegLog(tail),
+                            details = "ffmpeg exited with code ${rc?.value}\n" +
+                                "File: ${videoInfo.name} → ${settings.targetSummary}\n\n" +
+                                tail.ifBlank { "no ffmpeg output captured" },
+                        )
                     )
                     cleanupStaging(stagedInput, stagedOutput)
                     if (currentSession === handle) currentSession = null
