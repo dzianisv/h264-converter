@@ -18,8 +18,6 @@ Close with a dated reason.
 - [ ] WL-05 Real-Pixel test of v0.2.1 (queue, MKV output, dark mode, share
   sheet, OTG with a real drive). Only he has the phone. Owner: founder.
   Due: Nov 19.
-- [ ] WL-06 Verify v0.2.1 smoke re-run (run 43375580799, re-run started
-  Nov 13 after an emulator boot flake). Owner: Muse. Due: Nov 13.
 - [ ] WL-07 Competitor study: top 5 video converters on Play — rating, 1-star
   complaints, screenshots, update cadence. Owner: Muse. Due: Nov 20.
 - [ ] WL-08 First useful article: a how-to that works without the app
@@ -33,7 +31,18 @@ Close with a dated reason.
 - [ ] WL-11 Score the searches to win (searches.md) on relevance,
   difficulty, search volume. Owner: Muse. Due: Nov 20.
 
+- [ ] WL-12 Fix smoke failure: 0-byte MKV reported Done (issue #1).
+  Late completion callback from a cancelled FFmpeg session deletes the new
+  run's staging files; success never checks the published file is
+  non-empty. Root cause verified from run 43375580799 logcat + code.
+  Owner: Muse (lead subagent). Due: Nov 14. Ships as v0.2.2.
+
 ## Done
+
+- [x] WL-06 Verify v0.2.1 smoke re-run (run 43375580799). FAILED Nov 13:
+  real bug, not the boot flake — queue test failed, first file
+  sample_clip_2_vp9.mkv 0 bytes yet shown Done. Superseded by WL-12 /
+  issue #1. Closed Nov 13, 2026.
 
 - [x] WL-00 Store listing drafted, icon + feature graphic + 4 screenshots
   shipped, v0.2.1 with in-app review prompt and rate link, PRIVACY.md,
