@@ -28,6 +28,13 @@ jobs:
           keytool -genkeypair -keystore upload.keystore -storepass ci-upload-pass -alias upload -keypass ci-upload-pass -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Convert264 CI, OU=CI, O=CI, L=CI, ST=CI, C=US" -noprompt
       - name: Unit tests
         run: gradle testDebugUnitTest --no-daemon
+      - name: Compile instrumented tests
+        # WL-17 lesson: the PR gate only ran unit tests + assembleDebug,
+        # so a broken androidTest source (assertDoesNotExist, unresolved
+        # in this Compose version) shipped to the tag and failed the
+        # smoke run's compile. Compiling the test APK here catches it
+        # at PR time, with no emulator needed.
+        run: gradle assembleDebugAndroidTest --no-daemon
       - name: Build debug APK
         run: gradle assembleDebug --no-daemon
       - uses: actions/upload-artifact@v4

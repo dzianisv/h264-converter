@@ -1,9 +1,10 @@
 package com.example
 
 import android.net.Uri
-import androidx.compose.ui.test.assertDoesNotExist
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -91,8 +92,8 @@ class ErrorDetailsTest {
         }
         // The summary line is visible; the full log is not — yet.
         composeRule.onNodeWithText("Failed: $summary").assertIsDisplayed()
-        composeRule.onNodeWithText("moov atom not found", substring = true)
-            .assertDoesNotExist()
+        composeRule.onAllNodesWithText("moov atom not found", substring = true)
+            .assertCountEquals(0)
         // "Show details" reveals the complete error.
         composeRule.onNodeWithTag("error_details_button_err1").performClick()
         composeRule.onNodeWithText("moov atom not found", substring = true)
@@ -106,7 +107,7 @@ class ErrorDetailsTest {
         assertTrue(retried)
         // Hiding collapses it again.
         composeRule.onNodeWithTag("error_details_button_err1").performClick()
-        composeRule.onNodeWithText("moov atom not found", substring = true)
-            .assertDoesNotExist()
+        composeRule.onAllNodesWithText("moov atom not found", substring = true)
+            .assertCountEquals(0)
     }
 }
