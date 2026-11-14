@@ -45,14 +45,34 @@ import kotlinx.coroutines.withContext
  * because the caller (pause/stop) already owns the resulting
  * state. Pause is cancel + re-run from scratch on resume:
  * ffmpeg has no pause/resume of an in-progress encode.
+ *
+ * Session-scoped lifecycle (WL-12, issue #1): each [transcode]
+ * call owns its staging files and its cancelled flag in locals
+ * the session's callbacks close over. A session's completion
+ * callback may only touch that session's own staging files and
+ * flags — never shared mutable state — so a late callback from
+ * a cancelled session is a no-op for any newer run. [cancel]
+ * only signals the current session; it never deletes files.
+ * The session's own completion callback deletes its staging
+ * files (FFmpegKit.cancel() is async — the callback is the
+ * only place that knows the session is really finished).
  */
 class FfmpegTranscoder(private val context: Context) {
 
+    /**
+     * Per-session cancellation state (WL-12): one handle per
+     * [transcode] call. [cancel] signals the current handle
+     * only; the session's completion callback closes over its
+     * own handle and staging files, never shared state.
+     */
+    private class SessionHandle {
+        @Volatile
+        var sessionId: Long? = null
+        val cancelled = AtomicBoolean(false)
+    }
+
     @Volatile
-    private var currentSessionId: Long? = null
-    private var tempInputFile: File? = null
-    private var tempOutputFile: File? = null
-    private val cancelledByUser = AtomicBoolean(false)
+    private var currentSession: SessionHandle? = null
 
     suspend fun transcode(
         videoInfo: VideoInfo,
@@ -65,7 +85,6 @@ class FfmpegTranscoder(private val context: Context) {
         /** Called when the run was cancelled via [cancel] (pause / stop). */
         onCancelled: () -> Unit = {},
     ) = withContext(Dispatchers.IO) {
-        cancelledByUser.set(false)
         val trimStart = startMs.coerceAtLeast(0L)
         val trimEnd = if (endMs in 1L..videoInfo.durationMs) endMs else videoInfo.durationMs
         val totalTrimDurationMs = (trimEnd - trimStart).coerceAtLeast(100L)
@@ -87,17 +106,17 @@ class FfmpegTranscoder(private val context: Context) {
             .takeIf { it.isNotBlank() } ?: "mp4"
         val stagedInput = File(context.cacheDir, "input_${UUID.randomUUID()}.$inputExt")
         val stagedOutput = File(context.cacheDir, "staging_${UUID.randomUUID()}.$outputName")
-        tempInputFile = stagedInput
-        tempOutputFile = stagedOutput
 
         try {
             context.contentResolver.openInputStream(videoInfo.uri)?.use { input ->
                 FileOutputStream(stagedInput).use { out -> input.copyTo(out) }
             } ?: run {
+                cleanupStaging(stagedInput, stagedOutput)
                 withContext(Dispatchers.Main) { onError("Cannot read the source video.") }
                 return@withContext
             }
         } catch (e: Exception) {
+            cleanupStaging(stagedInput, stagedOutput)
             withContext(Dispatchers.Main) {
                 onError("Cannot read the source video: ${e.localizedMessage ?: "unknown error"}")
             }
@@ -119,62 +138,80 @@ class FfmpegTranscoder(private val context: Context) {
         // callbacks below run on FFmpegKit's own threads, so
         // onProgress/onSuccess/onError must be thread-safe (they
         // only touch StateFlow / post back to Main where needed).
+        // The handle is registered BEFORE executeAsync so cancel()
+        // can signal this session even if it fires immediately;
+        // the session id lands as soon as executeAsync returns
+        // (and a cancel that slipped in between is re-issued below).
+        val handle = SessionHandle()
+        currentSession = handle
         val session = FFmpegKit.executeAsync(
             command,
             { completed ->
                 val rc = completed.returnCode
-                if (cancelledByUser.get()) {
+                // This callback belongs to ONE session: it may only
+                // touch that session's own staging files/flag.
+                // A late callback (cancel fired, a newer run has
+                // already started) is a no-op for the newer run:
+                // it cleans up only its own staging files and
+                // notifies only its own waiter (already gone by
+                // then — runOne guards on cont.isActive).
+                val superseded = currentSession !== handle
+                if (handle.cancelled.get() || superseded || ReturnCode.isCancel(rc)) {
                     // Pause / Stop / Clear owns the state now.
                     // Still notify, or the queue runner waiting on
                     // this run would hang forever.
-                    cleanupStaging()
+                    cleanupStaging(stagedInput, stagedOutput)
+                    if (currentSession === handle) currentSession = null
                     onCancelled()
                     return@executeAsync
                 }
                 if (ReturnCode.isSuccess(rc)) {
                     try {
-                        publishFinalFile(
+                        val published = publishFinalFile(
                             stagingFile = stagedOutput,
                             targetFile = finalOutputFile,
                             displayName = outputName,
                             mimeType = settings.container.mimeType,
                         )
-                        val finalSize = if (finalOutputFile.exists()) finalOutputFile.length() else stagedOutput.length()
-                        val contentUri = try {
-                            FileProvider.getUriForFile(
-                                context,
-                                "${context.packageName}.fileprovider",
-                                finalOutputFile,
+                        if (!published || !finalOutputFile.exists() || finalOutputFile.length() <= 0L) {
+                            onError("Conversion produced an empty file. Please try again.")
+                        } else {
+                            val finalSize = finalOutputFile.length()
+                            val contentUri = try {
+                                FileProvider.getUriForFile(
+                                    context,
+                                    "${context.packageName}.fileprovider",
+                                    finalOutputFile,
+                                )
+                            } catch (_: Exception) {
+                                Uri.fromFile(finalOutputFile)
+                            }
+                            val result = ConversionResult(
+                                fileName = outputName,
+                                filePath = finalOutputFile.absolutePath,
+                                fileUri = contentUri,
+                                sizeBytes = finalSize,
+                                durationMs = totalTrimDurationMs,
+                                originalSizeBytes = videoInfo.sizeBytes,
+                                originalDurationMs = videoInfo.durationMs,
+                                targetLabel = settings.targetSummary,
                             )
-                        } catch (_: Exception) {
-                            Uri.fromFile(finalOutputFile)
+                            onSuccess(result)
                         }
-                        val result = ConversionResult(
-                            fileName = outputName,
-                            filePath = finalOutputFile.absolutePath,
-                            fileUri = contentUri,
-                            sizeBytes = finalSize,
-                            durationMs = totalTrimDurationMs,
-                            originalSizeBytes = videoInfo.sizeBytes,
-                            originalDurationMs = videoInfo.durationMs,
-                            targetLabel = settings.targetSummary,
-                        )
-                        onSuccess(result)
                     } catch (e: Exception) {
                         onError("Failed to save final video: ${e.localizedMessage ?: "Unknown error"}")
                     } finally {
-                        cleanupStaging()
+                        cleanupStaging(stagedInput, stagedOutput)
+                        if (currentSession === handle) currentSession = null
                     }
-                } else if (ReturnCode.isCancel(rc)) {
-                    cleanupStaging()
-                    onCancelled()
                 } else {
                     val tail = lastLogs.takeLast(3).joinToString(" | ").take(300)
                     onError(
                         "Conversion failed (ffmpeg rc=${rc?.value}): " +
                             tail.ifBlank { "no ffmpeg output captured" },
                     )
-                    cleanupStaging()
+                    cleanupStaging(stagedInput, stagedOutput)
+                    if (currentSession === handle) currentSession = null
                 }
             },
             { log ->
@@ -202,7 +239,17 @@ class FfmpegTranscoder(private val context: Context) {
                 )
             },
         )
-        currentSessionId = session.sessionId
+        handle.sessionId = session.sessionId
+        if (handle.cancelled.get()) {
+            // Cancel landed between registering the handle and
+            // the session existing: re-issue it now that the
+            // session id is known.
+            try {
+                FFmpegKit.cancel(session.sessionId)
+            } catch (_: Exception) {
+                // Ignore
+            }
+        }
         // Report the waiting state until the first statistics
         // callback arrives, so the UI shows an indeterminate bar
         // instead of a fake 0%.
@@ -225,13 +272,18 @@ class FfmpegTranscoder(private val context: Context) {
      * engine: the MediaStore insert is a fallback ONLY when the
      * direct file write failed — inserting unconditionally left
      * 0-byte phantom rows next to every real file.
+     *
+     * Returns true only if the published file exists and is
+     * non-empty (WL-12): the MediaStore fallback insert creates
+     * a 0-byte row when its copy fails, and a 0-byte "success"
+     * must be an Error, never Done.
      */
     private fun publishFinalFile(
         stagingFile: File,
         targetFile: File,
         displayName: String,
         mimeType: String,
-    ) {
+    ): Boolean {
         if (targetFile.parentFile?.exists() != true) {
             targetFile.parentFile?.mkdirs()
         }
@@ -281,29 +333,40 @@ class FfmpegTranscoder(private val context: Context) {
         } catch (_: Exception) {
             // Ignore
         }
+
+        // Success means the file the result points at is real
+        // and non-empty. The MediaStore fallback above lands at
+        // this same path (Movies/Convert264/<displayName>), so a
+        // fallback-only success still counts — but a 0-byte row
+        // left behind by a failed fallback copy does not.
+        return targetFile.exists() && targetFile.length() > 0L
     }
 
+    /**
+     * Signals the current session to cancel (WL-12). Never
+     * deletes files: the session's own completion callback
+     * deletes its staging files when it fires — FFmpegKit.cancel()
+     * is async, so deleting here could remove a newer run's
+     * staging files. No-op when nothing is running.
+     */
     fun cancel() {
-        cancelledByUser.set(true)
+        val handle = currentSession ?: return
+        handle.cancelled.set(true)
         try {
-            currentSessionId?.let { FFmpegKit.cancel(it) }
+            handle.sessionId?.let { FFmpegKit.cancel(it) }
         } catch (_: Exception) {
             // Ignore
         }
-        currentSessionId = null
-        cleanupStaging()
     }
 
-    private fun cleanupStaging() {
-        try {
-            tempInputFile?.delete()
-        } catch (_: Exception) {
+    /** Deletes ONLY the given staging files (WL-12: never shared state). */
+    private fun cleanupStaging(vararg files: File?) {
+        for (file in files) {
+            try {
+                file?.delete()
+            } catch (_: Exception) {
+                // Ignore
+            }
         }
-        try {
-            tempOutputFile?.delete()
-        } catch (_: Exception) {
-        }
-        tempInputFile = null
-        tempOutputFile = null
     }
 }

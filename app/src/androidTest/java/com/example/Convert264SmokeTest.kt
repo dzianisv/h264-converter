@@ -51,6 +51,10 @@ import org.junit.Test
  *   5. Tap an entry -> detail screen opens, Convert button is
  *      displayed without scrolling (the screen fits on one page).
  *   6. Play -> converting card -> Stop returns the file to Queued.
+ *   6b. Play again immediately -> Stop again (WL-12: the
+ *      cancelled session's completion callback fires async and
+ *      may land after the new run has started — it must not
+ *      touch the new run's staging files).
  *   7. Clear queue empties it; re-add both files.
  *   8. Play -> Pause (row shows "Paused") -> Play resumes ->
  *      both files Done, real _vp9.mkv files on disk.
@@ -346,6 +350,27 @@ class Convert264SmokeTest {
             vm.queue.value.all { it.status is QueueItemStatus.Queued },
         )
         println("SMOKE Stop: queue back to Queued")
+
+        // 6b. Stop -> immediate re-run (WL-12 regression): the
+        // cancelled session's completion callback fires async
+        // and may land after the new run has started — it must
+        // not touch the new run's staging files. Play again
+        // right away, then Stop again; the queue must come back
+        // to Queued, and the later encodes (step 8/9) must still
+        // produce real, non-empty files.
+        composeRule.onNodeWithTag("play_queue_button").performClick()
+        waitForTag("conversion_status_card", 60_000)
+        println("SMOKE Stop->immediate re-run: converting again")
+        composeRule.onNodeWithTag("stop_queue_button").performClick()
+        waitUntilWithIdleRetry(60_000) {
+            vm.queue.value.all { it.status is QueueItemStatus.Queued } &&
+                vm.queue.value.isNotEmpty()
+        }
+        assertTrue(
+            "Stop did not return the queue to Queued after the immediate re-run",
+            vm.queue.value.all { it.status is QueueItemStatus.Queued },
+        )
+        println("SMOKE Stop->immediate re-run: queue back to Queued")
 
         // 7. Clear queue empties it; re-add both files.
         composeRule.onNodeWithTag("clear_queue_button").performClick()
