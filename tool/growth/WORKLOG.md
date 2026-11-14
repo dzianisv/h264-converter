@@ -41,8 +41,15 @@ Close with a dated reason.
 - [ ] WL-10 Firebase Analytics / Crashlytics. Needs his Firebase project.
   Optional — Vitals + in-app review cover crashes and feedback until then.
   Owner: founder. No date.
-- [ ] WL-11 Score the searches to win (searches.md) on relevance,
-  difficulty, search volume. Owner: Muse. Due: Nov 20.
+- [x] WL-11 Score the searches to win (searches.md) on relevance,
+  difficulty, search volume. DONE Nov 14, 2026 (pulled forward from
+  Nov 20): 16 keywords scored 1–5 on relevance/difficulty grounded in
+  the WL-07 competitor file; volume is a qualitative estimate only
+  (no keyword tool / Play Console data yet — re-score from Console
+  once live). 7 quick wins (relevance 5, difficulty ≤3: convert mkv
+  to mp4, h264/vp9/webm/mkv/mov converter, no-ads, offline); 5 core
+  fights (video converter, convert video, mp4, video converter free);
+  "compress video" marked Avoid (not the product). Owner: Muse.
 - [ ] WL-18 Pixel 9a conversion failure — root cause unknown. The
   v0.2.2 error line was too short to read. Needs Den's copied error
   details from v0.2.3 (tap the failed row → Show details → Copy
