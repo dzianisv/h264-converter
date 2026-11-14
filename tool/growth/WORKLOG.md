@@ -20,11 +20,13 @@ Close with a dated reason.
 - [ ] WL-05 Real-Pixel test of v0.2.2 (queue, MKV output, dark mode, share
   sheet, OTG with a real drive). Only he has the phone. Owner: founder.
   Due: Nov 19.
-- [ ] WL-07 Competitor study: top 5 video converters on Play — rating, 1-star
-  complaints, screenshots, update cadence. Owner: Muse. Due: Nov 20.
-  First pass DONE Nov 13 (competitors.md): all 5 rated + complaints +
-  cadence from Play/AppBrain. Remaining: screenshots bar from the live
-  listings + deeper 1-star sampling.
+- [x] WL-07 Competitor study: top 5 video converters on Play — rating, 1-star
+  complaints, screenshots, update cadence. Owner: Muse. DONE Nov 14, 2026:
+  first pass Nov 13 (ratings + complaints + cadence) + second pass Nov 14
+  (screenshots bar + top-10 newest 1-star per app, live Play listings,
+  in competitors.md). Two listing-identity flags recorded there
+  (com.video_converter.video_compressor retitled; com.video.compress.and.convert
+  now Code Craft, Inc.) — re-check on the next pass.
 - [ ] WL-08 First useful article: a how-to that works without the app
   (mention Convert264 once, at the end). Owner: Muse. Due: Nov 26 (week 2).
 - [ ] WL-09 Video join — build it or drop it. Open question to the founder
@@ -44,7 +46,11 @@ Close with a dated reason.
   compile error (assertDoesNotExist unresolved), NOT an app bug;
   per release discipline the v0.2.3 release + tag were deleted and
   the fix shipped as v0.2.4 (PR #4: assertCountEquals + PR gate now
-  compiles instrumented tests). Owner: Muse.
+  compiles instrumented tests). v0.2.4 Release + PR green; smoke run
+  43608544016 first attempt FAILED (queue test hit ComposeNotIdle in
+  setNightMode before any conversion ran; error-details + share-intent
+  tests passed) — re-run started 2026-11-14 15:47 UTC, verdict pending
+  (next hourly run settles it). Owner: Muse.
 - [ ] WL-18 Pixel 9a conversion failure — root cause unknown. The
   v0.2.2 error line was too short to read. Needs Den's copied error
   details from v0.2.3 (tap the failed row → Show details → Copy
