@@ -40,7 +40,12 @@ Close with a dated reason.
   non-empty. Root cause verified from run 43375580799 logcat + code.
   Owner: Muse (lead subagent, session fea12aae-4cfc-4955-a11e-fbe592d377b5).
   Stage 0 CLAIMED Nov 13, 2026 (issue comment 6869808148, read back; no
-  competing claims/PRs/branches). Due: Nov 14. Ships as v0.2.2.
+  competing claims/PRs/branches). Stage 1 DONE Nov 13 — context brief +
+  context pack on issue #1 (comment 6869842834, read back); code mapping
+  confirmed at 8ea1c8e; defect NOT pattern-expressible (single-file race).
+  Next: Stage 3 implementation on fix/wl12-smoke-zero-byte-mkv from main
+  69ce69b (growth sweep commit, tool/growth only — no transcoder conflict).
+  Due: Nov 14. Ships as v0.2.2.
 
 ## Done
 
