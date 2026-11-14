@@ -35,6 +35,17 @@ Close with a dated reason.
   Owner: founder. No date.
 - [ ] WL-11 Score the searches to win (searches.md) on relevance,
   difficulty, search volume. Owner: Muse. Due: Nov 20.
+- [x] WL-17 Full error UI (Nov 14, 2026): ConversionError(summary,
+  details) end to end — full ffmpeg log tail (30 lines, never
+  truncated) + return code + file/target; plain-language summary
+  (ErrorMessages); ErrorDetailsCard shared by queue row + detail
+  screen (selectable scrollable details, Copy error, Try again).
+  PR #3 merged (54f077e). Shipped as v0.2.3. Owner: Muse.
+- [ ] WL-18 Pixel 9a conversion failure — root cause unknown. The
+  v0.2.2 error line was too short to read. Needs Den's copied error
+  details from v0.2.3 (tap the failed row → Show details → Copy
+  error) + what file/settings he used. Owner: founder (error text)
+  / Muse (fix once known).
 - [ ] WL-13 App name — pick a name people understand. 'Convert264'
   reopened Nov 14 (owner): '264' means nothing to a normal person.
   Checked: VidConvert TAKEN on Play (Vinson Developers, $0.89, live
