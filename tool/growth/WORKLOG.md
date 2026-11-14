@@ -5,6 +5,14 @@ Close with a dated reason.
 
 ## Open
 
+- [x] WL-19 Second useful article: "How to convert MOV to MP4 without
+  uploading your video" (Nov 14, 2026): same WL-08 pattern — FFmpeg copy
+  (`-c copy`) + re-encode fallback + VLC method, what to avoid (grounded
+  in the WL-07 1-star sampling), Convert264 mentioned once at the end.
+  Targets the "convert mov to mp4" quick win (rel 5, diff 3). Both
+  FFmpeg commands verified locally against a real file (copy + re-encode
+  produce valid MP4). Published: docs/convert-mov-to-mp4.html, linked
+  from the index footer, in sitemap.xml. Owner: Muse.
 - [ ] WL-01 Sentry in the app. Needs a Sentry DSN — owner creates a Sentry
   project and hands over the DSN. Owner: founder. Due: Nov 19 (week 1).
 - [ ] WL-02 Play Console developer account ($25, one-time). Owner: founder.

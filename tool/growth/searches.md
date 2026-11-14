@@ -44,7 +44,8 @@ Keywords from the store listing (tool/play-store/listing.md). Scored Nov 14,
 - Listing first: core-fight terms go in title/short description/full
   description (already the plan in the listing notes); quick-win terms get
   one landing-page article each where missing — "convert mkv to mp4" is
-  already covered (WL-08, Nov 14).
+  already covered (WL-08, Nov 14), "convert mov to mp4" covered
+  (WL-19, Nov 14).
 - Do not chase "compress video" — it would mislead users about what the
   app does.
 - Re-score monthly from Play Console once live. A keyword that brings no
