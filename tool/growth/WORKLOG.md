@@ -13,8 +13,10 @@ Close with a dated reason.
   throwaway key that changes every run — the CI AAB is a build artifact, not
   the upload. Options: keystore in GitHub Secrets, or a local build.
   Owner: founder. Due: Nov 19 (week 1).
-- [ ] WL-04 Landing page live. Proposal: GitHub Pages from this repo (free).
-  Owner: Muse. Due: Nov 19 (week 1).
+- [x] WL-04 Landing page live (Nov 14, 2026 — pulled forward from Nov 19).
+  https://dzianisv.github.io/h264-converter/ — pure HTML+CSS, no JS;
+  title 45 chars, meta 144 chars, OG tags, robots.txt, sitemap.xml,
+  llms.txt. GitHub Pages enabled from docs/ on main. Owner: Muse.
 - [ ] WL-05 Real-Pixel test of v0.2.1 (queue, MKV output, dark mode, share
   sheet, OTG with a real drive). Only he has the phone. Owner: founder.
   Due: Nov 19.

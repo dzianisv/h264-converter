@@ -34,8 +34,7 @@ listing live, Sentry receiving events, issues enabled (done: issues enabled,
   v0.2.2).
 - Sentry: not installed. Unblock: Sentry DSN (needs a Sentry project).
 - Store state: not created. Unblock: Play Console account ($25).
-- Landing page: none. Unblock: hosting decision (proposal: GitHub Pages
-  from this repo, free).
+- Landing page: live Nov 14 — https://dzianisv.github.io/h264-converter/ (GitHub Pages, docs/ on main).
 - Latest build: v0.2.2 (tag; Release published Nov 14, 2026; smoke test
   GREEN on run 43546002038 — WL-12 fix for the 0-byte MKV reported Done,
   issue #1 closed). AAB 35.9 MB + APK 54.8 MB on the release.
@@ -57,7 +56,7 @@ listing live, Sentry receiving events, issues enabled (done: issues enabled,
 
 - **Week 1 — foundation (by Nov 19).** Issues enabled (done). Sentry in the
   app (blocked: DSN). Play project created (blocked: his account). Landing
-  page live (open). Store listing drafted (done, `tool/play-store/listing.md`).
+  page live (done Nov 14, pulled forward). Store listing drafted (done, `tool/play-store/listing.md`).
   Icon and screenshots shipped (done, `tool/play-store/`).
 - **Week 2 — publish.** Internal track, real-phone test (his Pixel), closed
   track, production staged rollout. Baseline measured. First useful article
