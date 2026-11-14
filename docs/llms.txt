@@ -1,0 +1,19 @@
+# Convert264
+
+> Convert264 is a free video converter for Android. No ads, no account, no watermark — your videos never leave your phone.
+
+## What it does
+
+Convert any video on your Android phone: pick a video or share one to the app, choose the container (MP4, MKV, MOV, WebM), video codec (H.264, H.265, VP9, MPEG-4, Copy), audio codec (AAC, MP3, Opus, Vorbis, FLAC, Copy, None), quality and encoder preset, trim start and end with a real preview — and convert a whole queue in one go.
+
+## Download
+
+- Latest APK (v0.2.2): https://github.com/dzianisv/h264-converter/releases/download/v0.2.2/app-release.apk
+- All releases: https://github.com/dzianisv/h264-converter/releases
+- Coming soon to Google Play.
+- Source code: https://github.com/dzianisv/h264-converter
+- Privacy policy: https://github.com/dzianisv/h264-converter/blob/main/PRIVACY.md
+
+## Privacy
+
+Convert264 collects nothing. Conversion runs entirely on your device; the app has no internet permission, so your videos cannot leave your phone.
