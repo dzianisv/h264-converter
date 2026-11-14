@@ -51,7 +51,13 @@ Close with a dated reason.
   Stop→immediate re-run added, 2-output assertion unchanged. No local build
   (VM has no JDK/Android SDK) — PR CI build pending (run 43544997425).
   Context pack updated (comment 6869842834). Next: Stage 4 review of PR #2.
-  Due: Nov 14. Ships as v0.2.2.
+  Stage 4 PASS Nov 13 (PR comment 6870082714, head 8122eed, read back;
+  test delta +0 methods, +1 step 6b, files 6→6). Stage 5 MERGED Nov 13 —
+  merge commit 9e0a3268db88934a6c2d057fb31ac47ce33ca209 (read back; parents
+  c9f2ffe + 8122eed); PR CI green (run 43544997425); merge comment 6870111407.
+  Release: version bump to 0.2.2 (code 13) needed — Release workflow enforces
+  versionName == tag. Next: tag v0.2.2 → verify Release + smoke green →
+  Stage 5.5 → close issue #1. Due: Nov 14. Ships as v0.2.2.
 
 ## Done
 
