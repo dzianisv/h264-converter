@@ -244,7 +244,7 @@ class ConverterViewModel(application: Application) : AndroidViewModel(applicatio
 
     private sealed interface RunOutcome {
         data class Success(val result: ConversionResult) : RunOutcome
-        data class Error(val message: String) : RunOutcome
+        data class Error(val summary: String, val details: String = "") : RunOutcome
         data object Cancelled : RunOutcome
     }
 
@@ -312,7 +312,12 @@ class ConverterViewModel(application: Application) : AndroidViewModel(applicatio
                     }
                     is RunOutcome.Error -> {
                         updateItem(item.id) {
-                            it.copy(status = QueueItemStatus.Error(outcome.message))
+                            it.copy(
+                                status = QueueItemStatus.Error(
+                                    summary = outcome.summary,
+                                    details = outcome.details,
+                                )
+                            )
                         }
                     }
                     RunOutcome.Cancelled -> {
@@ -363,8 +368,15 @@ class ConverterViewModel(application: Application) : AndroidViewModel(applicatio
                         onSuccess = { result ->
                             if (cont.isActive) cont.resume(RunOutcome.Success(result))
                         },
-                        onError = { message ->
-                            if (cont.isActive) cont.resume(RunOutcome.Error(message))
+                        onError = { error ->
+                            if (cont.isActive) {
+                                cont.resume(
+                                    RunOutcome.Error(
+                                        summary = error.summary,
+                                        details = error.details,
+                                    )
+                                )
+                            }
                         },
                         onCancelled = {
                             if (cont.isActive) cont.resume(RunOutcome.Cancelled)
@@ -381,7 +393,12 @@ class ConverterViewModel(application: Application) : AndroidViewModel(applicatio
                     // runtime). They must land as a queue-item
                     // Error, never crash the app.
                     if (cont.isActive) {
-                        cont.resume(RunOutcome.Error(e.localizedMessage ?: "Conversion failed"))
+                        cont.resume(
+                            RunOutcome.Error(
+                                summary = "Conversion failed.",
+                                details = e.localizedMessage ?: "Unknown error",
+                            )
+                        )
                     }
                 }
             }

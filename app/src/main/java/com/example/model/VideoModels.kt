@@ -61,5 +61,21 @@ sealed interface QueueItemStatus {
     data class Converting(val progress: ConversionProgress) : QueueItemStatus
     data object Paused : QueueItemStatus
     data class Done(val result: ConversionResult) : QueueItemStatus
-    data class Error(val message: String) : QueueItemStatus
+    /**
+     * A failed conversion, split into what the user sees and what
+     * the user (or support) needs to diagnose it. [summary] is one
+     * plain-language line; [details] is the full technical record
+     * (return code, ffmpeg log tail, file + target) — never
+     * truncated. WL-17: the v0.2.2 error was one truncated red
+     * line and the detail screen showed nothing at all.
+     */
+    data class Error(val summary: String, val details: String = "") : QueueItemStatus
 }
+
+/**
+ * A failed conversion as the engine reports it: a plain-language
+ * [summary] for the user, and the full [details] for diagnosis.
+ * The engine never truncates the details — the 300-char cut that
+ * hid the real cause died in WL-17.
+ */
+data class ConversionError(val summary: String, val details: String)

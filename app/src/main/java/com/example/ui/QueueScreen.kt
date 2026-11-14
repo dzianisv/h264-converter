@@ -187,7 +187,16 @@ fun QueueScreen(
                                 openVideoFile(context, result.filePath, result.fileUri)
                             },
                             onShareResult = { result ->
-                                shareVideoFile(context, result.filePath, result.fileUri, result.fileName)
+                                shareVideoFile(
+                                    context,
+                                    result.filePath,
+                                    result.fileUri,
+                                    result.fileName
+                                )
+                            },
+                            onRetry = { id ->
+                                viewModel.requeueItem(id)
+                                viewModel.startQueue(fromId = id)
                             }
                         )
                     }

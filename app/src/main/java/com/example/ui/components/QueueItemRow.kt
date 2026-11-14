@@ -20,7 +20,12 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -49,10 +54,15 @@ fun QueueItemRow(
     onDelete: () -> Unit,
     onOpenResult: (ConversionResult) -> Unit,
     onShareResult: (ConversionResult) -> Unit,
+    onRetry: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val video = item.video
     val status = item.status
+    // Expanded error details are per-row state, reset when the
+    // item's status changes (WL-17: a failed row must show the
+    // full error, not one truncated red line).
+    var detailsOpen by remember(status) { mutableStateOf(false) }
     Column(modifier = modifier.fillMaxWidth()) {
         ListItem(
             modifier = Modifier
@@ -105,7 +115,7 @@ fun QueueItemRow(
                             }
                             QueueItemStatus.Paused -> "${item.settings.targetSummary} · Paused"
                             is QueueItemStatus.Done -> "${item.settings.targetSummary} · Done"
-                            is QueueItemStatus.Error -> "Failed: ${status.message}"
+                            is QueueItemStatus.Error -> "Failed: ${status.summary}"
                             QueueItemStatus.Queued -> item.settings.targetSummary
                         },
                         maxLines = 1,
@@ -173,6 +183,25 @@ fun QueueItemRow(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                         .testTag("queue_item_progress_indeterminate_${item.id}")
+                )
+            }
+        }
+        if (status is QueueItemStatus.Error) {
+            TextButton(
+                onClick = { detailsOpen = !detailsOpen },
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .testTag("error_details_button_${item.id}")
+            ) {
+                Text(if (detailsOpen) "Hide details" else "Show details")
+            }
+            if (detailsOpen) {
+                ErrorDetailsCard(
+                    summary = status.summary,
+                    details = status.details,
+                    onRetry = { onRetry(item.id) },
+                    testTagPrefix = "error_${item.id}",
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                 )
             }
         }

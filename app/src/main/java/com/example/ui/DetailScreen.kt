@@ -41,6 +41,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.model.QueueItemStatus
 import com.example.ui.components.ConversionSettingsCard
+import com.example.ui.components.ErrorDetailsCard
 import com.example.ui.components.ExactTimeEditDialog
 import com.example.ui.components.TrimVideoPreview
 import com.example.util.FormatUtils
@@ -267,6 +268,22 @@ fun DetailScreen(
                             }
                         }
                     }
+                }
+                // WL-17: a failed item used to fall through to the
+                // generic "Convert" button with no error shown at
+                // all. The full error lives here now, same card as
+                // the queue row: summary, full details, copy, retry.
+                is QueueItemStatus.Error -> {
+                    ErrorDetailsCard(
+                        summary = status.summary,
+                        details = status.details,
+                        onRetry = {
+                            viewModel.requeueItem(item.id)
+                            viewModel.startQueue(fromId = item.id)
+                        },
+                        testTagPrefix = "detail_error",
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
                 else -> {
                     Button(
