@@ -45,6 +45,12 @@ Close with a dated reason.
   confirmed at 8ea1c8e; defect NOT pattern-expressible (single-file race).
   Next: Stage 3 implementation on fix/wl12-smoke-zero-byte-mkv from main
   69ce69b (growth sweep commit, tool/growth only — no transcoder conflict).
+  Stage 3 DONE Nov 13 — PR #2 open, head 8122eedc1bb90eb1d7f2cb582f4b27cfdf1673ef
+  (read back); per-session SessionHandle + locals, cancel() never deletes
+  files, publishFinalFile returns Boolean + non-empty check, smoke step 6b
+  Stop→immediate re-run added, 2-output assertion unchanged. No local build
+  (VM has no JDK/Android SDK) — PR CI build pending (run 43544997425).
+  Context pack updated (comment 6869842834). Next: Stage 4 review of PR #2.
   Due: Nov 14. Ships as v0.2.2.
 
 ## Done
