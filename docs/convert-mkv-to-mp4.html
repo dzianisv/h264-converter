@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to convert MKV to MP4 without uploading your video — Convert264</title>
+<meta name="description" content="Convert MKV to MP4 on your own computer with FFmpeg or VLC — no upload, no re-encoding, no waiting. Copy the streams in seconds, re-encode only when you have to.">
+<link rel="canonical" href="https://dzianisv.github.io/h264-converter/convert-mkv-to-mp4.html">
+<meta property="og:title" content="How to convert MKV to MP4 without uploading your video">
+<meta property="og:description" content="Convert MKV to MP4 on your own computer with FFmpeg or VLC — no upload, no re-encoding, no waiting.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://dzianisv.github.io/h264-converter/convert-mkv-to-mp4.html">
+<meta property="og:image" content="https://dzianisv.github.io/h264-converter/feature-graphic-1024x500.png">
+<link rel="icon" type="image/png" href="icon-512.png">
+<style>
+  :root { --navy:#0f172a; --navy2:#1e293b; --cyan:#22d3ee; --purple:#8b5cf6; --grey:#94a3b8; --white:#fff; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--navy); color:var(--white); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.6; }
+  a { color:var(--cyan); }
+  .wrap { max-width:760px; margin:0 auto; padding:0 20px; }
+  header { padding:48px 0 8px; }
+  header a.back { font-size:14px; color:var(--grey); text-decoration:none; }
+  h1 { font-size:36px; line-height:1.2; margin:16px 0 12px; }
+  .dek { font-size:18px; color:var(--grey); max-width:640px; }
+  .meta { font-size:14px; color:var(--grey); margin:16px 0 32px; }
+  article h2 { font-size:24px; margin:40px 0 12px; }
+  article p, article li { color:#cbd5e1; font-size:16px; margin-bottom:12px; }
+  article ul, article ol { padding-left:22px; }
+  article strong { color:var(--white); }
+  pre { background:var(--navy2); border-radius:12px; padding:16px 18px; margin:16px 0; overflow-x:auto; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:14px; color:var(--cyan); }
+  pre code { color:#e2e8f0; }
+  .callout { background:var(--navy2); border-left:3px solid var(--cyan); border-radius:0 12px 12px 0; padding:16px 20px; margin:20px 0; }
+  .callout p { margin-bottom:0; }
+  footer { border-top:1px solid #1e293b; padding:32px 0 48px; color:var(--grey); font-size:14px; text-align:center; margin-top:48px; }
+  footer a { margin:0 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="back" href="./">← Convert264</a>
+  <h1>How to convert MKV to MP4 without uploading your video</h1>
+  <p class="dek">MKV is a great container — but some phones, TVs, and players refuse it. MP4 plays almost everywhere. The fix takes seconds, and your video never has to leave your computer.</p>
+  <p class="meta">November 14, 2026 · 4 min read</p>
+</header>
+<article>
+  <h2>First: you probably don't need to re-encode</h2>
+  <p>MKV and MP4 are <strong>containers</strong> — boxes that hold the same video and audio streams. In most cases the video inside an MKV is already H.264 and the audio is already AAC, which MP4 accepts as-is. So instead of re-encoding (slow, and it loses a little quality every time), you just <strong>copy the streams into a new box</strong>. That takes seconds, even for a large file, and the picture is bit-for-bit identical.</p>
+  <p>Only re-encode if the copy fails or the player still complains — that means the streams inside aren't MP4-compatible, and then you have no choice.</p>
+
+  <h2>Method 1: FFmpeg (fastest, one command)</h2>
+  <p>FFmpeg is the free, open-source tool that does the actual converting inside most converter apps. Install it once from <a href="https://ffmpeg.org/download.html">ffmpeg.org</a> (or <code>brew install ffmpeg</code> on a Mac, <code>sudo apt install ffmpeg</code> on Ubuntu/Debian), then run:</p>
+  <pre><code>ffmpeg -i input.mkv -c copy output.mp4</code></pre>
+  <p>That's it. <code>-c copy</code> means "copy every stream, don't re-encode". If FFmpeg complains about an incompatible stream, fall back to re-encoding the video and audio:</p>
+  <pre><code>ffmpeg -i input.mkv -c:v libx264 -crf 20 -c:a aac output.mp4</code></pre>
+  <p><code>-crf 20</code> is a good quality setting for H.264 — lower is better quality and a bigger file; 18–23 is the sensible range for most videos.</p>
+
+  <h2>Method 2: VLC (no command line)</h2>
+  <p>If you'd rather click than type, VLC can do the same job:</p>
+  <ol>
+    <li>Open VLC, go to <strong>Media → Convert / Save</strong>.</li>
+    <li>Click <strong>Add</strong>, pick your MKV file, then <strong>Convert / Save</strong>.</li>
+    <li>Under Profile, choose <strong>Video – H.264 + MP3 (MP4)</strong>.</li>
+    <li>Click <strong>Browse</strong>, choose where to save the .mp4, and press <strong>Start</strong>.</li>
+  </ol>
+  <p>VLC re-encodes by default, so it's slower than the FFmpeg copy — but it works on any file, and there's nothing to install beyond VLC itself.</p>
+
+  <h2>What to avoid</h2>
+  <ul>
+    <li><strong>Online converters.</strong> They upload your video to someone else's server, convert it there, and send it back. That's slow for big files, and your video — possibly a private one — sits on a server you don't control. For anything you wouldn't post publicly, convert locally.</li>
+    <li><strong>Free converter apps full of ads.</strong> When we sampled the newest 1-star reviews of the top video converters on Google Play, the same complaints kept coming up: ads interrupting the conversion, formats locked behind a paywall, and outputs that come out corrupt or unplayable. If an app makes you watch an ad to convert a file, it's selling your attention, not converting your video.</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>Rule of thumb:</strong> if the file plays fine and you only need a different container, copy the streams — never re-encode. Re-encoding is for when the codec itself has to change.</p>
+  </div>
+
+  <h2>On your phone instead</h2>
+  <p>If you'd rather do it on your phone than on a computer, <a href="./">Convert264</a> converts MKV to MP4 on-device — free, no ads, no account, and your video never leaves the phone.</p>
+</article>
+<footer>
+  <a href="./">Convert264</a> ·
+  <a href="https://github.com/dzianisv/h264-converter/releases">Download</a> ·
+  <a href="https://github.com/dzianisv/h264-converter/blob/main/PRIVACY.md">Privacy</a>
+</footer>
+</div>
+</body>
+</html>

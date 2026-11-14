@@ -27,8 +27,14 @@ Close with a dated reason.
   in competitors.md). Two listing-identity flags recorded there
   (com.video_converter.video_compressor retitled; com.video.compress.and.convert
   now Code Craft, Inc.) — re-check on the next pass.
-- [ ] WL-08 First useful article: a how-to that works without the app
-  (mention Convert264 once, at the end). Owner: Muse. Due: Nov 26 (week 2).
+- [x] WL-08 First useful article: a how-to that works without the app
+  (mention Convert264 once, at the end). DONE Nov 14, 2026 (pulled
+  forward from Nov 26): "How to convert MKV to MP4 without uploading
+  your video" — FFmpeg copy (`-c copy`) + re-encode fallback + VLC
+  method, what to avoid (online uploaders, ad-heavy apps — grounded
+  in the WL-07 1-star sampling), Convert264 mentioned once at the end.
+  Published on the landing site: docs/convert-mkv-to-mp4.html, linked
+  from the index footer, in sitemap.xml. Owner: Muse.
 - [ ] WL-09 Video join — build it or drop it. Open question to the founder
   since Nov 11 ("join them" was read as joining the dropdowns). Owner:
   founder. No date — his answer.
