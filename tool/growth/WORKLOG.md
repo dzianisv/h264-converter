@@ -34,32 +34,13 @@ Close with a dated reason.
 - [ ] WL-11 Score the searches to win (searches.md) on relevance,
   difficulty, search volume. Owner: Muse. Due: Nov 20.
 
-- [ ] WL-12 Fix smoke failure: 0-byte MKV reported Done (issue #1).
-  Late completion callback from a cancelled FFmpeg session deletes the new
-  run's staging files; success never checks the published file is
-  non-empty. Root cause verified from run 43375580799 logcat + code.
-  Owner: Muse (lead subagent, session fea12aae-4cfc-4955-a11e-fbe592d377b5).
-  Stage 0 CLAIMED Nov 13, 2026 (issue comment 6869808148, read back; no
-  competing claims/PRs/branches). Stage 1 DONE Nov 13 — context brief +
-  context pack on issue #1 (comment 6869842834, read back); code mapping
-  confirmed at 8ea1c8e; defect NOT pattern-expressible (single-file race).
-  Next: Stage 3 implementation on fix/wl12-smoke-zero-byte-mkv from main
-  69ce69b (growth sweep commit, tool/growth only — no transcoder conflict).
-  Stage 3 DONE Nov 13 — PR #2 open, head 8122eedc1bb90eb1d7f2cb582f4b27cfdf1673ef
-  (read back); per-session SessionHandle + locals, cancel() never deletes
-  files, publishFinalFile returns Boolean + non-empty check, smoke step 6b
-  Stop→immediate re-run added, 2-output assertion unchanged. No local build
-  (VM has no JDK/Android SDK) — PR CI build pending (run 43544997425).
-  Context pack updated (comment 6869842834). Next: Stage 4 review of PR #2.
-  Stage 4 PASS Nov 13 (PR comment 6870082714, head 8122eed, read back;
-  test delta +0 methods, +1 step 6b, files 6→6). Stage 5 MERGED Nov 13 —
-  merge commit 9e0a3268db88934a6c2d057fb31ac47ce33ca209 (read back; parents
-  c9f2ffe + 8122eed); PR CI green (run 43544997425); merge comment 6870111407.
-  Release: version bump to 0.2.2 (code 13) needed — Release workflow enforces
-  versionName == tag. Next: tag v0.2.2 → verify Release + smoke green →
-  Stage 5.5 → close issue #1. Due: Nov 14. Ships as v0.2.2.
-
 ## Done
+
+- [x] WL-12 Fix smoke failure: 0-byte MKV reported Done (issue #1).
+  Per-session transcoder lifecycle + empty-file guard (PR #2, merge
+  9e0a326, Stage 4 PASS comment 6870082714). Shipped as v0.2.2 (tag on
+  89029d4; Release published Nov 14, 2026; smoke run 43546002038 green).
+  Issue #1 closed. Done Nov 14, 2026.
 
 - [x] WL-06 Verify v0.2.1 smoke re-run (run 43375580799). FAILED Nov 13:
   real bug, not the boot flake — queue test failed, first file

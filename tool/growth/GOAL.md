@@ -30,16 +30,15 @@ listing live, Sentry receiving events, issues enabled (done: issues enabled,
 
 - Downloads: unknown — not on Play. Unblock: Play Console account.
 - Rating / reviews: unknown — same unblock.
-- Open GitHub issues: 1 (issue #1, smoke 0-byte bug, filed Nov 13;
-  fix WL-12 in flight as v0.2.2).
+- Open GitHub issues: 0 (issue #1 fixed and closed Nov 14, shipped as
+  v0.2.2).
 - Sentry: not installed. Unblock: Sentry DSN (needs a Sentry project).
 - Store state: not created. Unblock: Play Console account ($25).
 - Landing page: none. Unblock: hosting decision (proposal: GitHub Pages
   from this repo, free).
-- Latest build: v0.2.1 (tag; Release + PR green; **smoke re-run FAILED
-  Nov 13 with a real bug** — run 43375580799: first queue file converted
-  to a 0-byte MKV yet shown Done; issue #1, fix WL-12 in flight, ships as
-  v0.2.2). AAB 35.9 MB + APK 54.8 MB on the release.
+- Latest build: v0.2.2 (tag; Release published Nov 14, 2026; smoke test
+  GREEN on run 43546002038 — WL-12 fix for the 0-byte MKV reported Done,
+  issue #1 closed). AAB 35.9 MB + APK 54.8 MB on the release.
 
 ## Scoreboard (updated weekly, Mondays)
 
