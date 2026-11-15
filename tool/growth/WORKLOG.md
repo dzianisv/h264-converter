@@ -5,6 +5,13 @@ Close with a dated reason.
 
 ## Open
 
+- [ ] WL-30 Directory submissions (Nov 15, 2026): per social-marketing
+  lane + Week 2 plan — submit Convert264 to free directories
+  (AlternativeTo, DevHunt, BetaList, Product Hunt, Show HN, Indie
+  Hackers, category directories) for permanent backlinks. Submission
+  copy + account requirements tracked in `tool/growth/directories.md`.
+  Owner: Muse (submissions); founder (any account creation / launch
+  timing he wants to gate).
 - [ ] WL-01 Sentry in the app. Needs a Sentry DSN — owner creates a Sentry
   project and hands over the DSN. Owner: founder. Due: Nov 19 (week 1).
 - [ ] WL-02 Play Console developer account ($25, one-time). Owner: founder.
