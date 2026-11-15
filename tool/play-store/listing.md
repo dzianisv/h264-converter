@@ -53,7 +53,7 @@ on your phone. Nothing is uploaded anywhere.
 ## Keywords (for the listing text, not a Play field)
 
 video converter, convert video, mp4 converter, mkv converter, mov converter,
-webm converter, video trimmer, compress video, h264 converter, vp9 converter,
+webm converter, video trimmer, h264 converter, vp9 converter,
 convert video to mp4, video converter no ads, offline video converter
 
 ## Assets (in tool/play-store/)
@@ -71,6 +71,30 @@ convert video to mp4, video converter no ads, offline video converter
 
 `PRIVACY.md` in the repo. Play Console link:
 https://github.com/dzianisv/h264-converter/blob/main/PRIVACY.md
+
+## Data Safety (DRAFT — for the Play Console form, not yet submitted)
+
+The Play Console developer account does not exist yet, so this form has
+not been filled in. Draft answers, to paste when the account is created:
+
+- **Data collected: none. Data shared: none.**
+- Grounding (all verified in the repo at v0.2.5):
+  - `AndroidManifest.xml` declares **no `android.permission.INTERNET`**
+    — the app cannot send anything anywhere. The only permissions are
+    legacy read/write external storage (capped by maxSdkVersion).
+  - No account, no ads, no sign-in.
+  - v0.2.5 (PR #6, merged) removed the last analytics/network SDKs as
+    dead template dependencies: Firebase (BOM, AI, AppCheck),
+    OkHttp, Retrofit, Moshi, and the google-services plugin. No
+    analytics or network SDK remains in the app.
+  - The Play in-app review prompt (`com.google.android.play:review-ktx`)
+    only sends the rating request through Play itself; it collects no
+    app data.
+  - Android Vitals is Play-side crash/ANR reporting, not data the app
+    collects — it needs no declaration beyond the form's "no data
+    collected" answer.
+- If Firebase Analytics + Crashlytics is ever added (see the Analytics
+  section below), this draft must be revised before submission.
 
 ## Analytics and feedback (the loop that keeps it not-buggy)
 
