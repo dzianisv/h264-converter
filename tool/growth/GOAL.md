@@ -30,11 +30,14 @@ listing live, Sentry receiving events, issues enabled (done: issues enabled,
 
 - Downloads: unknown — not on Play. Unblock: Play Console account.
 - Rating / reviews: unknown — same unblock.
-- Open GitHub issues: 0 (verified Nov 14, 2026 — `gh issue list` empty;
+- Open GitHub issues: 0 (verified Nov 15, 2026 — `gh issue list` empty;
+  0 open PRs; last 5 CI runs green, latest 43682384226;
   issue #1 fixed and closed Nov 14, shipped as v0.2.2).
 - Sentry: not installed. Unblock: Sentry DSN (needs a Sentry project).
 - Store state: not created. Unblock: Play Console account ($25).
-- Landing page: live Nov 14 — https://dzianisv.github.io/h264-converter/ (GitHub Pages, docs/ on main; HTTP 200 re-verified Nov 14).
+- Landing page: live Nov 14 — https://dzianisv.github.io/h264-converter/ (GitHub Pages, docs/ on main; HTTP 200 re-verified Nov 15).
+- Useful articles: 8 live (WL-08 + WL-19–WL-25), all 7 quick wins covered
+  (verified Nov 15 — latest article convert-to-mov.html HTTP 200).
 - Latest build: v0.2.4 (tag; Release published Nov 14, 2026 15:11 UTC,
   APK + AAB; smoke test GREEN on re-run 43608544016 — WL-17 full error
   UI, first attempt failed on a ComposeNotIdle emulator flake, re-run
