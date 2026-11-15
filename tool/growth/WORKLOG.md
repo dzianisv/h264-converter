@@ -5,12 +5,6 @@ Close with a dated reason.
 
 ## Open
 
-- [ ] WL-26 llms.txt lists the 8 how-to guides. Sitemap + index footer
-  link all 8 articles, but llms.txt (the AI-citation file the growth
-  plan relies on for ChatGPT-type traffic) mentions none of them.
-  Add a "How-to guides" section with all 8 titles + URLs, verify
-  Pages deploy + live llms.txt. Owner: Muse.
-
 - [ ] WL-01 Sentry in the app. Needs a Sentry DSN — owner creates a Sentry
   project and hands over the DSN. Owner: founder. Due: Nov 19 (week 1).
 - [ ] WL-02 Play Console developer account ($25, one-time). Owner: founder.
@@ -63,6 +57,13 @@ Close with a dated reason.
   Owner: founder (PostHog project) / Muse (SDK + wizard).
 
 ## Done
+
+- [x] WL-26 llms.txt lists the 8 how-to guides (Nov 15, 2026):
+  sitemap + index footer linked all 8 articles but llms.txt (the
+  AI-citation file) mentioned none. Added a "How-to guides" section
+  with all 8 titles + URLs. Commit 349cb54; Android PR run
+  43691048357 success; Pages deploy 43691048135 success; live
+  llms.txt HTTP 200 with all 8 links. Owner: Muse.
 
 - [x] WL-25 Eighth useful article: "How to convert video to MOV without
   uploading it" (Nov 15, 2026): same WL-08 pattern — check codec first
