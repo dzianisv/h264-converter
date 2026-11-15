@@ -5,6 +5,25 @@ Close with a dated reason.
 
 ## Open
 
+- [ ] WL-28 Dead template deps contradict the no-tracking claim (Nov 15,
+  2026, hourly supervisor): `app/build.gradle.kts` still compiles in
+  Firebase AI + App Check (recaptcha + debug), OkHttp, Retrofit,
+  converter-moshi, logging-interceptor, moshi-kotlin + moshi codegen —
+  all AI Studio template leftovers, ZERO usage anywhere in `app/src`
+  (verified Nov 15: no Firebase/OkHttp/Retrofit/Moshi import in main,
+  test, or androidTest; no `google-services.json`; manifest has no
+  INTERNET permission, so nothing can phone home at runtime — but the
+  dead SDKs bloat the APK and a Play Data Safety audit would flag
+  Firebase as data-collecting). Fix: remove the dead deps (+ the
+  google-services plugin + `googleServices {}` block if CI stays green
+  without them), keep Room ksp + everything actually used; PR → merge
+  as owner → tag v0.2.5 (versionCode 16) → verify Release + smoke
+  green. Same task, separate docs PR: add a Data Safety draft to
+  `tool/play-store/listing.md` ("no data collected, no data shared" —
+  grounded in no INTERNET permission, no account, no ads, no analytics)
+  + drop "compress video" from the listing keywords (WL-11 Avoid, not
+  the product). Never change the applicationId. Owner: Muse.
+
 - [ ] WL-01 Sentry in the app. Needs a Sentry DSN — owner creates a Sentry
   project and hands over the DSN. Owner: founder. Due: Nov 19 (week 1).
 - [ ] WL-02 Play Console developer account ($25, one-time). Owner: founder.
