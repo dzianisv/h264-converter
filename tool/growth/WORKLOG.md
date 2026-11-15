@@ -58,6 +58,20 @@ Close with a dated reason.
 
 ## Done
 
+- [x] WL-23 Sixth useful article: "How to convert video to MKV without
+  uploading it" (Nov 15, 2026): same WL-08 pattern — check codec first
+  (ffprobe), FFmpeg copy (`-c copy` into MKV) + re-encode fallback
+  (H.264+AAC, `-c:v libx264 -crf 20 -c:a aac`) + VP9+Opus variant
+  (`-c:v libvpx-vp9 -crf 30 -b:v 0 -c:a libopus`) + VLC method
+  (H.264 + MP3 (MKV) profile), what to avoid (grounded in the WL-07
+  1-star sampling), Convert264 mentioned once at the end. Targets the
+  "mkv converter" quick win (rel 5, diff 3). All three FFmpeg commands
+  verified locally against a real MP4 file (H.264+AAC sample: copy →
+  valid MKV with h264/aac; re-encode → valid MKV with h264/aac;
+  VP9+Opus → valid MKV with vp9/opus; ffprobe confirms). Published:
+  docs/convert-to-mkv.html, linked from the index footer, in
+  sitemap.xml. Owner: Muse.
+
 - [x] WL-22 Fifth useful article: "How to convert MP4 to WebM without
   uploading your video" (Nov 15, 2026): same WL-08 pattern — no copy
   shortcut (H.264 is not valid in WebM), VP9 re-encode (`-c:v libvpx-vp9
