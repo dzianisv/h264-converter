@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to convert video to MP4 without uploading it — Convert264</title>
+<meta name="description" content="Convert any video to MP4 on your own computer with FFmpeg or VLC — no upload, no re-encoding when you don't need it, no waiting. Copy the streams in seconds, re-encode only when you have to.">
+<link rel="canonical" href="https://dzianisv.github.io/h264-converter/convert-to-mp4.html">
+<meta property="og:title" content="How to convert video to MP4 without uploading it">
+<meta property="og:description" content="Convert any video to MP4 on your own computer with FFmpeg or VLC — no upload, no re-encoding when you don't need it.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://dzianisv.github.io/h264-converter/convert-to-mp4.html">
+<meta property="og:image" content="https://dzianisv.github.io/h264-converter/feature-graphic-1024x500.png">
+<link rel="icon" type="image/png" href="icon-512.png">
+<style>
+  :root { --navy:#0f172a; --navy2:#1e293b; --cyan:#22d3ee; --purple:#8b5cf6; --grey:#94a3b8; --white:#fff; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--navy); color:var(--white); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.6; }
+  a { color:var(--cyan); }
+  .wrap { max-width:760px; margin:0 auto; padding:0 20px; }
+  header { padding:48px 0 8px; }
+  header a.back { font-size:14px; color:var(--grey); text-decoration:none; }
+  h1 { font-size:36px; line-height:1.2; margin:16px 0 12px; }
+  .dek { font-size:18px; color:var(--grey); max-width:640px; }
+  .meta { font-size:14px; color:var(--grey); margin:16px 0 32px; }
+  article h2 { font-size:24px; margin:40px 0 12px; }
+  article p, article li { color:#cbd5e1; font-size:16px; margin-bottom:12px; }
+  article ul, article ol { padding-left:22px; }
+  article strong { color:var(--white); }
+  pre { background:var(--navy2); border-radius:12px; padding:16px 18px; margin:16px 0; overflow-x:auto; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:14px; color:var(--cyan); }
+  pre code { color:#e2e8f0; }
+  .callout { background:var(--navy2); border-left:3px solid var(--cyan); border-radius:0 12px 12px 0; padding:16px 20px; margin:20px 0; }
+  .callout p { margin-bottom:0; }
+  footer { border-top:1px solid #1e293b; padding:32px 0 48px; color:var(--grey); font-size:14px; text-align:center; margin-top:48px; }
+  footer a { margin:0 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="back" href="./">← Convert264</a>
+  <h1>How to convert video to MP4 without uploading it</h1>
+  <p class="dek">MP4 plays almost everywhere — phones, TVs, browsers, editors. Whatever container your video is in now (MKV, MOV, WebM, AVI), the fix takes seconds, and your video never has to leave your computer.</p>
+  <p class="meta">November 15, 2026 · 4 min read</p>
+</header>
+<article>
+  <h2>First: check what's inside your file</h2>
+  <p>MP4 is a <strong>container</strong> — a box that holds video and audio streams. If the video inside your file is already H.264 and the audio is already AAC, MP4 accepts them as-is, and the conversion is just a re-boxing that takes seconds. If the streams are something else (VP9, HEVC, Opus), they have to be re-encoded, which takes longer. Check first, so you know which one you're doing:</p>
+  <pre><code>ffprobe -v error -show_entries stream=codec_name,codec_type -of csv=p=0 input.mkv</code></pre>
+  <p>If it prints <code>h264,video</code> (and <code>aac,audio</code> if the file has sound), use the copy below. Anything else — re-encode.</p>
+
+  <h2>Method 1: FFmpeg (fastest, one command)</h2>
+  <p>FFmpeg is the free, open-source tool that does the actual converting inside most converter apps. Install it once from <a href="https://ffmpeg.org/download.html">ffmpeg.org</a> (or <code>brew install ffmpeg</code> on a Mac, <code>sudo apt install ffmpeg</code> on Ubuntu/Debian), then run the command that matches your file.</p>
+  <p>If your file is already H.264 + AAC, copy the streams — no re-encoding, no quality loss, seconds even for a large file:</p>
+  <pre><code>ffmpeg -i input.mkv -c copy output.mp4</code></pre>
+  <p><code>-c copy</code> means "copy every stream, don't re-encode". This works from MKV, MOV, or any container holding H.264 video and AAC audio.</p>
+  <p>If the copy fails, or your file holds VP9, HEVC, or another codec MP4 doesn't take, re-encode to H.264 video and AAC audio:</p>
+  <pre><code>ffmpeg -i input.webm -c:v libx264 -crf 20 -c:a aac output.mp4</code></pre>
+  <p><code>-crf 20</code> is a good quality setting for H.264 — lower is better quality and a bigger file; 18–23 is the sensible range for most videos. The same command works whatever the input is: MKV, MOV, WebM, AVI — just change the input name.</p>
+
+  <h2>Method 2: VLC (no command line)</h2>
+  <p>If you'd rather click than type, VLC can do the same job:</p>
+  <ol>
+    <li>Open VLC, go to <strong>Media → Convert / Save</strong>.</li>
+    <li>Click <strong>Add</strong>, pick your video file, then <strong>Convert / Save</strong>.</li>
+    <li>Under Profile, choose <strong>Video – H.264 + MP3 (MP4)</strong>.</li>
+    <li>Click <strong>Browse</strong>, choose where to save the .mp4, and press <strong>Start</strong>.</li>
+  </ol>
+  <p>VLC re-encodes by default, so it's slower than the FFmpeg copy — but it works on any file, and there's nothing to install beyond VLC itself.</p>
+
+  <h2>What to avoid</h2>
+  <ul>
+    <li><strong>Online converters.</strong> They upload your video to someone else's server, convert it there, and send it back. That's slow for big files, and your video — possibly a private one — sits on a server you don't control. For anything you wouldn't post publicly, convert locally.</li>
+    <li><strong>Free converter apps full of ads.</strong> When we sampled the newest 1-star reviews of the top video converters on Google Play, the same complaints kept coming up: ads interrupting the conversion, formats locked behind a paywall, and outputs that come out corrupt or unplayable. If an app makes you watch an ad to convert a file, it's selling your attention, not converting your video.</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>Rule of thumb:</strong> if the file plays fine and you only need a different container, copy the streams — never re-encode. Re-encoding is for when the codec itself has to change.</p>
+  </div>
+
+  <h2>On your phone instead</h2>
+  <p>If you'd rather do it on your phone than on a computer, <a href="./">Convert264</a> converts video to MP4 on-device — free, no ads, no account, and your video never leaves the phone.</p>
+</article>
+<footer>
+  <a href="./">Convert264</a> ·
+  <a href="https://github.com/dzianisv/h264-converter/releases">Download</a> ·
+  <a href="https://github.com/dzianisv/h264-converter/blob/main/PRIVACY.md">Privacy</a>
+</footer>
+</div>
+</body>
+</html>

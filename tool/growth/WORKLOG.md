@@ -58,6 +58,21 @@ Close with a dated reason.
 
 ## Done
 
+- [x] WL-27 Ninth useful article: "How to convert video to MP4 without
+  uploading it" (Nov 15, 2026): same WL-08 pattern — check codec first
+  (ffprobe), FFmpeg copy (`-c copy`, H.264+AAC) + re-encode fallback
+  (H.264+AAC, `-c:v libx264 -crf 20 -c:a aac`, works from any input:
+  MKV/MOV/WebM/AVI) + VLC method (Video – H.264 + MP3 (MP4) profile),
+  what to avoid (grounded in the WL-07 1-star sampling), Convert264
+  mentioned once at the end. Targets the top core-fight job
+  "convert video to mp4" (rel 5, diff 4, High) + "mp4 converter"
+  (rel 5, diff 4) — first core-fight article now that all 7 quick wins
+  are covered. All three FFmpeg commands verified locally against real
+  files (VP9 MKV: re-encode → valid MP4 h264; H.264 MP4: copy → valid
+  MP4 h264; VP9 WebM: re-encode → valid MP4 h264; ffprobe confirms).
+  Published: docs/convert-to-mp4.html, linked from the index footer,
+  in sitemap.xml and llms.txt. Owner: Muse.
+
 - [x] WL-26 llms.txt lists the 8 how-to guides (Nov 15, 2026):
   sitemap + index footer linked all 8 articles but llms.txt (the
   AI-citation file) mentioned none. Added a "How-to guides" section

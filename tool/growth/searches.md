@@ -54,8 +54,10 @@ Keywords from the store listing (tool/play-store/listing.md). Scored Nov 14,
   covered by WL-23 (Nov 15). "offline video converter" + "video converter
   no ads" covered by WL-24 (Nov 15). "mov converter" covered by WL-25
   (Nov 15). All 7 quick wins now covered by a landing-page article;
-  remaining growth work is core fights (listing + rating) and the
-  founder-gated Play launch.
+  the top core fight "convert video to mp4" is covered by WL-27 (Nov 15,
+  which also covers "mp4 converter"). Remaining core fights ("video
+  converter", "convert video", "video converter free") are won via the
+  listing + rating once live, and the founder-gated Play launch.
 - Re-score monthly from Play Console once live. A keyword that brings no
   installs in 8 weeks is dropped.
 

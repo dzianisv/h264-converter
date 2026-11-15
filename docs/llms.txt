@@ -30,3 +30,4 @@ Step-by-step guides that work without the app (FFmpeg + VLC methods included):
 - How to convert video to MOV without uploading it: https://dzianisv.github.io/h264-converter/convert-to-mov.html
 - How to convert video to H.264 without uploading it: https://dzianisv.github.io/h264-converter/convert-to-h264.html
 - How to convert videos offline on Android without ads: https://dzianisv.github.io/h264-converter/convert-offline-no-ads.html
+- How to convert video to MP4 without uploading it: https://dzianisv.github.io/h264-converter/convert-to-mp4.html
