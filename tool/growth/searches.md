@@ -51,8 +51,9 @@ Keywords from the store listing (tool/play-store/listing.md). Scored Nov 14,
 - "h264 converter" covered by the WL-21 article (Nov 15). "webm converter"
   covered both directions by WL-20 (WebM → MP4) and WL-22 (MP4 → WebM,
   Nov 15, which also covers "vp9 converter" — VP9 encode). "mkv converter"
-  covered by WL-23 (Nov 15). Remaining uncovered quick wins: "video
-  converter no ads", "offline video converter", "mov converter".
+  covered by WL-23 (Nov 15). "offline video converter" + "video converter
+  no ads" covered by WL-24 (Nov 15). Remaining uncovered quick win:
+  "mov converter" (WL-19 covers "convert mov to mp4" only).
 - Re-score monthly from Play Console once live. A keyword that brings no
   installs in 8 weeks is dropped.
 

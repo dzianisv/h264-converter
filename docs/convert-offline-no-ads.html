@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to convert videos offline on Android without ads — Convert264</title>
+<meta name="description" content="Convert videos on your own device with FFmpeg or an offline Android app — no upload, no ads, no account. Your video never leaves your phone.">
+<link rel="canonical" href="https://dzianisv.github.io/h264-converter/convert-offline-no-ads.html">
+<meta property="og:title" content="How to convert videos offline on Android without ads">
+<meta property="og:description" content="Convert videos on your own device with FFmpeg or an offline Android app — no upload, no ads, no account.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://dzianisv.github.io/h264-converter/convert-offline-no-ads.html">
+<meta property="og:image" content="https://dzianisv.github.io/h264-converter/feature-graphic-1024x500.png">
+<link rel="icon" type="image/png" href="icon-512.png">
+<style>
+  :root { --navy:#0f172a; --navy2:#1e293b; --cyan:#22d3ee; --purple:#8b5cf6; --grey:#94a3b8; --white:#fff; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--navy); color:var(--white); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.6; }
+  a { color:var(--cyan); }
+  .wrap { max-width:760px; margin:0 auto; padding:0 20px; }
+  header { padding:48px 0 8px; }
+  header a.back { font-size:14px; color:var(--grey); text-decoration:none; }
+  h1 { font-size:36px; line-height:1.2; margin:16px 0 12px; }
+  .dek { font-size:18px; color:var(--grey); max-width:640px; }
+  .meta { font-size:14px; color:var(--grey); margin:16px 0 32px; }
+  article h2 { font-size:24px; margin:40px 0 12px; }
+  article p, article li { color:#cbd5e1; font-size:16px; margin-bottom:12px; }
+  article ul, article ol { padding-left:22px; }
+  article strong { color:var(--white); }
+  pre { background:var(--navy2); border-radius:12px; padding:16px 18px; margin:16px 0; overflow-x:auto; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:14px; color:var(--cyan); }
+  pre code { color:#e2e8f0; }
+  .callout { background:var(--navy2); border-left:3px solid var(--cyan); border-radius:0 12px 12px 0; padding:16px 20px; margin:20px 0; }
+  .callout p { margin-bottom:0; }
+  footer { border-top:1px solid #1e293b; padding:32px 0 48px; color:var(--grey); font-size:14px; text-align:center; margin-top:48px; }
+  footer a { margin:0 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="back" href="./">← Convert264</a>
+  <h1>How to convert videos offline on Android without ads</h1>
+  <p class="dek">Most "free" video converters either upload your video to a server or make you watch an ad to convert a file. Neither is necessary: conversion is just repackaging or re-encoding streams, and a phone can do it on its own. Here's how to convert offline, with no ads and no account.</p>
+  <p class="meta">November 15, 2026 · 4 min read</p>
+</header>
+<article>
+  <h2>First: how to tell if a converter can upload your video</h2>
+  <p>An app can only upload your video if it has network access. On Android, check the app's permissions before you trust it: <strong>Settings → Apps → the app → Permissions</strong>. If it asks for network access, it <em>can</em> send your files somewhere — whether it does is a promise, not a guarantee. An app with no network permission physically cannot upload anything, which is the only check that doesn't rely on trust.</p>
+  <p>On a computer the same test is simpler: FFmpeg works with no network at all. Check what's inside your file first — it takes one command, and it tells you what the conversion needs to do:</p>
+  <pre><code>ffprobe -v error -show_entries stream=codec_name,codec_type -of default=noprint_wrappers=1 input.mp4</code></pre>
+  <p>If the codec is already the one you want, the conversion is a copy, not a re-encode — seconds, no quality loss. Only re-encode when the codec itself has to change.</p>
+
+  <h2>Method 1: FFmpeg on your computer (fully offline)</h2>
+  <p>FFmpeg is the free, open-source tool that does the actual converting inside most converter apps. Install it once from <a href="https://ffmpeg.org/download.html">ffmpeg.org</a> (or <code>brew install ffmpeg</code> on a Mac, <code>sudo apt install ffmpeg</code> on Ubuntu/Debian), then run it with no network needed — you can even disconnect and it still works:</p>
+  <pre><code>ffmpeg -i input.mp4 -c copy output.mp4</code></pre>
+  <p><code>-c copy</code> means "copy every stream, don't re-encode" — same video, same audio, new file in seconds. If the codec has to change, re-encode to the most compatible pair, H.264 video with AAC audio:</p>
+  <pre><code>ffmpeg -i input.mp4 -c:v libx264 -crf 20 -c:a aac output.mp4</code></pre>
+  <p><code>-crf 20</code> is a good quality setting for H.264 — lower is better quality and a bigger file; 18–23 is the sensible range for most videos. Nothing here touches the internet: the file goes in, the file comes out, and no server ever sees it.</p>
+
+  <h2>Method 2: on your phone, without ads</h2>
+  <p>The same job runs on Android, on-device, if the app is built that way. <a href="./">Convert264</a> converts video on the phone itself — free, no ads, no account — and it has no network permission, so your video physically cannot leave the device. Pick a video, choose the format, and the conversion happens locally, even in airplane mode.</p>
+
+  <h2>What to avoid</h2>
+  <ul>
+    <li><strong>Online converters.</strong> They upload your video to someone else's server, convert it there, and send it back. That's slow for big files, and your video — possibly a private one — sits on a server you don't control. For anything you wouldn't post publicly, convert locally.</li>
+    <li><strong>Free converter apps full of ads.</strong> When we sampled the newest 1-star reviews of the top video converters on Google Play, the same complaints kept coming up: ads interrupting the conversion, formats locked behind a paywall, and outputs that come out corrupt or unplayable. If an app makes you watch an ad to convert a file, it's selling your attention, not converting your video.</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>Rule of thumb:</strong> if the converter needs the internet, ask what the internet is for. Conversion doesn't. An app that converts offline and shows no ads has nothing to sell you — and nothing of yours to sell either.</p>
+  </div>
+</article>
+<footer>
+  <a href="./">Convert264</a> ·
+  <a href="https://github.com/dzianisv/h264-converter/releases">Download</a> ·
+  <a href="https://github.com/dzianisv/h264-converter/blob/main/PRIVACY.md">Privacy</a>
+</footer>
+</div>
+</body>
+</html>

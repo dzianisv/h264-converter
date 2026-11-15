@@ -58,6 +58,20 @@ Close with a dated reason.
 
 ## Done
 
+- [x] WL-24 Seventh useful article: "How to convert videos offline on
+  Android without ads" (Nov 15, 2026): same WL-08 pattern — the
+  no-network-permission test (Settings → Apps → Permissions) + ffprobe
+  check, FFmpeg copy (`-c copy`) + re-encode fallback (H.264+AAC,
+  `-c:v libx264 -crf 20 -c:a aac`), on-phone method = Convert264
+  (on-device, no INTERNET permission, airplane-mode proof), what to
+  avoid (grounded in the WL-07 1-star sampling), Convert264 mentioned
+  once at the end. Targets the last two uncovered quick wins: "offline
+  video converter" (rel 5, diff 3) and "video converter no ads"
+  (rel 5, diff 3). All three commands verified locally against a real
+  H.264 sample (ffprobe → h264; copy → valid MP4 h264; re-encode →
+  valid MP4 h264). Published: docs/convert-offline-no-ads.html, linked
+  from the index footer, in sitemap.xml. Owner: Muse.
+
 - [x] WL-23 Sixth useful article: "How to convert video to MKV without
   uploading it" (Nov 15, 2026): same WL-08 pattern — check codec first
   (ffprobe), FFmpeg copy (`-c copy` into MKV) + re-encode fallback
