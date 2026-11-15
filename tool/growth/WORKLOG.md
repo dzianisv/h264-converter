@@ -5,14 +5,6 @@ Close with a dated reason.
 
 ## Open
 
-- [ ] WL-31 Unverified USB-drive claim in landing page + listing (Nov 15,
-  2026): the Nov 11 decision removed "USB-OTG ready" from the UI (never
-  tested with a real drive; no unproven claims), but the claim survived
-  in docs/index.html ("From Files, Gallery, or a USB drive") and
-  tool/play-store/listing.md ("Works with videos from a USB drive").
-  Remove both until WL-05 proves OTG on the real Pixel. Same pass:
-  listing "road to 100K" is stale (goal is 1M since Nov 13) and
-  "ships v0.2.2" is stale (current v0.2.5). Owner: Muse.
 - [ ] WL-30 Directory submissions (Nov 15, 2026): per social-marketing
   lane + Week 2 plan — submit Convert264 to free directories
   (AlternativeTo, DevHunt, BetaList, Product Hunt, Show HN, Indie
@@ -82,6 +74,19 @@ Close with a dated reason.
   Owner: founder (PostHog project) / Muse (SDK + wizard).
 
 ## Done
+
+- [x] WL-31 Unverified USB-drive claim in landing page + listing (Nov 15,
+  2026): the Nov 11 decision removed "USB-OTG ready" from the UI (never
+  tested with a real drive; no unproven claims), but the claim survived
+  in docs/index.html ("From Files, Gallery, or a USB drive") and
+  tool/play-store/listing.md ("Works with videos from a USB drive").
+  Removed both until WL-05 proves OTG on the real Pixel. Same pass:
+  listing "road to 100K" → 1M (goal raised Nov 13) and "ships v0.2.2" →
+  "ships it in a release" (current v0.2.5). Commit e232119; Android PR
+  run 43748275418 success, Pages deploy 43748274216 success; live
+  landing page HTTP 200 with 0 "USB drive" hits. Repo-wide sweep
+  re-run = zero remaining claim sites (only the Nov 11 decision record
+  itself). Owner: Muse.
 
 - [x] WL-29 Tenth useful article: "How to trim a video on Android without
   uploading it" (Nov 15, 2026): same WL-08 pattern — find cut points
