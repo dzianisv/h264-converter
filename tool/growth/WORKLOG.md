@@ -32,10 +32,10 @@ Close with a dated reason.
   the upload. Options: keystore in GitHub Secrets, or a local build.
   Owner: founder. Due: Nov 19 (week 1).
 
-- [ ] WL-05 Real-Pixel test of v0.2.4 (queue, MKV output, dark mode, share
-  sheet, OTG with a real drive). v0.2.4 APK sent Nov 14 — retry the same
-  conversion, paste the copied error back if it fails. Only he has the
-  phone. Owner: founder. Due: Nov 19.
+- [ ] WL-05 Real-Pixel test of v0.2.5 (queue, MKV output, dark mode, share
+  sheet, OTG with a real drive). v0.2.5 APK link sent Nov 15 (was v0.2.4
+  Nov 14) — retry the same conversion, paste the copied error back if it
+  fails. Only he has the phone. Owner: founder. Due: Nov 19.
 
 - [ ] WL-09 Video join — build it or drop it. Open question to the founder
   since Nov 11 ("join them" was read as joining the dropdowns). Owner:
