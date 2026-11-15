@@ -24,8 +24,7 @@ okara.ai "Product Hunt Alternatives" (Sep 2026), AlternativeTo add page
 - **Category:** Video Players & Editors / Video Converter
 - **Tags:** video converter, mp4 converter, mkv converter, h264 converter,
   offline converter, no ads, open source
-- **Logo/icon:** `tool/play-store/icon.png` (check the file exists before
-  uploading — the store listing holds the icon + screenshots)
+- **Logo/icon:** `tool/play-store/icon-512.png` (512×512, verified on disk)
 - **AlternativeTo "alternative to" targets (from WL-07 competitors.md):**
   Video Converter by VidSoftLab, Video Converter/Compressor by Inverse AI
   (`com.inverseai.video_converter`), FFmpeg Media Encoder by SilentLexx,
