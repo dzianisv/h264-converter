@@ -14,10 +14,14 @@ Close with a dated reason.
   — BetaList RULED OUT (paid only + own domain required, landing is
   github.io); AlternativeTo needs a free account (sign-in wall verified
   live); Product Hunt / Show HN / Indie Hackers need his accounts;
-  DevHunt weak fit (dev-tools only, ~6mo free queue); F-Droid likely
-  ineligible (ffmpeg-kit prebuilt binaries). No submission completed —
-  all remaining need an owner account. Owner: Muse (submissions);
-  founder (account creation).
+  DevHunt weak fit (dev-tools only, ~6mo free queue); F-Droid VERIFIED
+  Nov 15 (see directories.md): ffmpeg-kit alone does NOT rule it out
+  (GPL from Maven Central, a trusted repo per the Inclusion Policy) —
+  the real blocker is Play in-app review (`review-ktx`, a non-free
+  library), which needs a `foss` flavor; flavor work deferred until
+  Play is live, still needs his GitLab account + fdroiddata MR. No
+  submission completed — all remaining need an owner account. Owner:
+  Muse (submissions); founder (account creation).
 - [ ] WL-01 Sentry in the app. Needs a Sentry DSN — owner creates a Sentry
   project and hands over the DSN. Owner: founder. Due: Nov 19 (week 1).
 - [ ] WL-02 Play Console developer account ($25, one-time). Owner: founder.
