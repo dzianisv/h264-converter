@@ -70,7 +70,8 @@ Close with a dated reason.
   valid MKV with h264/aac; re-encode → valid MKV with h264/aac;
   VP9+Opus → valid MKV with vp9/opus; ffprobe confirms). Published:
   docs/convert-to-mkv.html, linked from the index footer, in
-  sitemap.xml. Owner: Muse.
+  sitemap.xml. Commit 83be3bc; Android PR run 43669042534 success;
+  Pages deploy 43669041866 success; article live HTTP 200. Owner: Muse.
 
 - [x] WL-22 Fifth useful article: "How to convert MP4 to WebM without
   uploading your video" (Nov 15, 2026): same WL-08 pattern — no copy
