@@ -15,9 +15,10 @@ Close with a dated reason.
   the upload. Options: keystore in GitHub Secrets, or a local build.
   Owner: founder. Due: Nov 19 (week 1).
 
-- [ ] WL-05 Real-Pixel test of v0.2.2 (queue, MKV output, dark mode, share
-  sheet, OTG with a real drive). Only he has the phone. Owner: founder.
-  Due: Nov 19.
+- [ ] WL-05 Real-Pixel test of v0.2.4 (queue, MKV output, dark mode, share
+  sheet, OTG with a real drive). v0.2.4 APK sent Nov 14 — retry the same
+  conversion, paste the copied error back if it fails. Only he has the
+  phone. Owner: founder. Due: Nov 19.
 
 - [ ] WL-09 Video join — build it or drop it. Open question to the founder
   since Nov 11 ("join them" was read as joining the dropdowns). Owner:
@@ -28,10 +29,10 @@ Close with a dated reason.
   Owner: founder. No date.
 
 - [ ] WL-18 Pixel 9a conversion failure — root cause unknown. The
-  v0.2.2 error line was too short to read. Needs Den's copied error
-  details from v0.2.3 (tap the failed row → Show details → Copy
-  error) + what file/settings he used. Owner: founder (error text)
-  / Muse (fix once known).
+  v0.2.2 error line was too short to read. v0.2.4 ships the full-error
+  UI — needs Den's copied error details from v0.2.4 (tap the failed row
+  → Show details → Copy error) + what file/settings he used. Owner:
+  founder (error text) / Muse (fix once known).
 
 - [ ] WL-13 App name — pick a name people understand. 'Convert264'
   reopened Nov 14 (owner): '264' means nothing to a normal person.

@@ -84,12 +84,18 @@ listing live, Sentry receiving events, issues enabled (done: issues enabled,
 
 ## Jobs
 
-- Daily growth sweep — 09:00 WITA, project chat, material changes only.
-- Weekly reflection — Mondays 09:00 WITA; writes the reflection and the next
-  three actions into this file.
-- Hourly supervisor / nudge — NOT created. Pre-launch, no live users or
-  reviews; hourly checks would be noise. Revisit at Stage 1. (Recorded
-  reason, per the skill's "adjust only with a recorded reason" rule.)
+- Daily loop (dispatcher) — ~09:48 WITA; runs the control cycle, audits
+  the job set, reflects, folds one lesson into a skill.
+- Hourly supervisor / nudge — every 1h; build board control.
+- Daily growth sweep — ~09:48 WITA; triage issues + reviews, verify site
+  + listing, next growth work.
+- Weekly reflection — Mondays ~09:48 WITA; writes the reflection and the
+  next three actions into this file.
+- Daily session reflection — 21:48 WITA; reflects on the Convert264 /
+  ffmpeg session only (bounded scope, Nov 14).
+- The four-role set (loop + supervisor + sweep + reflection) is complete
+  since the Nov 14 framework adoption, which superseded the Nov 13
+  decision to skip the hourly supervisor pre-launch.
 
 ## Growth folder
 
