@@ -5,13 +5,15 @@ Close with a dated reason.
 
 ## Open
 
-- [ ] WL-32 Landing page Download button still serves v0.2.2 (Nov 15,
+- [x] WL-32 Landing page Download button still serves v0.2.2 (Nov 15,
   2026): found by the hourly supervisor's stale-ref sweep — docs/index.html
-  links `releases/download/v0.2.2/app-release.apk` ("Download v0.2.2 (APK,
+  linked `releases/download/v0.2.2/app-release.apk` ("Download v0.2.2 (APK,
   55 MB)") while the current release is v0.2.5 (50,716,239 bytes). llms.txt
   was fixed to v0.2.5 in WL-29 but the index button was missed. Visitors
-  clicking Download get the pre-WL-17 (no full-error UI) build. Fix:
-  point the button at v0.2.5, size 51 MB. Owner: Muse.
+  clicking Download got the pre-WL-17 (no full-error UI) build. Fixed:
+  button now points at v0.2.5, 51 MB. Commit 47dcc12; Android PR run
+  43753861619 success, Pages deploy 43753861264 success; live landing
+  page HTTP 200 with "Download v0.2.5 (APK, 51 MB)". Owner: Muse.
 
 - [ ] WL-30 Directory submissions (Nov 15, 2026): per social-marketing
   lane + Week 2 plan — submit Convert264 to free directories
