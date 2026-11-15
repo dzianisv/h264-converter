@@ -160,7 +160,10 @@ Close with a dated reason.
   (screenshots bar + top-10 newest 1-star per app, live Play listings,
   in competitors.md). Two listing-identity flags recorded there
   (com.video_converter.video_compressor retitled; com.video.compress.and.convert
-  now Code Craft, Inc.) — re-check on the next pass.
+  now Code Craft, Inc.) — re-check on the next pass. RE-CHECKED Nov 15, 2026:
+  both resolved in competitors.md — the first pass had conflated two distinct
+  Inverse AI listings (converter = com.inverseai.video_converter, 18M installs,
+  ~209K ratings, the real leader); Code Craft identity confirmed unchanged.
 
 - [x] WL-08 First useful article: a how-to that works without the app
   (mention Convert264 once, at the end). DONE Nov 14, 2026 (pulled

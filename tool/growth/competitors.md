@@ -18,6 +18,13 @@ all read Nov 13, 2026. No numbers invented.
   Inverse AI listings). One 1-star reviewer (Argent Zet, Oct 25) calls
   it a deliberately worsened version of the same developer's "Video
   Converter, Compressor".
+- RESOLVED (Nov 15, 2026 re-check): the first pass conflated two distinct
+  Inverse AI listings. `com.video_converter.video_compressor` IS
+  "Compress Video Size Compressor" (Play, updated Oct 11, 2026; 4.5★,
+  ~173–178K ratings); "Video Converter, Compressor" is the separate
+  package `com.inverseai.video_converter` (AppBrain data Nov 7, 2026:
+  18M installs, 4.5★, 209,288 ratings, last updated Jan 5, 2026) —
+  the larger of the two, and the real category leader by ratings.
 - Free with ads + PRO paywall; conversion to MP4/MKV/AVI/3GP/FLV/MTS/M4V/MOV
   is a PRO feature. Batch queue included.
 - 1-star complaints (Nov 13): lifetime purchase advertised $9.99 but
@@ -201,8 +208,9 @@ per app, from the live Play listings) — the ranking below held:
 - The 1-star list is our feature list: no ads, no paywalled formats,
   queue + batch, outputs that always appear (WL-12), simple presets.
 - Target to beat first: VidSoftLab (8M installs, stale since Nov 2025) on
-  reliability + freshness; Inverse AI (182K reviews) on honesty (no ads,
-  no surprise charges).
+  reliability + freshness; Inverse AI's "Video Converter, Compressor"
+  (18M installs, ~209K ratings — the real category leader, see §1
+  resolution Nov 15) on honesty (no ads, no surprise charges).
 
 ## WL-07 done (Nov 14, 2026)
 
@@ -215,6 +223,15 @@ per app, from the live Play listings) — the ranking below held:
   "Compress Video Size Compressor" by Inverse AI). Same ratings/dates,
   so most likely retitles / first-pass mis-attribution — recorded as
   seen, not resolved. Re-check identities on the next competitor pass.
+- RE-CHECKED Nov 15, 2026 — both flags resolved: (1) the first pass had
+  conflated two distinct Inverse AI listings — `com.video_converter.
+  video_compressor` is "Compress Video Size Compressor" (Play, updated
+  Oct 11, 2026), while "Video Converter, Compressor" is the separate
+  `com.inverseai.video_converter` (18M installs, 209,288 ratings,
+  AppBrain Nov 7, 2026), the real category leader; §1 updated.
+  (2) `com.video.compress.and.convert` is still "Video Compressor
+  Converter" by Code Craft, Inc. (Play, updated Oct 31, 2026) —
+  confirmed, unchanged.
 - Screenshot lesson: the leaders pitch compression ratios (278 MB →
   19 MB) and format breadth; SilentLexx's screenshots sell nothing
   (raw terminal UI). Our screenshots must promise the outcome
