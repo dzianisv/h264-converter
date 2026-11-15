@@ -7,7 +7,6 @@ Close with a dated reason.
 
 - [ ] WL-01 Sentry in the app. Needs a Sentry DSN — owner creates a Sentry
   project and hands over the DSN. Owner: founder. Due: Nov 19 (week 1).
-
 - [ ] WL-02 Play Console developer account ($25, one-time). Owner: founder.
   Due: Nov 19 (week 1).
 
@@ -57,6 +56,17 @@ Close with a dated reason.
   Owner: founder (PostHog project) / Muse (SDK + wizard).
 
 ## Done
+
+- [x] WL-20 Third useful article: "How to convert WebM to MP4 without
+  uploading your video" (Nov 15, 2026): same WL-08 pattern — FFmpeg copy
+  (`-c copy`) + re-encode fallback + VLC method, what to avoid (grounded
+  in the WL-07 1-star sampling), Convert264 mentioned once at the end.
+  Targets the "webm converter" quick win (rel 5, diff 2). Both FFmpeg
+  commands verified locally against a real WebM file (VP9+Opus:
+  copy → valid MP4 with VP9+Opus; re-encode → H.264+AAC). Published:
+  docs/convert-webm-to-mp4.html, linked from the index footer, in
+  sitemap.xml. Commit 1de2551; Android PR run 43664353001 success;
+  Pages deploy 43664352669 success; article live HTTP 200. Owner: Muse.
 
 - [x] WL-19 Second useful article: "How to convert MOV to MP4 without
   uploading your video" (Nov 14, 2026): same WL-08 pattern — FFmpeg copy
