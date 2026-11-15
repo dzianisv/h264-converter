@@ -10,8 +10,14 @@ Close with a dated reason.
   (AlternativeTo, DevHunt, BetaList, Product Hunt, Show HN, Indie
   Hackers, category directories) for permanent backlinks. Submission
   copy + account requirements tracked in `tool/growth/directories.md`.
-  Owner: Muse (submissions); founder (any account creation / launch
-  timing he wants to gate).
+  PROGRESS Nov 15 (fec69cd, CI 43725883921 green): research + copy done
+  — BetaList RULED OUT (paid only + own domain required, landing is
+  github.io); AlternativeTo needs a free account (sign-in wall verified
+  live); Product Hunt / Show HN / Indie Hackers need his accounts;
+  DevHunt weak fit (dev-tools only, ~6mo free queue); F-Droid likely
+  ineligible (ffmpeg-kit prebuilt binaries). No submission completed —
+  all remaining need an owner account. Owner: Muse (submissions);
+  founder (account creation).
 - [ ] WL-01 Sentry in the app. Needs a Sentry DSN — owner creates a Sentry
   project and hands over the DSN. Owner: founder. Due: Nov 19 (week 1).
 - [ ] WL-02 Play Console developer account ($25, one-time). Owner: founder.
