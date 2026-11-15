@@ -31,7 +31,7 @@ listing live, Sentry receiving events, issues enabled (done: issues enabled,
 - Downloads: unknown — not on Play. Unblock: Play Console account.
 - Rating / reviews: unknown — same unblock.
 - Open GitHub issues: 0 (verified Nov 15, 2026 — `gh issue list` empty;
-  0 open PRs; last 5 CI runs green, latest 43707763080;
+  0 open PRs; last 5 CI runs green, latest 43715239728;
   issue #1 fixed and closed Nov 14, shipped as v0.2.2).
 - Sentry: not installed. Unblock: Sentry DSN (needs a Sentry project).
 - Store state: not created. Unblock: Play Console account ($25).
