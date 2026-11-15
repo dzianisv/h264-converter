@@ -48,6 +48,9 @@ Keywords from the store listing (tool/play-store/listing.md). Scored Nov 14,
   (WL-19, Nov 14).
 - Do not chase "compress video" — it would mislead users about what the
   app does.
+- "h264 converter" covered by the WL-21 article (Nov 15). Remaining
+  uncovered quick wins: "video converter no ads", "offline video
+  converter", "mkv converter", "mov converter", "vp9 converter".
 - Re-score monthly from Play Console once live. A keyword that brings no
   installs in 8 weeks is dropped.
 

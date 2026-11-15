@@ -57,6 +57,17 @@ Close with a dated reason.
 
 ## Done
 
+- [x] WL-21 Fourth useful article: "How to convert video to H.264 without
+  uploading it" (Nov 15, 2026): same WL-08 pattern — check codec first
+  (ffprobe), encode to H.264 (`-c:v libx264 -crf 20 -c:a aac`) + VLC
+  method, what to avoid (grounded in the WL-07 1-star sampling),
+  Convert264 mentioned once at the end. Targets the "h264 converter"
+  quick win (rel 5, diff 1 — literally the app name, no competitor
+  brands H.264). Both commands verified locally against a real WebM
+  file (VP9+Opus → H.264+AAC MP4, ffprobe confirms h264/aac).
+  Published: docs/convert-to-h264.html, linked from the index footer,
+  in sitemap.xml. Owner: Muse.
+
 - [x] WL-20 Third useful article: "How to convert WebM to MP4 without
   uploading your video" (Nov 15, 2026): same WL-08 pattern — FFmpeg copy
   (`-c copy`) + re-encode fallback + VLC method, what to avoid (grounded
