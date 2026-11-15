@@ -66,7 +66,8 @@ Close with a dated reason.
   brands H.264). Both commands verified locally against a real WebM
   file (VP9+Opus → H.264+AAC MP4, ffprobe confirms h264/aac).
   Published: docs/convert-to-h264.html, linked from the index footer,
-  in sitemap.xml. Owner: Muse.
+  in sitemap.xml. Commit 81d3dfd; Android PR run 43665017239 success;
+  Pages deploy 43665016606 success; article live HTTP 200. Owner: Muse.
 
 - [x] WL-20 Third useful article: "How to convert WebM to MP4 without
   uploading your video" (Nov 15, 2026): same WL-08 pattern — FFmpeg copy
