@@ -70,7 +70,9 @@ Close with a dated reason.
   (rel 5, diff 3). All three commands verified locally against a real
   H.264 sample (ffprobe → h264; copy → valid MP4 h264; re-encode →
   valid MP4 h264). Published: docs/convert-offline-no-ads.html, linked
-  from the index footer, in sitemap.xml. Owner: Muse.
+  from the index footer, in sitemap.xml. Commit 03368cb; Android PR run
+  43673496039 success; Pages deploy 43673495197 success; article live
+  HTTP 200 (landing HTTP 200). Owner: Muse.
 
 - [x] WL-23 Sixth useful article: "How to convert video to MKV without
   uploading it" (Nov 15, 2026): same WL-08 pattern — check codec first
