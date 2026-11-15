@@ -57,6 +57,19 @@ Close with a dated reason.
 
 ## Done
 
+- [x] WL-22 Fifth useful article: "How to convert MP4 to WebM without
+  uploading your video" (Nov 15, 2026): same WL-08 pattern — no copy
+  shortcut (H.264 is not valid in WebM), VP9 re-encode (`-c:v libvpx-vp9
+  -crf 30 -b:v 0 -c:a libopus`) + faster/smaller variant (`-crf 35
+  -deadline good -cpu-used 2`) + VLC method (VP8 profile), what to avoid
+  (grounded in the WL-07 1-star sampling), Convert264 mentioned once at
+  the end. Targets the "webm converter" quick win in the reverse
+  direction + "vp9 converter" (rel 5, diff 1). Both FFmpeg commands
+  verified locally against a real MP4 file (H.264 video-only sample:
+  VP9 WebM out, ffprobe confirms vp9). Published:
+  docs/convert-mp4-to-webm.html, linked from the index footer, in
+  sitemap.xml. Owner: Muse.
+
 - [x] WL-21 Fourth useful article: "How to convert video to H.264 without
   uploading it" (Nov 15, 2026): same WL-08 pattern — check codec first
   (ffprobe), encode to H.264 (`-c:v libx264 -crf 20 -c:a aac`) + VLC

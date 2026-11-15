@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to convert MP4 to WebM without uploading your video — Convert264</title>
+<meta name="description" content="Convert MP4 to WebM on your own computer with FFmpeg or VLC — smaller files for the web, VP9 video and Opus audio, no upload and no re-encoding surprises.">
+<link rel="canonical" href="https://dzianisv.github.io/h264-converter/convert-mp4-to-webm.html">
+<meta property="og:title" content="How to convert MP4 to WebM without uploading your video">
+<meta property="og:description" content="Convert MP4 to WebM on your own computer with FFmpeg or VLC — smaller files for the web, VP9 video and Opus audio.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://dzianisv.github.io/h264-converter/convert-mp4-to-webm.html">
+<meta property="og:image" content="https://dzianisv.github.io/h264-converter/feature-graphic-1024x500.png">
+<link rel="icon" type="image/png" href="icon-512.png">
+<style>
+  :root { --navy:#0f172a; --navy2:#1e293b; --cyan:#22d3ee; --purple:#8b5cf6; --grey:#94a3b8; --white:#fff; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--navy); color:var(--white); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.6; }
+  a { color:var(--cyan); }
+  .wrap { max-width:760px; margin:0 auto; padding:0 20px; }
+  header { padding:48px 0 8px; }
+  header a.back { font-size:14px; color:var(--grey); text-decoration:none; }
+  h1 { font-size:36px; line-height:1.2; margin:16px 0 12px; }
+  .dek { font-size:18px; color:var(--grey); max-width:640px; }
+  .meta { font-size:14px; color:var(--grey); margin:16px 0 32px; }
+  article h2 { font-size:24px; margin:40px 0 12px; }
+  article p, article li { color:#cbd5e1; font-size:16px; margin-bottom:12px; }
+  article ul, article ol { padding-left:22px; }
+  article strong { color:var(--white); }
+  pre { background:var(--navy2); border-radius:12px; padding:16px 18px; margin:16px 0; overflow-x:auto; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:14px; color:var(--cyan); }
+  pre code { color:#e2e8f0; }
+  .callout { background:var(--navy2); border-left:3px solid var(--cyan); border-radius:0 12px 12px 0; padding:16px 20px; margin:20px 0; }
+  .callout p { margin-bottom:0; }
+  footer { border-top:1px solid #1e293b; padding:32px 0 48px; color:var(--grey); font-size:14px; text-align:center; margin-top:48px; }
+  footer a { margin:0 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="back" href="./">← Convert264</a>
+  <h1>How to convert MP4 to WebM without uploading your video</h1>
+  <p class="dek">MP4 plays everywhere, but WebM files are smaller and built for the web — the right format when a video lives on a page rather than in a player. The conversion takes one command, and your video never has to leave your computer.</p>
+  <p class="meta">November 15, 2026 · 4 min read</p>
+</header>
+<article>
+  <h2>First: this one needs a re-encode — there is no copy shortcut</h2>
+  <p>MP4 and WebM are <strong>containers</strong>, and the video inside them is different: an MP4 usually holds H.264 video, and H.264 is not valid inside a WebM file. So unlike converting WebM to MP4 — where the streams can just be copied into a new box — going the other way means re-encoding the video to <strong>VP9</strong> and the audio to <strong>Opus</strong>, the codecs WebM is built around. Re-encoding takes longer than a copy and loses a little quality, so pick a quality setting you're happy with and keep the original MP4.</p>
+
+  <h2>Method 1: FFmpeg (fastest, one command)</h2>
+  <p>FFmpeg is the free, open-source tool that does the actual converting inside most converter apps. Install it once from <a href="https://ffmpeg.org/download.html">ffmpeg.org</a> (or <code>brew install ffmpeg</code> on a Mac, <code>sudo apt install ffmpeg</code> on Ubuntu/Debian), then run:</p>
+  <pre><code>ffmpeg -i input.mp4 -c:v libvpx-vp9 -crf 30 -b:v 0 -c:a libopus output.webm</code></pre>
+  <p><code>-crf 30</code> is the quality setting for VP9 — lower is better quality and a bigger file; 25 is near-transparent, 30 is a good balance, 35 is visibly smaller. <code>-b:v 0</code> puts VP9 in constant-quality mode so the CRF value actually controls the result. VP9 encodes slower than H.264 — that's the price of the smaller file — so for a quick draft, trade a little quality for speed:</p>
+  <pre><code>ffmpeg -i input.mp4 -c:v libvpx-vp9 -crf 35 -b:v 0 -deadline good -cpu-used 2 -c:a libopus output.webm</code></pre>
+
+  <h2>Method 2: VLC (no command line)</h2>
+  <p>If you'd rather click than type, VLC can do the same job:</p>
+  <ol>
+    <li>Open VLC, go to <strong>Media → Convert / Save</strong>.</li>
+    <li>Click <strong>Add</strong>, pick your MP4 file, then <strong>Convert / Save</strong>.</li>
+    <li>Under Profile, choose <strong>Video – VP8 + Vorbis (WebM)</strong>.</li>
+    <li>Click <strong>Browse</strong>, choose where to save the .webm, and press <strong>Start</strong>.</li>
+  </ol>
+  <p>VLC's WebM profile uses VP8, the older sibling of VP9 — the file plays everywhere WebM plays, but it's a little bigger than a VP9 encode at the same quality. For the smallest file, use the FFmpeg command above.</p>
+
+  <h2>What to avoid</h2>
+  <ul>
+    <li><strong>Online converters.</strong> They upload your video to someone else's server, convert it there, and send it back. That's slow for big files, and your video — possibly a private one — sits on a server you don't control. For anything you wouldn't post publicly, convert locally.</li>
+    <li><strong>Free converter apps full of ads.</strong> When we sampled the newest 1-star reviews of the top video converters on Google Play, the same complaints kept coming up: ads interrupting the conversion, formats locked behind a paywall, and outputs that come out corrupt or unplayable. If an app makes you watch an ad to convert a file, it's selling your attention, not converting your video.</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>Rule of thumb:</strong> WebM is for the web — smaller files, HTML5 video, VP9. MP4 is for everything else — older phones, editors, and anywhere compatibility matters more than size. If the file has to play on an older phone or in an editor, keep it MP4.</p>
+  </div>
+
+  <h2>On your phone instead</h2>
+  <p>If you'd rather do it on your phone than on a computer, <a href="./">Convert264</a> converts MP4 to WebM on-device — free, no ads, no account, and your video never leaves the phone.</p>
+</article>
+<footer>
+  <a href="./">Convert264</a> ·
+  <a href="https://github.com/dzianisv/h264-converter/releases">Download</a> ·
+  <a href="https://github.com/dzianisv/h264-converter/blob/main/PRIVACY.md">Privacy</a>
+</footer>
+</div>
+</body>
+</html>
