@@ -30,7 +30,7 @@ all read Nov 13, 2026. No numbers invented.
 - 1-star complaints (Nov 13): lifetime purchase advertised $9.99 but
   charged $16.53; conversion formats locked behind PRO; ads (the reason
   Convert264 exists — tried Nov 8, 2026, rejected for ads + awful UI/UX).
-- The category leader by review count. Bar to beat: 4.5★ at 182K ratings.
+- The category leader by review count. Bar to beat: 4.5★ at ~209K ratings.
 - Screenshots (Nov 14, first three): 1) "No.1 Video Compressor" —
   Multiple Compress Options, Custom Settings, Batch Compression, Trim
   and Cut, Instant Preview; 2) "High-Quality Compression for Multiple
