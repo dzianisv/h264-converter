@@ -58,6 +58,21 @@ Close with a dated reason.
 
 ## Done
 
+- [x] WL-25 Eighth useful article: "How to convert video to MOV without
+  uploading it" (Nov 15, 2026): same WL-08 pattern — check codec first
+  (ffprobe), FFmpeg copy (`-c copy` into MOV) + re-encode fallback
+  (H.264+AAC, `-c:v libx264 -crf 20 -c:a aac`), VLC method (Video –
+  H.264 + MP3 (MOV) profile, verified from two sources), what to avoid
+  (grounded in the WL-07 1-star sampling), Convert264 mentioned once
+  at the end. Targets the last uncovered quick win: "mov converter"
+  (rel 5, diff 3). All three FFmpeg commands verified locally against
+  real files (H.264 MP4: copy → valid MOV h264; re-encode → valid MOV
+  h264; VP9 MKV: copy refused "vp9 only supported in MP4", re-encode →
+  valid MOV h264; ffprobe confirms). Published:
+  docs/convert-to-mov.html, linked from the index footer, in
+  sitemap.xml. Commit 4a40c7c; Android PR run 43677862009 success;
+  Pages deploy 43677862058 success; article live HTTP 200. Owner: Muse.
+
 - [x] WL-24 Seventh useful article: "How to convert videos offline on
   Android without ads" (Nov 15, 2026): same WL-08 pattern — the
   no-network-permission test (Settings → Apps → Permissions) + ffprobe
