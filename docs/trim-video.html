@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to trim a video on Android without uploading it — Convert264</title>
+<meta name="description" content="Cut the start or end off a video on your own computer with FFmpeg or VLC — no upload, no watermark, no re-encoding when you don't need it. Trim to the exact second, or cut fast with stream copy.">
+<link rel="canonical" href="https://dzianisv.github.io/h264-converter/trim-video.html">
+<meta property="og:title" content="How to trim a video on Android without uploading it">
+<meta property="og:description" content="Cut the start or end off a video with FFmpeg or VLC — no upload, no watermark, exact to the second.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://dzianisv.github.io/h264-converter/trim-video.html">
+<meta property="og:image" content="https://dzianisv.github.io/h264-converter/feature-graphic-1024x500.png">
+<link rel="icon" type="image/png" href="icon-512.png">
+<style>
+  :root { --navy:#0f172a; --navy2:#1e293b; --cyan:#22d3ee; --purple:#8b5cf6; --grey:#94a3b8; --white:#fff; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--navy); color:var(--white); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.6; }
+  a { color:var(--cyan); }
+  .wrap { max-width:760px; margin:0 auto; padding:0 20px; }
+  header { padding:48px 0 8px; }
+  header a.back { font-size:14px; color:var(--grey); text-decoration:none; }
+  h1 { font-size:36px; line-height:1.2; margin:16px 0 12px; }
+  .dek { font-size:18px; color:var(--grey); max-width:640px; }
+  .meta { font-size:14px; color:var(--grey); margin:16px 0 32px; }
+  article h2 { font-size:24px; margin:40px 0 12px; }
+  article p, article li { color:#cbd5e1; font-size:16px; margin-bottom:12px; }
+  article ul, article ol { padding-left:22px; }
+  article strong { color:var(--white); }
+  pre { background:var(--navy2); border-radius:12px; padding:16px 18px; margin:16px 0; overflow-x:auto; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:14px; color:var(--cyan); }
+  pre code { color:#e2e8f0; }
+  .callout { background:var(--navy2); border-left:3px solid var(--cyan); border-radius:0 12px 12px 0; padding:16px 20px; margin:20px 0; }
+  .callout p { margin-bottom:0; }
+  footer { border-top:1px solid #1e293b; padding:32px 0 48px; color:var(--grey); font-size:14px; text-align:center; margin-top:48px; }
+  footer a { margin:0 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="back" href="./">← Convert264</a>
+  <h1>How to trim a video on Android without uploading it</h1>
+  <p class="dek">Every video has dead air at the start or the end — the seconds before you pressed record properly, the fumble after the moment passed. Trimming cuts those off, and you can do it without uploading your video anywhere.</p>
+  <p class="meta">November 15, 2026 · 4 min read</p>
+</header>
+<article>
+  <h2>First: find your cut points</h2>
+  <p>Play the video and note the two timestamps you want to keep: where the good part starts and where it ends. Write them down as hours:minutes:seconds — for example, keep from <code>00:00:02</code> to <code>00:00:05</code>. Check the total length first, so you know the numbers are inside the video:</p>
+  <pre><code>ffprobe -v error -show_entries format=duration -of csv=p=0 input.mp4</code></pre>
+  <p>It prints the duration in seconds. Your end point has to be smaller than that number.</p>
+
+  <h2>Method 1: FFmpeg, exact to the second (re-encode)</h2>
+  <p>FFmpeg is the free, open-source tool that does the actual converting inside most converter apps. Install it once from <a href="https://ffmpeg.org/download.html">ffmpeg.org</a> (or <code>brew install ffmpeg</code> on a Mac, <code>sudo apt install ffmpeg</code> on Ubuntu/Debian), then run one command. Put both <code>-ss</code> (start) and <code>-to</code> (end) <em>after</em> the input file, and the cut lands exactly where you asked:</p>
+  <pre><code>ffmpeg -i input.mp4 -ss 00:00:02 -to 00:00:05 -c:v libx264 -crf 20 -c:a aac trimmed.mp4</code></pre>
+  <p><code>-crf 20</code> is a good quality setting for H.264 — lower is better quality and a bigger file; 18–23 is the sensible range for most videos. This re-encodes the kept part, so it takes a little while, but the start and end are frame-accurate: a 2-second to 5-second trim comes out at exactly 3.000 seconds.</p>
+
+  <h2>Method 2: FFmpeg, fast (no re-encoding)</h2>
+  <p>If you don't want to wait for a re-encode, copy the streams instead. Put <code>-ss</code> <em>before</em> the input file and use <code>-t</code> (duration, not end time) after it:</p>
+  <pre><code>ffmpeg -ss 00:00:02 -i input.mp4 -t 00:00:03 -c copy trimmed.mp4</code></pre>
+  <p><code>-c copy</code> means "copy every stream, don't re-encode" — the trim takes seconds even for a large file. Two things to know: the cut lands on the nearest keyframe, so the result can be a fraction of a second longer (our 3-second trim came out at 3.1 seconds), and with <code>-ss</code> before the input, <code>-to</code> counts from your start point, not from the beginning of the file — so use <code>-t</code> for the length you want to keep. If the exact second matters, use Method 1.</p>
+
+  <h2>Method 3: VLC (no command line)</h2>
+  <p>If you'd rather click than type, VLC can trim by recording the part you want:</p>
+  <ol>
+    <li>Open VLC, go to <strong>View → Advanced Controls</strong> so the red record button appears.</li>
+    <li>Play your video and seek to where the good part starts.</li>
+    <li>Click the red <strong>record</strong> button, let it play to where the good part ends, then click record again to stop.</li>
+    <li>VLC saves the recorded part as a new file in your Videos folder (on Windows, <code>C:\Users\YourName\Videos</code>).</li>
+  </ol>
+  <p>This plays in real time — a 3-minute clip takes 3 minutes to trim — and the cut is only as precise as your clicks. But it works on any file, and there's nothing to install beyond VLC itself.</p>
+
+  <h2>What to avoid</h2>
+  <ul>
+    <li><strong>Online trimmers.</strong> They upload your video to someone else's server, trim it there, and send it back. That's slow for big files, and your video — possibly a private one — sits on a server you don't control. For anything you wouldn't post publicly, trim locally.</li>
+    <li><strong>Free trimmer apps full of ads and watermarks.</strong> When we sampled the newest 1-star reviews of the top video converters on Google Play, the same complaints kept coming up: ads interrupting the conversion, formats locked behind a paywall, and outputs that come out corrupt or unplayable. If an app makes you watch an ad — or stamps its logo on your video — to cut a few seconds off, it's selling your attention, not trimming your video.</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>Rule of thumb:</strong> if the exact second matters, re-encode with <code>-ss</code> and <code>-to</code> after the input. If speed matters and a fraction of a second doesn't, copy with <code>-ss</code> before the input and <code>-t</code> for the length.</p>
+  </div>
+
+  <h2>On your phone instead</h2>
+  <p>If you'd rather do it on your phone than on a computer, <a href="./">Convert264</a> trims video on-device with a real preview — free, no ads, no account, and your video never leaves the phone.</p>
+</article>
+<footer>
+  <a href="./">Convert264</a> ·
+  <a href="https://github.com/dzianisv/h264-converter/releases">Download</a> ·
+  <a href="https://github.com/dzianisv/h264-converter/blob/main/PRIVACY.md">Privacy</a>
+</footer>
+</div>
+</body>
+</html>

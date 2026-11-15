@@ -55,7 +55,8 @@ Keywords from the store listing (tool/play-store/listing.md). Scored Nov 14,
   no ads" covered by WL-24 (Nov 15). "mov converter" covered by WL-25
   (Nov 15). All 7 quick wins now covered by a landing-page article;
   the top core fight "convert video to mp4" is covered by WL-27 (Nov 15,
-  which also covers "mp4 converter"). Remaining core fights ("video
+  which also covers "mp4 converter"). The secondary keywords "trim video
+  android" + "video trimmer" are covered by WL-29 (Nov 15). Remaining core fights ("video
   converter", "convert video", "video converter free") are won via the
   listing + rating once live, and the founder-gated Play launch.
 - Re-score monthly from Play Console once live. A keyword that brings no

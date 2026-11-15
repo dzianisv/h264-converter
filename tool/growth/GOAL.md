@@ -36,9 +36,10 @@ listing live, Sentry receiving events, issues enabled (done: issues enabled,
 - Sentry: not installed. Unblock: Sentry DSN (needs a Sentry project).
 - Store state: not created. Unblock: Play Console account ($25).
 - Landing page: live Nov 14 — https://dzianisv.github.io/h264-converter/ (GitHub Pages, docs/ on main; HTTP 200 re-verified Nov 15).
-- Useful articles: 9 live (WL-08 + WL-19–WL-25 + WL-27), all 7 quick wins
-  covered + top core fight "convert video to mp4" covered
-  (verified Nov 15 — latest article convert-to-mp4.html HTTP 200).
+- Useful articles: 10 live (WL-08 + WL-19–WL-25 + WL-27 + WL-29), all 7 quick wins
+  covered + top core fight "convert video to mp4" covered + secondary
+  "trim video android" / "video trimmer" covered
+  (verified Nov 15 — latest article trim-video.html HTTP 200).
 - Latest build: v0.2.5 (tag; Release published Nov 15, 2026 10:56 UTC,
   APK + AAB, versionCode 16; smoke test GREEN on run 43706165212 in
   38m10s — WL-28 dead template deps removed + Data Safety draft).

@@ -58,6 +58,23 @@ Close with a dated reason.
 
 ## Done
 
+- [x] WL-29 Tenth useful article: "How to trim a video on Android without
+  uploading it" (Nov 15, 2026): same WL-08 pattern — find cut points
+  (ffprobe duration), FFmpeg exact trim (re-encode, `-ss`/`-to` after
+  `-i`) + fast trim (copy, `-ss` before `-i` with `-t` duration) +
+  VLC record method, what to avoid (grounded in the WL-07 1-star
+  sampling), Convert264 mentioned once at the end. Targets the
+  secondary keywords "trim video android" + "video trimmer" (rel 4,
+  diff 4) — trim with a real preview is a real app feature with no
+  article yet. All three FFmpeg commands verified locally against a
+  real 10s H.264+AAC file: output-opts re-encode trim → exactly
+  3.000s; input-`-ss` + `-t 3` copy → 3.1s (keyframe rounding);
+  input-`-ss` + `-to 5` copy → 5.1s (gotcha: `-to` counts from the
+  seek point — documented in the article). Published:
+  docs/trim-video.html, linked from the index footer, in sitemap.xml
+  and llms.txt. Also fixed in the same commit: llms.txt still linked
+  the v0.2.4 APK — now v0.2.5. Owner: Muse.
+
 - [x] WL-28 Dead template deps contradict the no-tracking claim (Nov 15,
   2026): dead Firebase AI + App Check, OkHttp, Retrofit, Moshi deps
   removed (PR #6, merge e9103f5; google-services plugin + block also
