@@ -31,7 +31,7 @@ listing live, Sentry receiving events, issues enabled (done: issues enabled,
 - Downloads: unknown — not on Play. Unblock: Play Console account.
 - Rating / reviews: unknown — same unblock.
 - Open GitHub issues: 0 (verified Nov 15, 2026 — `gh issue list` empty;
-  0 open PRs; last 5 CI runs green, latest 43682384226;
+  0 open PRs; last 5 CI runs green, latest 43707763080;
   issue #1 fixed and closed Nov 14, shipped as v0.2.2).
 - Sentry: not installed. Unblock: Sentry DSN (needs a Sentry project).
 - Store state: not created. Unblock: Play Console account ($25).
@@ -39,11 +39,13 @@ listing live, Sentry receiving events, issues enabled (done: issues enabled,
 - Useful articles: 9 live (WL-08 + WL-19–WL-25 + WL-27), all 7 quick wins
   covered + top core fight "convert video to mp4" covered
   (verified Nov 15 — latest article convert-to-mp4.html HTTP 200).
-- Latest build: v0.2.4 (tag; Release published Nov 14, 2026 15:11 UTC,
-  APK + AAB; smoke test GREEN on re-run 43608544016 — WL-17 full error
-  UI, first attempt failed on a ComposeNotIdle emulator flake, re-run
-  passed). Previous: v0.2.2 (smoke GREEN on run 43546002038 — WL-12 fix
-  for the 0-byte MKV reported Done, issue #1 closed).
+- Latest build: v0.2.5 (tag; Release published Nov 15, 2026 10:56 UTC,
+  APK + AAB, versionCode 16; smoke test GREEN on run 43706165212 in
+  38m10s — WL-28 dead template deps removed + Data Safety draft).
+  Previous: v0.2.4 (smoke GREEN on re-run 43608544016 — WL-17 full
+  error UI, first attempt failed on a ComposeNotIdle emulator flake,
+  re-run passed). Before that: v0.2.2 (smoke GREEN on run 43546002038
+  — WL-12 fix for the 0-byte MKV reported Done, issue #1 closed).
 
 ## Scoreboard (updated weekly, Mondays)
 

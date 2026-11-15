@@ -5,25 +5,6 @@ Close with a dated reason.
 
 ## Open
 
-- [ ] WL-28 Dead template deps contradict the no-tracking claim (Nov 15,
-  2026, hourly supervisor): `app/build.gradle.kts` still compiles in
-  Firebase AI + App Check (recaptcha + debug), OkHttp, Retrofit,
-  converter-moshi, logging-interceptor, moshi-kotlin + moshi codegen —
-  all AI Studio template leftovers, ZERO usage anywhere in `app/src`
-  (verified Nov 15: no Firebase/OkHttp/Retrofit/Moshi import in main,
-  test, or androidTest; no `google-services.json`; manifest has no
-  INTERNET permission, so nothing can phone home at runtime — but the
-  dead SDKs bloat the APK and a Play Data Safety audit would flag
-  Firebase as data-collecting). Fix: remove the dead deps (+ the
-  google-services plugin + `googleServices {}` block if CI stays green
-  without them), keep Room ksp + everything actually used; PR → merge
-  as owner → tag v0.2.5 (versionCode 16) → verify Release + smoke
-  green. Same task, separate docs PR: add a Data Safety draft to
-  `tool/play-store/listing.md` ("no data collected, no data shared" —
-  grounded in no INTERNET permission, no account, no ads, no analytics)
-  + drop "compress video" from the listing keywords (WL-11 Avoid, not
-  the product). Never change the applicationId. Owner: Muse.
-
 - [ ] WL-01 Sentry in the app. Needs a Sentry DSN — owner creates a Sentry
   project and hands over the DSN. Owner: founder. Due: Nov 19 (week 1).
 - [ ] WL-02 Play Console developer account ($25, one-time). Owner: founder.
@@ -76,6 +57,17 @@ Close with a dated reason.
   Owner: founder (PostHog project) / Muse (SDK + wizard).
 
 ## Done
+
+- [x] WL-28 Dead template deps contradict the no-tracking claim (Nov 15,
+  2026): dead Firebase AI + App Check, OkHttp, Retrofit, Moshi deps
+  removed (PR #6, merge e9103f5; google-services plugin + block also
+  dropped after CI fix faeb133); Data Safety draft added to
+  `tool/play-store/listing.md` + "compress video" dropped from the
+  listing keywords (PR #7, merge 0573fa7). Shipped as v0.2.5
+  (versionCode 16, tag, Release published 2026-11-15 10:56 UTC, APK +
+  AAB); smoke run 43706165212 SUCCESS in 38m10s (verified Nov 15 by
+  the hourly supervisor, which waited out the in-flight smoke rather
+  than re-running it). Owner: Muse.
 
 - [x] WL-27 Ninth useful article: "How to convert video to MP4 without
   uploading it" (Nov 15, 2026): same WL-08 pattern — check codec first
