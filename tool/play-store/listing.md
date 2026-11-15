@@ -42,7 +42,6 @@ WHAT YOU CAN DO
 
 BUILT FOR REAL USE
 - Share a video from Files or Gallery straight into the converter
-- Works with videos from a USB drive
 - Real progress while it converts; open and share when it's done
 - Dark mode included
 
@@ -110,7 +109,7 @@ not been filled in. Draft answers, to paste when the account is created:
 5. **Firebase Analytics + Crashlytics:** NOT yet added — it needs a Firebase
    project in his Google account. Steps: create project in Firebase Console,
    add Android app `dev.dzianisv.convert264`, download google-services.json,
-   hand it to Muse, who wires the SDK and ships v0.2.2. Until then, Vitals
+   hand it to Muse, who wires the SDK and ships it in a release. Until then, Vitals
    covers crashes and the review prompt covers feedback.
 
 ## Launch checklist (owner)
@@ -127,9 +126,9 @@ not been filled in. Draft answers, to paste when the account is created:
 - [ ] Watch Vitals daily for the first week
 - [ ] Real Pixel test of the shipped build before production rollout
 
-## The road to 100K downloads
+## The road to 1M downloads
 
-Honest version: 100K is a goal, not a forecast. The plan is boring and it is
+Honest version: 1M is a goal, not a forecast. The plan is boring and it is
 the whole plan.
 
 1. Ship a converter that does not crash and does not lie (no fake claims in
