@@ -5,6 +5,12 @@ Close with a dated reason.
 
 ## Open
 
+- [ ] WL-26 llms.txt lists the 8 how-to guides. Sitemap + index footer
+  link all 8 articles, but llms.txt (the AI-citation file the growth
+  plan relies on for ChatGPT-type traffic) mentions none of them.
+  Add a "How-to guides" section with all 8 titles + URLs, verify
+  Pages deploy + live llms.txt. Owner: Muse.
+
 - [ ] WL-01 Sentry in the app. Needs a Sentry DSN — owner creates a Sentry
   project and hands over the DSN. Owner: founder. Due: Nov 19 (week 1).
 - [ ] WL-02 Play Console developer account ($25, one-time). Owner: founder.

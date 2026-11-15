@@ -17,3 +17,16 @@ Convert any video on your Android phone: pick a video or share one to the app, c
 ## Privacy
 
 Convert264 collects nothing. Conversion runs entirely on your device; the app has no internet permission, so your videos cannot leave your phone.
+
+## How-to guides
+
+Step-by-step guides that work without the app (FFmpeg + VLC methods included):
+
+- How to convert MKV to MP4 without uploading your video: https://dzianisv.github.io/h264-converter/convert-mkv-to-mp4.html
+- How to convert MOV to MP4 without uploading your video: https://dzianisv.github.io/h264-converter/convert-mov-to-mp4.html
+- How to convert WebM to MP4 without uploading your video: https://dzianisv.github.io/h264-converter/convert-webm-to-mp4.html
+- How to convert MP4 to WebM without uploading your video: https://dzianisv.github.io/h264-converter/convert-mp4-to-webm.html
+- How to convert video to MKV without uploading it: https://dzianisv.github.io/h264-converter/convert-to-mkv.html
+- How to convert video to MOV without uploading it: https://dzianisv.github.io/h264-converter/convert-to-mov.html
+- How to convert video to H.264 without uploading it: https://dzianisv.github.io/h264-converter/convert-to-h264.html
+- How to convert videos offline on Android without ads: https://dzianisv.github.io/h264-converter/convert-offline-no-ads.html
