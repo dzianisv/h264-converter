@@ -5,14 +5,6 @@ Close with a dated reason.
 
 ## Open
 
-- [ ] WEEKLY REFLECTION Nov 16, 2026 — next three actions (from the
-  Week 1 reflection in GOAL.md; all founder-owned, all due Nov 19,
-  week-1 end): (1) Play Console reachable — WL-02. (2) Pixel 9a test
-  of v0.2.5 — WL-05 / WL-18. (3) Name + payment decisions — WL-13 /
-  WL-14. No Muse-owned work remains until one of these clears: the
-  article lane is exhausted and directory submissions all need owner
-  accounts (WL-30).
-
 - [x] WL-33 Listing refresh (Nov 15, 2026): launch checklist stale —
   AAB line said "v0.2.1 or later" (current v0.2.5) and the closed-test
   line said "20 testers not needed for personal account" — wrong on
@@ -94,6 +86,17 @@ Close with a dated reason.
   Owner: founder (PostHog project) / Muse (SDK + wizard).
 
 ## Done
+
+- [x] WEEKLY REFLECTION Nov 16, 2026 (Week 1 reflection, Nov 13–15):
+  written to GOAL.md by the weekly reflection job (run 01:50 UTC);
+  committed by the hourly supervisor Nov 16 02:40 UTC after live
+  readback (0 open issues, 0 open PRs, last 5 CI green, latest
+  43788767836; landing + trim article HTTP 200, Download serves
+  v0.2.5). Next three actions, all founder-owned, due Nov 19: (1)
+  Play Console reachable — WL-02. (2) Pixel 9a test of v0.2.5 —
+  WL-05 / WL-18. (3) Name + payment decisions — WL-13 / WL-14.
+  No Muse-owned work remains until one of these clears; article lane
+  exhausted, directory submissions all need owner accounts (WL-30).
 
 - [x] WL-32 Landing page Download button still serves v0.2.2 (Nov 15,
   2026): found by the hourly supervisor's stale-ref sweep — docs/index.html

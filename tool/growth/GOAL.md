@@ -125,3 +125,70 @@ listing live, Sentry receiving events, issues enabled (done: issues enabled,
   reflection Mondays ~09:48 WITA.
 - Open owner decisions: app name (WL-13), payment model (WL-14),
   PostHog project (WL-15).
+
+## Weekly reflections
+
+### Week 1 reflection — Nov 16, 2026 (first reflection; covers Nov 13–15)
+
+Stage 0 — pre-launch, not on Play. One blocker: Play Console is
+unreachable (saved password rejected twice Nov 15); no listing, no
+Sentry DSN, no keystore until the founder clears it.
+
+**1. Scoreboard — this week vs last week.** Last week = before the
+goal existed (goal created Nov 13), so every number below is new.
+
+| Metric | This week | Last week |
+| --- | --- | --- |
+| Downloads | unknown (not on Play) | — (no product) |
+| Play rating / reviews | unknown (not on Play) | — |
+| Open GitHub issues | 0 (verified Nov 16, 01:48 UTC: `gh issue list` empty) | — |
+| Open PRs | 0 (verified Nov 16, 01:48 UTC) | — |
+| Sentry repeats | n/a (not installed) | — |
+| Support queue age | none (no channel yet) | — |
+| Releases shipped | 3 (v0.2.2, v0.2.4, v0.2.5) | 0 |
+| Useful articles live | 10 | 0 |
+| CI (last 5 runs) | green (latest 43788767836, Nov 16 01:52 UTC) | — |
+
+**2. What worked.**
+
+- Article lane: 10 how-to articles live (WL-08, WL-19–WL-25, WL-27,
+  WL-29), all 7 quick wins + top core fight "convert video to mp4" +
+  trim covered; every FFmpeg command verified locally against real files.
+- Release loop: 3 releases in 3 days, each smoke-green (v0.2.2 run
+  43546002038, v0.2.4 re-run 43608544016, v0.2.5 run 43706165212 in
+  38m10s).
+- Issue #1 (0-byte MKV shown Done) fixed and closed Nov 14 (WL-12,
+  v0.2.2).
+- Landing page live Nov 14, HTTP 200 re-verified Nov 16; Download
+  button fixed to v0.2.5 the same day it was caught stale (WL-32).
+- Competitor leader corrected: Inverse AI, 18M installs, ~209K
+  ratings (WL-07 re-check Nov 15).
+
+**3. What did not.**
+
+- Play Console sign-in failed twice Nov 15 (saved password rejected)
+  — 0 of 3 founder-gated week-1 items cleared (Console, keystore,
+  Sentry DSN); week 1 ends Nov 19.
+- Pixel 9a test still pending: no conversion result and no copied
+  error text back from the founder (WL-05 / WL-18).
+- Directory submissions: 0 completed — every remaining directory
+  needs an owner account (WL-30).
+- v0.2.3 release deleted: test-compile error, not an app bug; PR gate
+  fixed to compile instrumented tests too (WL-17).
+- Article lane exhausted: all quick wins + top core fight covered;
+  no further articles planned until Play is live.
+
+**4. Support.** No channel, no reviews, no complaints yet (Stage 0).
+Top complaint: none. Closest user feedback is the Pixel 9a
+conversion failure (WL-18) — it already changed the product: WL-17
+shipped the full-error UI (full log tail, Copy error) so the next
+failure arrives readable.
+
+**5. Next three actions.**
+
+1. Founder — Play Console reachable: correct password, account
+   recovery, or sign in himself (WL-02). Due Nov 19.
+2. Founder — Pixel 9a test of v0.2.5: run the same conversion, paste
+   the copied error if it fails (WL-05 / WL-18). Due Nov 19.
+3. Founder — name + payment decisions (WL-13 VidSwitch recommended,
+   WL-14): the listing cannot be finalised without them. Due Nov 19.
