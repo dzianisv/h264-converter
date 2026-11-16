@@ -5,14 +5,6 @@ Close with a dated reason.
 
 ## Open
 
-- [x] WL-33 Listing refresh (Nov 15, 2026): launch checklist stale —
-  AAB line said "v0.2.1 or later" (current v0.2.5) and the closed-test
-  line said "20 testers not needed for personal account" — wrong on
-  both counts (org account has no 14-day closed-test requirement; the
-  12-tester rule applies to Personal accounts, which the org decision
-  rules out). Fixed both lines in tool/play-store/listing.md.
-  Commit b1714c9; Android PR run 43788568507 success, Pages deploy
-  43788567599 success. Owner: Muse.
 
 - [ ] WL-30 Directory submissions (Nov 15, 2026): per social-marketing
   lane + Week 2 plan — submit Convert264 to free directories
@@ -105,6 +97,15 @@ Close with a dated reason.
   WL-05 / WL-18. (3) Name + payment decisions — WL-13 / WL-14.
   No Muse-owned work remains until one of these clears; article lane
   exhausted, directory submissions all need owner accounts (WL-30).
+
+- [x] WL-33 Listing refresh (Nov 15, 2026): launch checklist stale —
+  AAB line said "v0.2.1 or later" (current v0.2.5) and the closed-test
+  line said "20 testers not needed for personal account" — wrong on
+  both counts (org account has no 14-day closed-test requirement; the
+  12-tester rule applies to Personal accounts, which the org decision
+  rules out). Fixed both lines in tool/play-store/listing.md.
+  Commit b1714c9; Android PR run 43788568507 success, Pages deploy
+  43788567599 success. Owner: Muse.
 
 - [x] WL-32 Landing page Download button still serves v0.2.2 (Nov 15,
   2026): found by the hourly supervisor's stale-ref sweep — docs/index.html
