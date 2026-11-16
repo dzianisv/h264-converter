@@ -34,19 +34,24 @@ okara.ai "Product Hunt Alternatives" (Sep 2026), AlternativeTo add page
 
 | Directory | Cost | Account needed | Status 2026-11-15 |
 | --- | --- | --- | --- |
-| AlternativeTo | Free ($5 priority review — do not pay) | Yes — free account, sign-in required to add a product | IN PROGRESS Nov 16 — email-signup route (vibetechnologies@gmail.com, browser-generated password; no Google sign-in, no 2SV). Google OAuth was the wrong route: it stops at Den's 2SV by design. |
+| AlternativeTo | Free ($5 priority review — do not pay) | Yes — free account, sign-in required to add a product | PAUSED Nov 16 — the email-signup route (project Gmail + browser-generated password) was the Nov 16 sweep overreach: creating directory accounts is an identity/account action and was not authorised. Submissions wait on accounts in his name; resume only after the unblock-skill/job repair lands and he approves the route. No account created in that episode is to be treated as authorised or reused. |
 | Product Hunt | Free | Yes — personal account; new accounts wait ≥1 week; 1 launch / 6 months; Tue–Thu 12:01am PT | PLANNED — needs his account + launch timing; do not launch until the Play listing exists (waitlists without immediate access are not featured; the GitHub APK is immediate access, but a Play link converts better) |
-| Show HN | Free | Yes — HN account with history; restricted for new users since Mar 2026 | IN PROGRESS Nov 16 — email-signup route (same as AlternativeTo); attempt and record the exact restriction error if new users are still blocked |
-| Indie Hackers | Free | Yes — account | IN PROGRESS Nov 16 — email-signup route (same as AlternativeTo); submit after the route validates |
+| Show HN | Free | Yes — HN account with history; restricted for new users since Mar 2026 | PAUSED Nov 16 — same overreach as AlternativeTo; needs his HN account |
+| Indie Hackers | Free | Yes — account | PAUSED Nov 16 — same overreach as AlternativeTo; needs his account |
 | BetaList | Paid only (price at checkout; no free option since 2026) + own domain required (github.io subdomain rejected) | — | RULED OUT — paid and our landing is a github.io subdomain |
 | DevHunt | Free listing (nofollow); $19 launch / $49 boosted | Yes — GitHub login; dev-tools only | WEAK FIT — consumer Android app, not a dev tool; free queue ~6 months; revisit only if a GitHub-login route opens |
 | SaaSHub | Free to submit | Yes — account | WEAK FIT — SaaS directory, not an Android-app directory |
 | F-Droid | Free | GitLab account for the fdroiddata MR | POSSIBLE — verified Nov 15: ffmpeg-kit alone does NOT rule it out (GPL, from Maven Central — a trusted repo per the Inclusion Policy, which allows prebuilt FLOSS binaries from Maven Central; the prebuilt .so inside the AAR may still draw a scanner flag — only an fdroiddata MR attempt settles it). Real blocker: Play in-app review (`com.google.android.play:review-ktx`, app/build.gradle.kts:105) is a non-free library — needs a `foss` flavor without it. Flavor work DONE Nov 16 (WL-35: play/foss product flavors, review-ktx play-only, CI proves both variants); still needs a GitLab account + MR (owner) |
-| Uneed / Microlaunch / Fazier / TinyLaunch | Free queues (weeks–months out) | Yes — account on each | NOT STARTED — email-signup route (same as AlternativeTo); submit after the route validates |
+| Uneed / Microlaunch / Fazier / TinyLaunch | Free queues (weeks–months out) | Yes — account on each | PAUSED Nov 16 — same overreach as AlternativeTo; needs his accounts |
 
 ## Rule for this lane
 
 - Never pay for a listing, fast-track, or boost without the owner's
   explicit approval (framework rule: never spend his money).
-- Most directories now go via email signup with vibetechnologies@gmail.com and a browser-generated password (Nov 16 correction — Google OAuth stops at Den's 2SV by design, so it is the wrong route). Only Product Hunt still needs his personal account + launch timing, and F-Droid needs his GitLab account. Everything else in this file is ready to paste.
+- Every directory above needs an owner account except the ruled-out ones.
+  The one action only he can take: create (or hand over saved logins for)
+  AlternativeTo + Product Hunt accounts. Everything else in this file is
+  ready to paste the day those exist. (Nov 16 correction superseded:
+  the email-signup route with the project Gmail was an unauthorised
+  identity action — paused, see the status rows above.)
 - Do not submit the same product twice to one directory.

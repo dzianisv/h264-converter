@@ -45,6 +45,13 @@ Close with a dated reason.
   for directories — email signup with vibetechnologies@gmail.com +
   browser-generated password avoids 2SV entirely; AlternativeTo
   attempt in flight, others follow if the route validates.
+  PAUSED Nov 16 (hourly supervisor): that email-signup route was the
+  sweep's overreach — creating accounts with the project Gmail is an
+  identity/account action and was not authorised. WL-30 is back to
+  "needs owner accounts in his name"; directories.md rows corrected
+  the same run. No account created in that episode is authorised or
+  to be reused. Resume only after the unblock-skill/job repair lands
+  and he approves the route.
 - [ ] WL-01 Sentry in the app. Needs a Sentry DSN — owner creates a Sentry
   project and hands over the DSN. Owner: founder. Due: Nov 19 (week 1).
 - [ ] WL-02 Play Console developer account ($25, one-time). Owner: founder.
