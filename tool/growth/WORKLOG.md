@@ -5,14 +5,17 @@ Close with a dated reason.
 
 ## Open
 
-- [ ] WL-35 F-Droid `foss` flavor (Nov 16, 2026): build the
+- [x] WL-35 F-Droid `foss` flavor (Nov 16, 2026): build the
   F-Droid-ready variant — `play`/`foss` product flavors, review-ktx
   play-only behind a flavor-provided ReviewLauncher (no-op in foss),
   CI proves both variants compile (assembleFossDebug in the PR gate).
   The Nov 15 "deferred until Play is live" decision is superseded by
   the Nov 16 unblock rule (gates block only their own rows). Remaining
   after this row: his GitLab account + fdroiddata MR (founder). Owner:
-  Muse.
+  Muse. DONE Nov 16 (PR #10, merge cd88ca1, CI run 43911593924
+  success): play+foss flavors live on main; review-ktx play-only;
+  release file names unchanged. Remaining: his GitLab account +
+  fdroiddata MR.
 - [ ] WL-30 Directory submissions (Nov 15, 2026): per social-marketing
   lane + Week 2 plan — submit Convert264 to free directories
   (AlternativeTo, DevHunt, BetaList, Product Hunt, Show HN, Indie
