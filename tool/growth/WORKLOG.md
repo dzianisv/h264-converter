@@ -41,6 +41,10 @@ Close with a dated reason.
   / TinyLaunch use the same Google sign-in and hit the same 2SV wall.
   F-Droid: the foss flavor is no longer deferred — WL-35 builds it
   this run; remaining is his GitLab account + fdroiddata MR.
+  CORRECTION Nov 16 (hourly sweep): Google OAuth is the wrong route
+  for directories — email signup with vibetechnologies@gmail.com +
+  browser-generated password avoids 2SV entirely; AlternativeTo
+  attempt in flight, others follow if the route validates.
 - [ ] WL-01 Sentry in the app. Needs a Sentry DSN — owner creates a Sentry
   project and hands over the DSN. Owner: founder. Due: Nov 19 (week 1).
 - [ ] WL-02 Play Console developer account ($25, one-time). Owner: founder.
