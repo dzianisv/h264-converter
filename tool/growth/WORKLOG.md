@@ -14,12 +14,6 @@ Close with a dated reason.
   Commit b1714c9; Android PR run 43788568507 success, Pages deploy
   43788567599 success. Owner: Muse.
 
-- [ ] WL-34 Landing FAQ still says "Why is the download 55 MB?"
-  (Nov 15, 2026): found by the hourly supervisor's stale-ref sweep —
-  docs/index.html line 104 still says 55 MB (the v0.2.2 size) while
-  the v0.2.5 APK is 50,716,239 bytes (~51 MB) and the Download button
-  already says 51 MB. Repo-wide sweep: no other stale version/size
-  refs in docs/ or tool/play-store/. Fix: FAQ → 51 MB. Owner: Muse.
 - [ ] WL-30 Directory submissions (Nov 15, 2026): per social-marketing
   lane + Week 2 plan — submit Convert264 to free directories
   (AlternativeTo, DevHunt, BetaList, Product Hunt, Show HN, Indie
@@ -92,6 +86,14 @@ Close with a dated reason.
   Owner: founder (PostHog project) / Muse (SDK + wizard).
 
 ## Done
+
+- [x] WL-34 Landing FAQ still said "Why is the download 55 MB?"
+  (Nov 15, 2026): found by the hourly supervisor's stale-ref sweep —
+  docs/index.html line 104 still said 55 MB (the v0.2.2 size) while
+  the v0.2.5 APK is 50,716,239 bytes (~51 MB) and the Download button
+  already said 51 MB. Repo-wide sweep: no other stale version/size
+  refs in docs/ or tool/play-store/. Fixed: FAQ → 51 MB. PR #8,
+  merge 82c927d, Android PR run 43811909714 success. Owner: Muse.
 
 - [x] WEEKLY REFLECTION Nov 16, 2026 (Week 1 reflection, Nov 13–15):
   written to GOAL.md by the weekly reflection job (run 01:50 UTC);
