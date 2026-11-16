@@ -67,8 +67,8 @@ resolution only).
 ## Build
 
 ```bash
-gradle assembleRelease   # release APK in app/build/outputs/apk/release/
-gradle testDebugUnitTest  # unit tests
+gradle assemblePlayRelease   # release APK in app/build/outputs/apk/play/release/ (CI copies it to app-release.apk)
+gradle testPlayDebugUnitTest  # unit tests
 ```
 (The AI Studio export contains no `gradlew` wrapper scripts; CI uses
 Gradle 9.3.1 via `gradle/actions/setup-gradle`. Locally, open the
@@ -87,7 +87,7 @@ only — see the release notes for the exact size).
 `.github/workflows/emulator-smoke.yml` runs the in-process Compose
 instrumented tests `app/src/androidTest/.../Convert264SmokeTest.kt`,
 `ShareIntentSmokeTest.kt` and `FfmpegSpikeTest.kt`
-(`gradle connectedDebugAndroidTest`) on an API 35 emulator. The
+(`gradle connectedPlayDebugAndroidTest`) on an API 35 emulator. The
 runner script is `tool/smoke-test.sh`.
 
 `Convert264SmokeTest` (v0.2.0): launch (light + dark screenshots,

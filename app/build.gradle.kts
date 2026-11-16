@@ -19,6 +19,17 @@ android {
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
+  // WL-35 (F-Droid): two store flavors. `play` is the Play Store
+  // build (Play in-app review included); `foss` is the F-Droid
+  // build — same app, same applicationId, no non-free libraries.
+  // The review prompt lives behind ReviewLauncher so the foss
+  // variant compiles without review-ktx.
+  flavorDimensions += "store"
+  productFlavors {
+    create("play") { dimension = "store" }
+    create("foss") { dimension = "store" }
+  }
+
   // Do not remove or modify these signingConfigs. They are necessary for building, installing,
   // and updating Android apps in AI Studio.
   signingConfigs {
@@ -102,7 +113,12 @@ dependencies {
   implementation(libs.androidx.core.ktx)
   // Play in-app review (v0.2.1): the feedback loop for the Play
   // Store launch — prompt once, after the 3rd successful conversion.
-  implementation(libs.play.review.ktx)
+  // Play flavor only (WL-35): the foss flavor must not link any
+  // non-free library, so review-ktx is excluded there and
+  // ReviewLauncher is a no-op in foss. Kotlin DSL has no
+  // playImplementation accessor — the string-invoke form (same as
+  // "ksp" below) is the way to address a flavor configuration.
+  "playImplementation"(libs.play.review.ktx)
   implementation(libs.androidx.media3.transformer)
   implementation(libs.androidx.media3.effect)
   implementation(libs.androidx.media3.common)

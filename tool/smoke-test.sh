@@ -3,7 +3,7 @@
 # Runs the in-process Compose instrumented tests
 # (app/src/androidTest/.../Convert264SmokeTest.kt +
 #  ShareIntentSmokeTest.kt + FfmpegSpikeTest.kt) via
-# connectedDebugAndroidTest — no uiautomator dumps, no adb UI
+# connectedPlayDebugAndroidTest — no uiautomator dumps, no adb UI
 # driving, which proved unreliable on the slow GitHub Actions
 # emulator (System UI ANRs, empty dumps for minutes at a time).
 #
@@ -110,9 +110,9 @@ stop_recording() {
 }
 
 say "running instrumented smoke tests"
-gradle connectedDebugAndroidTest --no-daemon 2>&1 | tee -a "$LOG"
+gradle connectedPlayDebugAndroidTest --no-daemon 2>&1 | tee -a "$LOG"
 RC=${PIPESTATUS[0]}
-say "connectedDebugAndroidTest exit code: $RC"
+say "connectedPlayDebugAndroidTest exit code: $RC"
 
 # Infra flake: the emulator sometimes goes unresponsive during
 # the (multi-minute) build, and Gradle then fails at install time
@@ -136,9 +136,9 @@ if [ "$RC" != "0" ] && grep -q -E "Unknown API Level|No compatible devices|Canno
     sleep 5
   done
   if [ "$API" = "35" ]; then
-    gradle connectedDebugAndroidTest --no-daemon 2>&1 | tee -a "$LOG"
+    gradle connectedPlayDebugAndroidTest --no-daemon 2>&1 | tee -a "$LOG"
     RC=${PIPESTATUS[0]}
-    say "retry connectedDebugAndroidTest exit code: $RC"
+    say "retry connectedPlayDebugAndroidTest exit code: $RC"
   else
     say "device never became queryable again — emulator infra failure, retry the run"
   fi
