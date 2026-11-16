@@ -116,13 +116,14 @@ not been filled in. Draft answers, to paste when the account is created:
 
 - [ ] Play Console developer account created ($25) — founder, needs his payment
 - [ ] Privacy policy URL set (PRIVACY.md link above)
-- [ ] Signed AAB built from a tagged release (v0.2.1 or later) — Play needs AAB,
+- [ ] Signed AAB built from a tagged release (v0.2.5 or later) — Play needs AAB,
       not the sideload APK
 - [ ] Icon, feature graphic, 4 screenshots uploaded
 - [ ] Listing text pasted from this file
 - [ ] Content rating questionnaire filled (Everyone)
-- [ ] Closed testing track first (20 testers not needed for personal account
-      anymore — check current Play policy at submission time), then production
+- [ ] Closed testing track first (organization account — Vibe
+      Technologies, LLC — has no 14-day closed-test requirement; verify
+      current Play policy at submission time), then production
 - [ ] Watch Vitals daily for the first week
 - [ ] Real Pixel test of the shipped build before production rollout
 

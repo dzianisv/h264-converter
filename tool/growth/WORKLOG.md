@@ -5,6 +5,22 @@ Close with a dated reason.
 
 ## Open
 
+- [ ] WEEKLY REFLECTION Nov 16, 2026 — next three actions (from the
+  Week 1 reflection in GOAL.md; all founder-owned, all due Nov 19,
+  week-1 end): (1) Play Console reachable — WL-02. (2) Pixel 9a test
+  of v0.2.5 — WL-05 / WL-18. (3) Name + payment decisions — WL-13 /
+  WL-14. No Muse-owned work remains until one of these clears: the
+  article lane is exhausted and directory submissions all need owner
+  accounts (WL-30).
+
+- [ ] WL-33 Listing refresh: launch checklist stale (Nov 15, 2026):
+  AAB line still said "v0.2.1 or later" (current v0.2.5) and the
+  closed-test line said "20 testers not needed for personal account"
+  — wrong on both counts (org account has no 14-day closed-test
+  requirement; the 12-tester rule applies to Personal accounts, which
+  the org decision rules out). Fixed both lines in
+  tool/play-store/listing.md. Owner: Muse.
+
 - [ ] WL-30 Directory submissions (Nov 15, 2026): per social-marketing
   lane + Week 2 plan — submit Convert264 to free directories
   (AlternativeTo, DevHunt, BetaList, Product Hunt, Show HN, Indie
@@ -61,13 +77,16 @@ Close with a dated reason.
   title 'VidSwitch – Video Converter' is 27 chars), ReVid (short but
   unclear). All four .com domains registered. Rename is display name +
   store title + repo/landing copy only — applicationId never changes.
-  Owner: founder (his pick).
+  Owner: founder (his pick). Due: Nov 19 (week 1 — listing cannot be
+  finalised without the name; set by the Nov 16 weekly reflection).
 
 - [ ] WL-14 Payment model — stay free vs one-time pro unlock vs
   subscription. Framework rule (MVP with payment first, Nov 14): payment
   ships in the MVP, scale waits for the first paying customer. The app's
   edge as launched is free / no ads / no account — a real fork. Never
-  invent a price or a tier. Owner: founder.
+  invent a price or a tier. Owner: founder. Due: Nov 19 (week 1 —
+  listing cannot be finalised without the model; set by the Nov 16
+  weekly reflection).
 
 - [ ] WL-15 PostHog: install the Android SDK + run the self-driving
   wizard on the landing page; project key in the Secure Vault only.
