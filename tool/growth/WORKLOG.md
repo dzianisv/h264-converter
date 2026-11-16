@@ -5,7 +5,14 @@ Close with a dated reason.
 
 ## Open
 
-
+- [ ] WL-35 F-Droid `foss` flavor (Nov 16, 2026): build the
+  F-Droid-ready variant — `play`/`foss` product flavors, review-ktx
+  play-only behind a flavor-provided ReviewLauncher (no-op in foss),
+  CI proves both variants compile (assembleFossDebug in the PR gate).
+  The Nov 15 "deferred until Play is live" decision is superseded by
+  the Nov 16 unblock rule (gates block only their own rows). Remaining
+  after this row: his GitLab account + fdroiddata MR (founder). Owner:
+  Muse.
 - [ ] WL-30 Directory submissions (Nov 15, 2026): per social-marketing
   lane + Week 2 plan — submit Convert264 to free directories
   (AlternativeTo, DevHunt, BetaList, Product Hunt, Show HN, Indie
@@ -23,6 +30,14 @@ Close with a dated reason.
   Play is live, still needs his GitLab account + fdroiddata MR. No
   submission completed — all remaining need an owner account. Owner:
   Muse (submissions); founder (account creation).
+  PROGRESS Nov 16: AlternativeTo sign-in attempted — the project
+  Gmail password was ACCEPTED by Google, then sign-in stopped at
+  Google 2-step verification (tap Yes on phone / Authenticator code)
+  — Den's step, browser tab left open on the 2SV page; resumes when
+  he approves. Indie Hackers / Show HN / Uneed / Microlaunch / Fazier
+  / TinyLaunch use the same Google sign-in and hit the same 2SV wall.
+  F-Droid: the foss flavor is no longer deferred — WL-35 builds it
+  this run; remaining is his GitLab account + fdroiddata MR.
 - [ ] WL-01 Sentry in the app. Needs a Sentry DSN — owner creates a Sentry
   project and hands over the DSN. Owner: founder. Due: Nov 19 (week 1).
 - [ ] WL-02 Play Console developer account ($25, one-time). Owner: founder.

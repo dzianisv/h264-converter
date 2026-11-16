@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.google.android.play.core.review.ReviewManagerFactory
 
 /**
  * Play in-app review + store listing (v0.2.1 — the feedback loop for
@@ -14,7 +13,17 @@ import com.google.android.play.core.review.ReviewManagerFactory
  * who just got three videos converted is the one whose rating is
  * worth asking for. Play itself decides whether to show the dialog
  * and how often; we only ever ask once per install.
+ *
+ * Flavor split (WL-35): the pure gate ([shouldAsk]) and the store
+ * link ([openStoreListing]) live here in main; the actual prompt is
+ * flavor-provided ([ReviewLauncher]) — the Play flavor shows the
+ * in-app review flow, the foss flavor is a no-op so the build links
+ * no non-free library.
  */
+interface ReviewLauncher {
+    fun launch(activity: Activity, onDone: () -> Unit)
+}
+
 object ReviewPrompt {
     const val PACKAGE_NAME = "dev.dzianisv.convert264"
     const val MIN_SUCCESSFUL_CONVERSIONS = 3
@@ -23,20 +32,12 @@ object ReviewPrompt {
         !alreadyAsked && successfulConversions >= MIN_SUCCESSFUL_CONVERSIONS
 
     /**
-     * Requests the Play review flow. [onDone] runs whatever Play does —
-     * shown, skipped, or failed — so the caller can mark it asked and
-     * never nag again.
+     * Requests the review flow. [onDone] runs whatever happens —
+     * shown, skipped, failed, or not available (foss) — so the
+     * caller can mark it asked and never nag again.
      */
     fun launch(activity: Activity, onDone: () -> Unit) {
-        val manager = ReviewManagerFactory.create(activity)
-        manager.requestReviewFlow().addOnCompleteListener { request ->
-            if (!request.isSuccessful) {
-                onDone()
-                return@addOnCompleteListener
-            }
-            manager.launchReviewFlow(activity, request.result)
-                .addOnCompleteListener { onDone() }
-        }
+        ReviewLauncherProvider.launcher.launch(activity, onDone)
     }
 
     /** Opens the Play Store listing (market app first, web fallback). */

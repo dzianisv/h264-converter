@@ -27,18 +27,21 @@ jobs:
           keytool -genkeypair -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Convert264 CI, OU=CI, O=CI, L=CI, ST=CI, C=US" -noprompt
           keytool -genkeypair -keystore upload.keystore -storepass ci-upload-pass -alias upload -keypass ci-upload-pass -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Convert264 CI, OU=CI, O=CI, L=CI, ST=CI, C=US" -noprompt
       - name: Unit tests
-        run: gradle testDebugUnitTest --no-daemon
+        run: gradle testPlayDebugUnitTest --no-daemon
       - name: Compile instrumented tests
         # WL-17 lesson: the PR gate only ran unit tests + assembleDebug,
         # so a broken androidTest source (assertDoesNotExist, unresolved
         # in this Compose version) shipped to the tag and failed the
         # smoke run's compile. Compiling the test APK here catches it
         # at PR time, with no emulator needed.
-        run: gradle assembleDebugAndroidTest --no-daemon
+        run: gradle assemblePlayDebugAndroidTest --no-daemon
       - name: Build debug APK
-        run: gradle assembleDebug --no-daemon
+        run: gradle assemblePlayDebug --no-daemon
+      - name: Build foss debug APK (no non-free libraries)
+        # WL-35: proves the foss flavor compiles without review-ktx.
+        run: gradle assembleFossDebug --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/play/debug/app-play-debug.apk
           retention-days: 7

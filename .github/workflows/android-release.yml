@@ -32,9 +32,9 @@ jobs:
           keytool -genkeypair -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Convert264 CI, OU=CI, O=CI, L=CI, ST=CI, C=US" -noprompt
           keytool -genkeypair -keystore upload.keystore -storepass ci-upload-pass -alias upload -keypass ci-upload-pass -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Convert264 CI, OU=CI, O=CI, L=CI, ST=CI, C=US" -noprompt
       - name: Unit tests
-        run: gradle testDebugUnitTest --no-daemon
+        run: gradle testPlayDebugUnitTest --no-daemon
       - name: Build release APK
-        run: gradle assembleRelease --no-daemon
+        run: gradle assemblePlayRelease --no-daemon
       # Play Store needs an AAB, not the APK. Built from the same
       # tag so the store build is byte-identical in code to the
       # sideload APK. Signing note: CI signs with a throwaway
@@ -42,7 +42,15 @@ jobs:
       # The first Play upload must use a stable upload keystore
       # (see tool/play-store/listing.md).
       - name: Build release AAB (Play Store upload)
-        run: gradle bundleRelease --no-daemon
+        run: gradle bundlePlayRelease --no-daemon
+      # Flavors rename the outputs (app-play-release.apk/.aab); the
+      # public download URLs use the plain names, so copy them back
+      # before the audit and the release upload.
+      - name: Restore plain release file names
+        run: |
+          mkdir -p app/build/outputs/apk/release app/build/outputs/bundle/release
+          cp app/build/outputs/apk/play/release/app-play-release.apk app/build/outputs/apk/release/app-release.apk
+          cp app/build/outputs/bundle/play/release/app-play-release.aab app/build/outputs/bundle/release/app-release.aab
       - name: Audit merged manifest in the built APK
         run: |
           AAPT2=$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)
