@@ -52,6 +52,13 @@ Close with a dated reason.
   the same run. No account created in that episode is authorised or
   to be reused. Resume only after the unblock-skill/job repair lands
   and he approves the route.
+  REPAIR VERIFIED LANDED Nov 16 13:40 PST (hourly supervisor
+  readback): unblock skill §5 corrected (job body is sole authority,
+  10-session list removed) + unblock-sweep-hourly job body names
+  only Convert264 + PhotoBackup; sweep runs 10:27–13:27 PST all
+  log-only, no identity-route messages sent — restraint demonstrated.
+  Only Den's proceed/stop decision remains (question already asked,
+  unanswered).
 - [ ] WL-01 Sentry in the app. Needs a Sentry DSN — owner creates a Sentry
   project and hands over the DSN. Owner: founder. Due: Nov 19 (week 1).
 - [ ] WL-02 Play Console developer account ($25, one-time). Owner: founder.
