@@ -115,8 +115,10 @@ dependencies {
   // Store launch — prompt once, after the 3rd successful conversion.
   // Play flavor only (WL-35): the foss flavor must not link any
   // non-free library, so review-ktx is excluded there and
-  // ReviewLauncher is a no-op in foss.
-  playImplementation(libs.play.review.ktx)
+  // ReviewLauncher is a no-op in foss. Kotlin DSL has no
+  // playImplementation accessor — the string-invoke form (same as
+  // "ksp" below) is the way to address a flavor configuration.
+  "playImplementation"(libs.play.review.ktx)
   implementation(libs.androidx.media3.transformer)
   implementation(libs.androidx.media3.effect)
   implementation(libs.androidx.media3.common)
