@@ -49,6 +49,15 @@ Close with a dated reason.
   (merge bc0c0ea) + PR #16 (merge eceaa20, current main head).
   Verification smoke 44170399800 dispatched on head eceaa20,
   in flight (started 20:32 UTC).
+  VERDICT Nov 17 (hourly supervisor readback): 44170399800 FAILED —
+  10/11 passed, only ProUpsellTest failed again, now at
+  scrollTo(ProUpsellTest.kt:51): assertIsDisplayed "The component is
+  not displayed!" — the PR #16 try/assertIsDisplayed loop found the
+  node (composed) but 10 manual swipes never brought it into view.
+  Root cause: blind swipeUp loop with a fixed count vs a history
+  list that grows through the run. Fix → WL-39: use
+  performScrollToNode on the queue_list LazyColumn, which scrolls
+  until the node is displayed.
 
 - [x] WL-38 Launch checklist AAB line stale (Nov 17, 2026): found by the
   hourly supervisor's stale-ref sweep — tool/play-store/listing.md
@@ -152,6 +161,23 @@ Close with a dated reason.
   produced, 22,891 B, 5.293s) — only ProUpsellTest failed (see
   WL-37). Final verdict awaits verification smoke 44170399800 on
   the fixed head (PR #15/#16).
+  UPDATE Nov 17 (later): 44170399800 finished FAILED — 10/11 passed;
+  queue test passed again, only ProUpsellTest failed (scrollTo never
+  brought get_pro_button into view). WL-18's queue conversion is
+  green in two consecutive smokes; the remaining failure is the
+  ProUpsell test harness (WL-39). WL-18 closes when the WL-39
+  verification smoke goes green.
+
+- [ ] WL-39 ProUpsellTest scrollTo never reaches get_pro_button
+  (Nov 17, 2026): v0.2.7 smoke 44152617153 failed with node-not-found;
+  PR #15/#16 (manual swipeUp loop) got the node composed but
+  verification smoke 44170399800 still failed — 10 swipes never
+  bring the button into view because the history list grows through
+  the run. Fix: replace the blind swipe loop with
+  performScrollToNode on the queue_list LazyColumn (scrolls until
+  the node is displayed, handles lazy composition). Test-only change,
+  no app behavior. Verify: PR CI (compile) + full verification smoke
+  on the merged head. Owner: Muse.
 
 - [ ] WL-13 App name — pick a name people understand. 'Convert264'
   reopened Nov 14 (owner): '264' means nothing to a normal person.

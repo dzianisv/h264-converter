@@ -2,13 +2,12 @@ package com.example
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.test.performScrollToNode
 import org.junit.Rule
 import org.junit.Test
 
@@ -24,30 +23,21 @@ import org.junit.Test
  * The Pro buttons live at the bottom of the queue LazyColumn, below
  * the history left by earlier tests in the same run — so they are
  * not composed until scrolled into view. performScrollTo() cannot
- * find an uncomposed lazy item (v0.2.7 smoke: node not found), so
- * this test swipes the list up until the button exists.
+ * find an uncomposed lazy item (v0.2.7 smoke: node not found), and
+ * a blind swipeUp loop cannot reach it either (verification smoke
+ * 44170399800: 10 swipes, still not displayed — the history list
+ * grows through the run). performScrollToNode on the queue_list
+ * scrolls until the node is displayed and handles lazy composition.
  */
 class ProUpsellTest {
 
     @get:Rule
     val composeRule = createAndroidComposeRule<MainActivity>()
 
-    /** Swipes the queue list up until the tagged node is actually displayed, then returns. */
+    /** Scrolls the queue list until the tagged node is displayed. */
     private fun scrollTo(tag: String) {
-        repeat(10) {
-            try {
-                // assertIsDisplayed throws both when the node is not
-                // composed yet and when it is composed but still
-                // off-screen (LazyColumn pre-composes items just
-                // beyond the viewport — v0.2.7 smoke re-run). Either
-                // way, scroll and retry.
-                composeRule.onNodeWithTag(tag).assertIsDisplayed()
-                return
-            } catch (e: AssertionError) {
-                composeRule.onRoot().performTouchInput { swipeUp() }
-                composeRule.waitForIdle()
-            }
-        }
+        composeRule.onNodeWithTag("queue_list")
+            .performScrollToNode(hasTestTag(tag))
         composeRule.onNodeWithTag(tag).assertIsDisplayed()
     }
 
