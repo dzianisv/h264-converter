@@ -120,7 +120,7 @@ Close with a dated reason.
   the upload. Options: keystore in GitHub Secrets, or a local build.
   Owner: founder. Due: Nov 19 (week 1).
 
-- [ ] WL-05 Emulator end-to-end pass of v0.2.5+ (queue, MKV output,
+- [x] WL-05 Emulator end-to-end pass of v0.2.5+ (queue, MKV output,
   dark mode, share sheet; OTG via Firebase Test Lab free tier if
   needed). REWRITTEN Nov 17 (Den): the emulator end-to-end pass is
   the proof; a real device is never required and never a gate —
@@ -128,6 +128,10 @@ Close with a dated reason.
   43706165212 already passed; the WL-18 reproduction run 44146602913
   (dispatched Nov 17) re-proves it on current main. Owner: Muse.
   Due: Nov 19.
+  VERIFIED Nov 17: v0.2.7-head smoke 44180827378 GREEN (11/11) —
+  queue, MKV output, dark mode, share sheet all pass on the
+  emulator. OTG with a real drive still unverified (Firebase Test
+  Lab if needed) — not part of this row.
 
 - [ ] WL-09 Video join — build it or drop it. Open question to the founder
   since Nov 11 ("join them" was read as joining the dropdowns). Owner:
@@ -137,7 +141,7 @@ Close with a dated reason.
   Optional — Vitals + in-app review cover crashes and feedback until then.
   Owner: founder. No date.
 
-- [ ] WL-18 Pixel 9a conversion failure — root cause unknown. The
+- [x] WL-18 Pixel 9a conversion failure — root cause unknown. The
   v0.2.2 error line was too short to read. No file name, settings,
   or error text was ever reported, so there are no "same settings"
   to replay — the reproduction is the standard emulator end-to-end
@@ -167,8 +171,15 @@ Close with a dated reason.
   green in two consecutive smokes; the remaining failure is the
   ProUpsell test harness (WL-39). WL-18 closes when the WL-39
   verification smoke goes green.
+  CLOSED Nov 17 as not-reproducible-on-emulator: verification smoke
+  44180827378 GREEN (11/11) — queue conversion green in three
+  consecutive smokes (44152617153, 44170399800, 44180827378), the
+  Pixel failure never reproduced, no 0-byte file, no conversion
+  error on the emulator. The Pixel 9a root cause stays unknown —
+  no file name, settings, or error text was ever sent; reopen if
+  he pastes the copied error from v0.2.7.
 
-- [ ] WL-39 ProUpsellTest scrollTo never reaches get_pro_button
+- [x] WL-39 ProUpsellTest scrollTo never reaches get_pro_button
   (Nov 17, 2026): v0.2.7 smoke 44152617153 failed with node-not-found;
   PR #15/#16 (manual swipeUp loop) got the node composed but
   verification smoke 44170399800 still failed — 10 swipes never
@@ -183,6 +194,8 @@ Close with a dated reason.
   44180827378 dispatched on the merge head, in flight (started
   ~21:35 UTC); hourly supervisor waiting out the run — do not
   re-dispatch.
+  VERIFIED Nov 17: smoke 44180827378 GREEN (11/11) — ProUpsellTest
+  passes with performScrollToNode. Done.
 
 - [ ] WL-13 App name — pick a name people understand. 'Convert264'
   reopened Nov 14 (owner): '264' means nothing to a normal person.
@@ -200,6 +213,7 @@ Close with a dated reason.
 - [x] WL-14 Payment model — DECIDED Nov 17 by the product lead (Den delegated the payment decision Nov 17): free core + one-time Pro $9.99. Free: every conversion (all containers, all codecs, trim), no ads, no watermark, no account. Pro: batch conversion (multi-select / whole folder) + background conversion. Reason: free core keeps the edge — competitors paywall basic conversion and get 1-star complaints for it; $9.99 is the category's advertised lifetime price and matches SnapDisk's Pro; one-time, no subscription. Next: wire Play Billing + verify a sandbox purchase (MVP payment milestone). Owner: Muse.
   PROGRESS Nov 17: wired in v0.2.6 (branch feat/wl14-play-billing) — billing-ktx 8.2.1 play-only, Pro state + upsell + foreground service for background conversion; unit + instrumented upsell tests. Sandbox purchase verification → WL-36 (gated on Console WL-02 + keystore WL-03 + product creation).
   PROGRESS Nov 17: PR #11 merged (710132f) but the v0.2.6 Release FAILED (run 44149629843, AAB not at assumed path) — no v0.2.6 Release published. Reshipped as v0.2.7 via WL-37 (issue #12, PR #13, merge 7ffa035): Release published 18:57 UTC, run 44152617155 green, APK + AAB attached. Smoke verification of the v0.2.7 head in flight (run 44152617153).
+  VERIFIED Nov 17: verification smoke 44180827378 GREEN (11/11) on the merged head (WL-39 fix was test-only, app code identical to v0.2.7) — v0.2.7 verified as shipped. Sandbox purchase still WL-36, gated on Console (WL-02) + keystore (WL-03).
 
 - [ ] WL-15 PostHog: install the Android SDK + run the self-driving
   wizard on the landing page; project key in the Secure Vault only.
