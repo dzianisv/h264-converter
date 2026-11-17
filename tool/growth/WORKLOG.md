@@ -50,11 +50,13 @@ Close with a dated reason.
   Verification smoke 44170399800 dispatched on head eceaa20,
   in flight (started 20:32 UTC).
 
-- [ ] WL-38 Launch checklist AAB line stale (Nov 17, 2026): found by the
+- [x] WL-38 Launch checklist AAB line stale (Nov 17, 2026): found by the
   hourly supervisor's stale-ref sweep — tool/play-store/listing.md
   launch checklist still said "Signed AAB built from a tagged release
   (v0.2.5 or later)" while the current release is v0.2.7 (same class
-  as WL-33). Fix: v0.2.7 or later. Owner: Muse.
+  as WL-33). Fixed: v0.2.7 or later. PR #17, merge 937ec4a, Android
+  PR run 44172347110 success (PR head) + merge run 44172936484
+  success. Owner: Muse.
 
 - [ ] WL-30 Directory submissions (Nov 15, 2026): per social-marketing
   lane + Week 2 plan — submit Convert264 to free directories
