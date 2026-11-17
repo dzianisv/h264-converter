@@ -105,7 +105,14 @@ class Convert264SmokeTest {
         Thread.sleep(1_000)
         fd?.close()
         composeRule.runOnUiThread { composeRule.activity.recreate() }
-        waitForText("Try sample clip", 60_000)
+        // The compositor stays busy after the night-mode recreate
+        // for a while on this emulator — the setNightMode wait has
+        // now timed out in 3 of the last 4 smoke runs (v0.2.4
+        // attempt 1, WL-18 repro, v0.2.7 re-run), each time before
+        // any conversion ran. 120s tolerates the slow settle; the
+        // retry loop inside waitForText still returns as soon as
+        // the text appears.
+        waitForText("Try sample clip", 120_000)
         Thread.sleep(1_000)
     }
 

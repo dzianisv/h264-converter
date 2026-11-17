@@ -33,13 +33,15 @@ class ProUpsellTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<MainActivity>()
 
-    /** Swipes the queue list up until the tagged node is composed, then returns it displayed. */
+    /** Swipes the queue list up until the tagged node is actually displayed, then returns. */
     private fun scrollTo(tag: String) {
-        repeat(8) {
-            if (composeRule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()) {
-                composeRule.onNodeWithTag(tag).assertIsDisplayed()
-                return
-            }
+        repeat(10) {
+            // Presence in the tree is not enough: a LazyColumn
+            // composes items just beyond the viewport, so the node
+            // can exist while still off-screen (v0.2.7 smoke re-run:
+            // node found, assertIsDisplayed failed).
+            val nodes = composeRule.onAllNodesWithTag(tag).fetchSemanticsNodes()
+            if (nodes.isNotEmpty() && nodes[0].isDisplayed) return
             composeRule.onRoot().performTouchInput { swipeUp() }
             composeRule.waitForIdle()
         }
