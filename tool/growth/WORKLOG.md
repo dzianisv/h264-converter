@@ -40,6 +40,21 @@ Close with a dated reason.
   FAILED at the emulator-unlock step (adb keyevent 82 broken pipe,
   no tests ran — infra flake); diagnostic re-run 44149629955 in
   flight; v0.2.7 smoke 44152617153 in flight on the merged head.
+  VERDICT Nov 17 (hourly supervisor readback): v0.2.7 smoke
+  44152617153 FAILED on exactly ONE test —
+  ProUpsellTest.freeUserSeesUpsellAndPurchaseIsDisabledWithoutPlay
+  (performScrollTo found no 'get_pro_button' node — test-harness,
+  not an app bug; queue + share-intent tests passed, both queue
+  outputs produced, 22,891 B each, 5.293s). Fix merged as PR #15
+  (merge bc0c0ea) + PR #16 (merge eceaa20, current main head).
+  Verification smoke 44170399800 dispatched on head eceaa20,
+  in flight (started 20:32 UTC).
+
+- [ ] WL-38 Launch checklist AAB line stale (Nov 17, 2026): found by the
+  hourly supervisor's stale-ref sweep — tool/play-store/listing.md
+  launch checklist still said "Signed AAB built from a tagged release
+  (v0.2.5 or later)" while the current release is v0.2.7 (same class
+  as WL-33). Fix: v0.2.7 or later. Owner: Muse.
 
 - [ ] WL-30 Directory submissions (Nov 15, 2026): per social-marketing
   lane + Week 2 plan — submit Convert264 to free directories
@@ -131,6 +146,10 @@ Close with a dated reason.
   Pixel failure reproducing. The v0.2.7 smoke run 44152617153 (merged
   head) is the diagnostic re-run for current code; its verdict
   decides whether WL-18 closes as not-reproducible-on-emulator.
+  UPDATE Nov 17: in 44152617153 the queue test PASSED (both outputs
+  produced, 22,891 B, 5.293s) — only ProUpsellTest failed (see
+  WL-37). Final verdict awaits verification smoke 44170399800 on
+  the fixed head (PR #15/#16).
 
 - [ ] WL-13 App name — pick a name people understand. 'Convert264'
   reopened Nov 14 (owner): '264' means nothing to a normal person.
