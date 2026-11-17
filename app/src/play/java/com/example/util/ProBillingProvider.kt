@@ -119,7 +119,7 @@ private class PlayProBilling(context: Context) : ProBilling {
             ).build()
         scope.launch {
             val result = client.queryProductDetails(params)
-            val found = result.productDetailsList
+            val found = result.productDetailsList.orEmpty()
                 .firstOrNull { it.productId == ProProduct.PRODUCT_ID }
             productDetails = found
             onDone(found)
@@ -132,7 +132,7 @@ private class PlayProBilling(context: Context) : ProBilling {
             .build()
         scope.launch {
             val result = client.queryPurchasesAsync(params)
-            val infos = result.purchasesList.map { it.toInfo() }
+            val infos = result.purchasesList.orEmpty().map { it.toInfo() }
             val owned = ProPurchaseLogic.isOwned(infos)
             // Acknowledge any unacknowledged purchase of our product —
             // Play re-delivers unacknowledged purchases, and an
