@@ -67,9 +67,10 @@ listing live, Sentry receiving events, issues enabled (done: issues enabled,
   app (blocked: DSN). Play project created (blocked: his account). Landing
   page live (done Nov 14, pulled forward). Store listing drafted (done, `tool/play-store/listing.md`).
   Icon and screenshots shipped (done, `tool/play-store/`).
-- **Week 2 — publish.** Internal track, real-phone test (his Pixel), closed
-  track, production staged rollout. Baseline measured. First useful article
-  published. Directory submissions done.
+- **Week 2 — publish.** Internal track, emulator end-to-end pass
+  (CI emulator, real video file — the proof; a real device is never
+  a gate, Nov 17), closed track, production staged rollout. Baseline
+  measured. First useful article published. Directory submissions done.
 - **Week 3 — first users.** Two or three channels live, three posts per
   channel per week, five user conversations. Support queue open and answered
   daily. First reflection written.

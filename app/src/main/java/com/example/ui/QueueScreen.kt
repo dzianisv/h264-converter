@@ -1,5 +1,6 @@
 package com.example.ui
 
+import android.app.Activity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -24,7 +26,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -36,6 +42,7 @@ import com.example.ui.components.ConversionSettingsCard
 import com.example.ui.components.ConversionStatusBar
 import com.example.ui.components.QueueItemRow
 import com.example.ui.components.VideoPickerCard
+import com.example.util.ProProduct
 import com.example.util.ReviewPrompt
 import com.example.viewmodel.ConverterViewModel
 
@@ -59,6 +66,7 @@ fun QueueScreen(
     viewModel: ConverterViewModel,
     onOpenDetail: (String) -> Unit,
     onPickVideo: () -> Unit,
+    onPickFolder: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -68,6 +76,16 @@ fun QueueScreen(
     val isPaused by viewModel.isPaused.collectAsStateWithLifecycle()
     val isLoadingVideo by viewModel.isLoadingVideo.collectAsStateWithLifecycle()
     val historyList by viewModel.historyList.collectAsStateWithLifecycle()
+    val isPro by viewModel.isPro.collectAsStateWithLifecycle()
+    val proPriceText by viewModel.proPriceText.collectAsStateWithLifecycle()
+    val billingReady by viewModel.billingReady.collectAsStateWithLifecycle()
+    val purchaseFailed by viewModel.purchaseFailed.collectAsStateWithLifecycle()
+
+    var showProDialog by remember { mutableStateOf(false) }
+    // A completed purchase closes the upsell.
+    LaunchedEffect(isPro) {
+        if (isPro) showProDialog = false
+    }
 
     val canStart = !isConverting && queue.any {
         it.status is QueueItemStatus.Queued ||
@@ -225,6 +243,37 @@ fun QueueScreen(
                     )
                 }
 
+                // Pro (v0.2.6, WL-14): whole-folder batch. Free users
+                // tapping it see the upsell; Pro users get the
+                // folder picker.
+                item {
+                    TextButton(
+                        onClick = {
+                            if (isPro) onPickFolder()
+                            else showProDialog = true
+                        },
+                        modifier = Modifier.testTag("add_folder_button")
+                    ) {
+                        Text(
+                            text = if (isPro) "Add a whole folder"
+                            else "Add a whole folder (Pro)"
+                        )
+                    }
+                }
+
+                // Pro entry point (v0.2.6, WL-14): hidden once Pro
+                // is unlocked.
+                if (!isPro) {
+                    item {
+                        TextButton(
+                            onClick = { showProDialog = true },
+                            modifier = Modifier.testTag("get_pro_button")
+                        ) {
+                            Text(text = "Get Convert264 Pro")
+                        }
+                    }
+                }
+
                 // Play Store feedback (v0.2.1): a plain link to the
                 // listing. The automatic prompt fires once, after the
                 // 3rd conversion; this is here for anyone who wants
@@ -247,6 +296,68 @@ fun QueueScreen(
                     modifier = Modifier.testTag("loading_video_text")
                 )
             }
+        }
+
+        // Pro upsell dialog (v0.2.6, WL-14): batch + background
+        // conversion are Pro. The purchase button is enabled only
+        // when Play returned the Pro product (billingReady) — on a
+        // device without Play, or before the product exists in
+        // Play Console, the dialog says so instead of offering a
+        // purchase that cannot complete.
+        if (showProDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    showProDialog = false
+                    viewModel.clearPurchaseFailed()
+                },
+                title = { Text(text = "Convert264 Pro") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = "Batch conversion — add many videos at once, " +
+                                "or a whole folder — and background conversion, " +
+                                "so encodes keep running while the app is in " +
+                                "the background."
+                        )
+                        Text(
+                            text = "One-time purchase, " +
+                                "${ProProduct.displayPrice(proPriceText)}. " +
+                                "No subscription."
+                        )
+                        if (!billingReady) {
+                            Text(
+                                text = "Google Play billing isn't available on " +
+                                    "this device yet — Pro unlock arrives with " +
+                                    "the Play Store listing."
+                            )
+                        }
+                        if (purchaseFailed) {
+                            Text(text = "Couldn't complete the purchase. Try again.")
+                        }
+                    }
+                },
+                confirmButton = {
+                    val activity = context as? Activity
+                    TextButton(
+                        enabled = billingReady && activity != null,
+                        onClick = { activity?.let { viewModel.buyPro(it) } },
+                        modifier = Modifier.testTag("buy_pro_button")
+                    ) {
+                        Text(text = "Get Pro")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showProDialog = false
+                            viewModel.clearPurchaseFailed()
+                        }
+                    ) {
+                        Text(text = "Not now")
+                    }
+                },
+                modifier = Modifier.testTag("pro_dialog")
+            )
         }
     }
 }
