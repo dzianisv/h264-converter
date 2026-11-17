@@ -9,8 +9,8 @@ account ($25, one-time) and a signed release build (AAB).
 - **Store title (max 30 chars):** `Convert264 – Video Converter` (27)
 - **Package:** `dev.dzianisv.convert264`
 - **Category:** Video Players & Editors
-- **Content rating:** Everyone (no user content, no ads, no purchases)
-- **Price:** Free, no ads, no in-app purchases
+- **Content rating:** Everyone (no user content, no ads; one-time Pro unlock $9.99)
+- **Price:** Free, no ads, no account; one-time Pro unlock $9.99 (batch conversion + background conversion)
 - **Languages at launch:** English (UI is English; add Russian later if downloads justify it)
 
 ## Brand

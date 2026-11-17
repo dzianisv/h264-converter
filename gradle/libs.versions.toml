@@ -24,6 +24,7 @@ kotlinxCoroutinesCore = "1.10.2"
 accompanistPermissions = "0.37.3"
 playServicesLocation = "21.3.0"
 playReview = "2.0.1"
+playBilling = "8.2.1"
 cameraCamera2 = "1.5.0"
 cameraLifecycle = "1.5.0"
 cameraView = "1.5.0"
@@ -87,6 +88,7 @@ androidx-media3-exoplayer = { group = "androidx.media3", name = "media3-exoplaye
 ffmpeg-kit-full-gpl = { group = "dev.ffmpegkit-maintained", name = "ffmpeg-kit-full-gpl", version.ref = "ffmpegKit" }
 smart-exception-java = { group = "com.arthenica", name = "smart-exception-java", version.ref = "smartExceptionJava" }
 play-review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "playReview" }
+play-billing-ktx = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "playBilling" }
 
 
 [plugins]

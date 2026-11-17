@@ -1,5 +1,6 @@
 package com.example.viewmodel
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.net.Uri
@@ -13,7 +14,10 @@ import com.example.model.ConversionSettings
 import com.example.model.QueueItem
 import com.example.model.QueueItemStatus
 import com.example.model.coerceSettings
+import com.example.service.ConversionService
 import com.example.transcoder.FfmpegTranscoder
+import com.example.util.ProBillingProvider
+import com.example.util.ProState
 import com.example.util.ReviewPrompt
 import com.example.util.SampleVideoProvider
 import com.example.util.VideoMetadataHelper
@@ -78,6 +82,66 @@ class ConverterViewModel(application: Application) : AndroidViewModel(applicatio
     fun markReviewRequested() {
         prefs.edit().putBoolean("review_asked", true).apply()
         _reviewDue.value = false
+    }
+
+    // ---- Pro (v0.2.6, WL-14): one-time $9.99 unlock -------------------
+    // Free: every conversion. Pro: batch (multi-select / whole
+    // folder) + background conversion (foreground service). Owned
+    // state is authoritative from Play; SharedPreferences only
+    // caches it so the UI does not flash on launch. A transient
+    // billing failure never downgrades a cached Pro.
+    private val proBilling = ProBillingProvider.create(context)
+
+    private val _isPro = MutableStateFlow(prefs.getBoolean("pro_unlocked", false))
+    val isPro: StateFlow<Boolean> = _isPro.asStateFlow()
+
+    private val _proPriceText = MutableStateFlow<String?>(null)
+    val proPriceText: StateFlow<String?> = _proPriceText.asStateFlow()
+
+    private val _billingReady = MutableStateFlow(false)
+    val billingReady: StateFlow<Boolean> = _billingReady.asStateFlow()
+
+    private val _purchaseFailed = MutableStateFlow(false)
+    val purchaseFailed: StateFlow<Boolean> = _purchaseFailed.asStateFlow()
+
+    init {
+        refreshPro()
+    }
+
+    fun refreshPro() {
+        proBilling.refresh { state, price, ready ->
+            _proPriceText.value = price
+            _billingReady.value = ready
+            when (state) {
+                ProState.PRO -> {
+                    _isPro.value = true
+                    prefs.edit().putBoolean("pro_unlocked", true).apply()
+                }
+                ProState.FREE -> {
+                    _isPro.value = false
+                    prefs.edit().putBoolean("pro_unlocked", false).apply()
+                }
+                else -> {
+                    // UNKNOWN / UNAVAILABLE: keep the cached value.
+                }
+            }
+        }
+    }
+
+    fun buyPro(activity: Activity) {
+        _purchaseFailed.value = false
+        proBilling.launchPurchase(activity) { success ->
+            if (success) {
+                _isPro.value = true
+                prefs.edit().putBoolean("pro_unlocked", true).apply()
+            } else {
+                _purchaseFailed.value = true
+            }
+        }
+    }
+
+    fun clearPurchaseFailed() {
+        _purchaseFailed.value = false
     }
 
     private val _isLoadingVideo = MutableStateFlow(false)
@@ -154,6 +218,7 @@ class ConverterViewModel(application: Application) : AndroidViewModel(applicatio
         _queue.value = emptyList()
         _isConverting.value = false
         _isPaused.value = false
+        if (_isPro.value) ConversionService.stop(context)
     }
 
     // ---- Settings ------------------------------------------------------
@@ -263,6 +328,10 @@ class ConverterViewModel(application: Application) : AndroidViewModel(applicatio
         _isPaused.value = false
         pauseRequested.set(false)
         stopRequested.set(false)
+        // Pro background conversion (v0.2.6, WL-14): the foreground
+        // service keeps the encode alive if the app goes to the
+        // background. Free runs stay in the ViewModel scope.
+        if (_isPro.value) ConversionService.start(context)
         val startIndex = fromId?.let { id ->
             items.indexOfFirst { it.id == id }.takeIf { it >= 0 }
         } ?: 0
@@ -290,6 +359,7 @@ class ConverterViewModel(application: Application) : AndroidViewModel(applicatio
                         ),
                     )
                 }
+                if (_isPro.value) ConversionService.update(context, "Converting ${item.video.name}")
                 when (val outcome = runOne(item)) {
                     is RunOutcome.Success -> {
                         updateItem(item.id) {
@@ -334,6 +404,7 @@ class ConverterViewModel(application: Application) : AndroidViewModel(applicatio
                 idx++
             }
             _isConverting.value = false
+            if (_isPro.value) ConversionService.stop(context)
             if (stopRequested.get()) _isPaused.value = false
         }
     }
@@ -420,6 +491,7 @@ class ConverterViewModel(application: Application) : AndroidViewModel(applicatio
         transcoder.cancel()
         _isConverting.value = false
         _isPaused.value = false
+        if (_isPro.value) ConversionService.stop(context)
         // Any item left mid-Converting by the cancelled job goes
         // back to Queued so Play can run it again.
         _queue.value = _queue.value.map { item ->
@@ -454,6 +526,7 @@ class ConverterViewModel(application: Application) : AndroidViewModel(applicatio
     override fun onCleared() {
         runJob?.cancel()
         transcoder.cancel()
+        if (_isPro.value) ConversionService.stop(context)
         super.onCleared()
     }
 }

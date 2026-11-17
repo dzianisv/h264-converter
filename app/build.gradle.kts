@@ -13,8 +13,8 @@ android {
     applicationId = "dev.dzianisv.convert264"
     minSdk = 24
     targetSdk = 36
-    versionCode = 16
-    versionName = "0.2.5"
+    versionCode = 17
+    versionName = "0.2.6"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
@@ -119,6 +119,11 @@ dependencies {
   // playImplementation accessor — the string-invoke form (same as
   // "ksp" below) is the way to address a flavor configuration.
   "playImplementation"(libs.play.review.ktx)
+  // Play Billing, one-time Pro unlock (v0.2.6, WL-14): same
+  // flavor rule as review-ktx — the foss flavor must not link
+  // any non-free library, so billing-ktx is play-only and the
+  // billing client lives behind ProBillingProvider.
+  "playImplementation"(libs.play.billing.ktx)
   implementation(libs.androidx.media3.transformer)
   implementation(libs.androidx.media3.effect)
   implementation(libs.androidx.media3.common)

@@ -69,10 +69,14 @@ Close with a dated reason.
   the upload. Options: keystore in GitHub Secrets, or a local build.
   Owner: founder. Due: Nov 19 (week 1).
 
-- [ ] WL-05 Real-Pixel test of v0.2.5 (queue, MKV output, dark mode, share
-  sheet, OTG with a real drive). v0.2.5 APK link sent Nov 15 (was v0.2.4
-  Nov 14) — retry the same conversion, paste the copied error back if it
-  fails. Only he has the phone. Owner: founder. Due: Nov 19.
+- [ ] WL-05 Emulator end-to-end pass of v0.2.5+ (queue, MKV output,
+  dark mode, share sheet; OTG via Firebase Test Lab free tier if
+  needed). REWRITTEN Nov 17 (Den): the emulator end-to-end pass is
+  the proof; a real device is never required and never a gate —
+  never ask Den to test on his phone. The v0.2.5 smoke run
+  43706165212 already passed; the WL-18 reproduction run 44146602913
+  (dispatched Nov 17) re-proves it on current main. Owner: Muse.
+  Due: Nov 19.
 
 - [ ] WL-09 Video join — build it or drop it. Open question to the founder
   since Nov 11 ("join them" was read as joining the dropdowns). Owner:
@@ -83,10 +87,13 @@ Close with a dated reason.
   Owner: founder. No date.
 
 - [ ] WL-18 Pixel 9a conversion failure — root cause unknown. The
-  v0.2.2 error line was too short to read. v0.2.4 ships the full-error
-  UI — needs Den's copied error details from v0.2.4 (tap the failed row
-  → Show details → Copy error) + what file/settings he used. Owner:
-  founder (error text) / Muse (fix once known).
+  v0.2.2 error line was too short to read. No file name, settings,
+  or error text was ever reported, so there are no "same settings"
+  to replay — the reproduction is the standard emulator end-to-end
+  pass (CI emulator, real video file, queue + MKV/VP9). REPRODUCTION
+  RUNNING Nov 17: smoke run 44146602913 dispatched on main (head
+  2373139); if green, close as not-reproducible-on-emulator. Owner:
+  Muse (reproduce) / founder (error text, if he ever sends it).
 
 - [ ] WL-13 App name — pick a name people understand. 'Convert264'
   reopened Nov 14 (owner): '264' means nothing to a normal person.
@@ -102,10 +109,20 @@ Close with a dated reason.
   finalised without the name; set by the Nov 16 weekly reflection).
 
 - [x] WL-14 Payment model — DECIDED Nov 17 by the product lead (Den delegated the payment decision Nov 17): free core + one-time Pro $9.99. Free: every conversion (all containers, all codecs, trim), no ads, no watermark, no account. Pro: batch conversion (multi-select / whole folder) + background conversion. Reason: free core keeps the edge — competitors paywall basic conversion and get 1-star complaints for it; $9.99 is the category's advertised lifetime price and matches SnapDisk's Pro; one-time, no subscription. Next: wire Play Billing + verify a sandbox purchase (MVP payment milestone). Owner: Muse.
+  PROGRESS Nov 17: wired in v0.2.6 (branch feat/wl14-play-billing) — billing-ktx 8.2.1 play-only, Pro state + upsell + foreground service for background conversion; unit + instrumented upsell tests. Sandbox purchase verification → WL-36 (gated on Console WL-02 + keystore WL-03 + product creation).
 
 - [ ] WL-15 PostHog: install the Android SDK + run the self-driving
   wizard on the landing page; project key in the Secure Vault only.
   Owner: founder (PostHog project) / Muse (SDK + wizard).
+
+- [ ] WL-36 Sandbox purchase verification (MVP payment milestone).
+  Play Billing is wired in v0.2.6 (WL-14) but a real sandbox
+  purchase needs: (1) Play Console sign-in (WL-02), (2) the
+  one-time product `convert264_pro` $9.99 created in Console,
+  (3) the AAB uploaded on the stable keystore (WL-03), (4) a
+  license-tester account. Then: install from the internal track,
+  buy Pro, verify the unlock + acknowledge. Owner: founder
+  (Console) / Muse (verify once live).
 
 ## Done
 

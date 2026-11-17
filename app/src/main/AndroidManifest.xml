@@ -4,6 +4,9 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+    <!-- Foreground service for Pro background conversion (v0.2.6, WL-14). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <application
         android:allowBackup="true"
@@ -54,6 +57,13 @@
                 <data android:scheme="file" android:mimeType="video/*" />
             </intent-filter>
         </activity>
+
+        <!-- Pro background conversion (v0.2.6, WL-14): keeps the
+             encode alive while the app is in the background. -->
+        <service
+            android:name=".service.ConversionService"
+            android:foregroundServiceType="dataSync"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
