@@ -3,10 +3,13 @@ package com.example
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import org.junit.Rule
 import org.junit.Test
 
@@ -18,19 +21,36 @@ import org.junit.Test
  * button must be disabled (no purchase can be launched). The real
  * purchase flow is verified by the sandbox purchase once the Play
  * Console product exists (WL-36).
+ *
+ * The Pro buttons live at the bottom of the queue LazyColumn, below
+ * the history left by earlier tests in the same run — so they are
+ * not composed until scrolled into view. performScrollTo() cannot
+ * find an uncomposed lazy item (v0.2.7 smoke: node not found), so
+ * this test swipes the list up until the button exists.
  */
 class ProUpsellTest {
 
     @get:Rule
     val composeRule = createAndroidComposeRule<MainActivity>()
 
+    /** Swipes the queue list up until the tagged node is composed, then returns it displayed. */
+    private fun scrollTo(tag: String) {
+        repeat(8) {
+            if (composeRule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()) {
+                composeRule.onNodeWithTag(tag).assertIsDisplayed()
+                return
+            }
+            composeRule.onRoot().performTouchInput { swipeUp() }
+            composeRule.waitForIdle()
+        }
+        composeRule.onNodeWithTag(tag).assertIsDisplayed()
+    }
+
     @Test
     fun freeUserSeesUpsellAndPurchaseIsDisabledWithoutPlay() {
         // Fresh install on the emulator: not Pro.
-        composeRule.onNodeWithTag("get_pro_button")
-            .performScrollTo()
-            .assertIsDisplayed()
-            .performClick()
+        scrollTo("get_pro_button")
+        composeRule.onNodeWithTag("get_pro_button").performClick()
         composeRule.onNodeWithText("Convert264 Pro").assertIsDisplayed()
         composeRule.onNodeWithText("One-time purchase, \$9.99. No subscription.", substring = true)
             .assertIsDisplayed()
@@ -38,10 +58,8 @@ class ProUpsellTest {
         composeRule.onNodeWithText("Not now").performClick()
 
         // The whole-folder entry opens the same upsell for free users.
-        composeRule.onNodeWithTag("add_folder_button")
-            .performScrollTo()
-            .assertIsDisplayed()
-            .performClick()
+        scrollTo("add_folder_button")
+        composeRule.onNodeWithTag("add_folder_button").performClick()
         composeRule.onNodeWithText("Convert264 Pro").assertIsDisplayed()
     }
 }
