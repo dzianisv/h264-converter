@@ -101,13 +101,7 @@ Close with a dated reason.
   Owner: founder (his pick). Due: Nov 19 (week 1 — listing cannot be
   finalised without the name; set by the Nov 16 weekly reflection).
 
-- [ ] WL-14 Payment model — stay free vs one-time pro unlock vs
-  subscription. Framework rule (MVP with payment first, Nov 14): payment
-  ships in the MVP, scale waits for the first paying customer. The app's
-  edge as launched is free / no ads / no account — a real fork. Never
-  invent a price or a tier. Owner: founder. Due: Nov 19 (week 1 —
-  listing cannot be finalised without the model; set by the Nov 16
-  weekly reflection).
+- [x] WL-14 Payment model — DECIDED Nov 17 by the product lead (Den delegated the payment decision Nov 17): free core + one-time Pro $9.99. Free: every conversion (all containers, all codecs, trim), no ads, no watermark, no account. Pro: batch conversion (multi-select / whole folder) + background conversion. Reason: free core keeps the edge — competitors paywall basic conversion and get 1-star complaints for it; $9.99 is the category's advertised lifetime price and matches SnapDisk's Pro; one-time, no subscription. Next: wire Play Billing + verify a sandbox purchase (MVP payment milestone). Owner: Muse.
 
 - [ ] WL-15 PostHog: install the Android SDK + run the self-driving
   wizard on the landing page; project key in the Secure Vault only.

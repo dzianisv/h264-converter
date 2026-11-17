@@ -123,8 +123,7 @@ listing live, Sentry receiving events, issues enabled (done: issues enabled,
 - Job set now complete (4 roles): daily loop ~09:48 WITA, hourly
   supervisor every 1h, daily growth sweep ~09:48 WITA, weekly
   reflection Mondays ~09:48 WITA.
-- Open owner decisions: app name (WL-13), payment model (WL-14),
-  PostHog project (WL-15).
+- Open owner decisions: app name (WL-13), PostHog project (WL-15). Payment model (WL-14) decided Nov 17 by the product lead: free core + one-time Pro $9.99.
 
 ## Weekly reflections
 

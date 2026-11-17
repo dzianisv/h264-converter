@@ -51,3 +51,9 @@ new evidence.
   account). Decider: owner (pending). Reason: a real fork — scale
   waits for the first paying customer per the framework, but the
   launch edge is free. Never invent a price or a tier.
+- 2026-11-17 — Payment: free core + one-time Pro $9.99 (batch
+  conversion + background conversion). Decider: product lead (Den
+  delegated the payment decision Nov 17). Reason: free core keeps
+  the edge — competitors paywall basic conversion and get 1-star
+  complaints for it; $9.99 is the category's advertised lifetime
+  price and matches SnapDisk's Pro; one-time, no subscription.
