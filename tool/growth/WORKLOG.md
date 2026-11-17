@@ -178,6 +178,11 @@ Close with a dated reason.
   the node is displayed, handles lazy composition). Test-only change,
   no app behavior. Verify: PR CI (compile) + full verification smoke
   on the merged head. Owner: Muse.
+  PROGRESS Nov 17: PR #18 opened, CI run 44180332273 success, merged
+  3038269; merge run 44180759137 in flight. Verification smoke
+  44180827378 dispatched on the merge head, in flight (started
+  ~21:35 UTC); hourly supervisor waiting out the run — do not
+  re-dispatch.
 
 - [ ] WL-13 App name — pick a name people understand. 'Convert264'
   reopened Nov 14 (owner): '264' means nothing to a normal person.
