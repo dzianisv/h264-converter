@@ -14,8 +14,23 @@ import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
+import com.android.billingclient.api.queryProductDetails
+import com.android.billingclient.api.queryPurchasesAsync
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
-/** Play flavor: the real Google Play Billing client (WL-14). */
+/**
+ * Play flavor: the real Google Play Billing client (WL-14).
+ *
+ * billing-ktx 8.x API note: the listener callbacks now hand back
+ * result wrappers (QueryProductDetailsResult / PurchasesResult),
+ * not raw lists — so the queries use the suspend Kotlin
+ * extensions ([queryProductDetails], [queryPurchasesAsync]) instead.
+ * The purchase-flow result still arrives on the BillingClient
+ * listener ([onPurchasesUpdated]).
+ */
 object ProBillingProvider {
     fun create(context: Context): ProBilling = PlayProBilling(context.applicationContext)
 }
@@ -24,6 +39,7 @@ private class PlayProBilling(context: Context) : ProBilling {
 
     private val appContext = context.applicationContext
     private val mainHandler = Handler(Looper.getMainLooper())
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     override val available: Boolean = true
 
@@ -101,8 +117,10 @@ private class PlayProBilling(context: Context) : ProBilling {
                         .build(),
                 ),
             ).build()
-        client.queryProductDetailsAsync(params) { _, detailsList ->
-            val found = detailsList.firstOrNull { it.productId == ProProduct.PRODUCT_ID }
+        scope.launch {
+            val result = client.queryProductDetails(params)
+            val found = result.productDetailsList
+                .firstOrNull { it.productId == ProProduct.PRODUCT_ID }
             productDetails = found
             onDone(found)
         }
@@ -112,8 +130,9 @@ private class PlayProBilling(context: Context) : ProBilling {
         val params = QueryPurchasesParams.newBuilder()
             .setProductType(BillingClient.ProductType.INAPP)
             .build()
-        client.queryPurchasesAsync(params) { _, purchases ->
-            val infos = purchases.map { it.toInfo() }
+        scope.launch {
+            val result = client.queryPurchasesAsync(params)
+            val infos = result.purchasesList.map { it.toInfo() }
             val owned = ProPurchaseLogic.isOwned(infos)
             // Acknowledge any unacknowledged purchase of our product —
             // Play re-delivers unacknowledged purchases, and an
