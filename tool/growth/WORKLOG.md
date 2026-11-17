@@ -122,8 +122,15 @@ Close with a dated reason.
   NOTE Nov 17: the v0.2.6 smoke run 44149629955 (merge head 710132f)
   FAILED at the emulator-unlock step (adb keyevent 82 broken pipe,
   exit 224 — no tests ran, infra flake, not an app bug); one
-  diagnostic re-run in flight. WL-18 run 44146602913 still in
-  flight at ~39 min; v0.2.7 smoke 44152617153 also in flight.
+  diagnostic re-run in flight. WL-18 run 44146602913 finished
+  FAILED (42m47s): 9/10 passed; only
+  `queueConvertsEndToEndWithFfmpeg` failed with ComposeNotIdle
+  (Compose idling-resource timeout) — the same signature as the
+  v0.2.4 smoke failure Nov 14, which passed on re-run, and v0.2.5
+  smoke was green. No conversion failure, no 0-byte file: not the
+  Pixel failure reproducing. The v0.2.7 smoke run 44152617153 (merged
+  head) is the diagnostic re-run for current code; its verdict
+  decides whether WL-18 closes as not-reproducible-on-emulator.
 
 - [ ] WL-13 App name — pick a name people understand. 'Convert264'
   reopened Nov 14 (owner): '264' means nothing to a normal person.
