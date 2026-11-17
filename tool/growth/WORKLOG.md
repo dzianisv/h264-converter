@@ -16,6 +16,20 @@ Close with a dated reason.
   success): play+foss flavors live on main; review-ktx play-only;
   release file names unchanged. Remaining: his GitLab account +
   fdroiddata MR.
+- [ ] WL-37 v0.2.6 release failed — AAB path (Nov 17, 2026): Android
+  Release run 44149629843 (tag v0.2.6, PR #11 / WL-14) failed at
+  "Restore plain release file names": `cp: cannot stat
+  'app/build/outputs/bundle/play/release/app-play-release.aab'`. The
+  APK copy on the line above succeeded, so the APK layout matches but
+  the bundle layout does not. `bundlePlayRelease` itself was BUILD
+  SUCCESSFUL (package + sign ran) — the AAB exists, just not at the
+  path assumed since WL-35 (723aee6); v0.2.6 is the first flavored
+  release, so the path was never proven. No v0.2.6 Release published.
+  Fix: locate APK/AAB with `find` under `app/build/outputs`, fail
+  loudly if not exactly one each, then copy to plain names. Reship
+  WL-14 as v0.2.7: delete the unpublished v0.2.6 tag first (v0.2.3
+  precedent). Owner: Muse. Issue #12.
+
 - [ ] WL-30 Directory submissions (Nov 15, 2026): per social-marketing
   lane + Week 2 plan — submit Convert264 to free directories
   (AlternativeTo, DevHunt, BetaList, Product Hunt, Show HN, Indie
@@ -110,6 +124,7 @@ Close with a dated reason.
 
 - [x] WL-14 Payment model — DECIDED Nov 17 by the product lead (Den delegated the payment decision Nov 17): free core + one-time Pro $9.99. Free: every conversion (all containers, all codecs, trim), no ads, no watermark, no account. Pro: batch conversion (multi-select / whole folder) + background conversion. Reason: free core keeps the edge — competitors paywall basic conversion and get 1-star complaints for it; $9.99 is the category's advertised lifetime price and matches SnapDisk's Pro; one-time, no subscription. Next: wire Play Billing + verify a sandbox purchase (MVP payment milestone). Owner: Muse.
   PROGRESS Nov 17: wired in v0.2.6 (branch feat/wl14-play-billing) — billing-ktx 8.2.1 play-only, Pro state + upsell + foreground service for background conversion; unit + instrumented upsell tests. Sandbox purchase verification → WL-36 (gated on Console WL-02 + keystore WL-03 + product creation).
+  PROGRESS Nov 17: PR #11 merged (710132f) but the v0.2.6 Release FAILED (run 44149629843, AAB not at assumed path) — no v0.2.6 Release published. Reship as v0.2.7 via WL-37 (issue #12).
 
 - [ ] WL-15 PostHog: install the Android SDK + run the self-driving
   wizard on the landing page; project key in the Secure Vault only.

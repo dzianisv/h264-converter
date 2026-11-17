@@ -46,11 +46,24 @@ jobs:
       # Flavors rename the outputs (app-play-release.apk/.aab); the
       # public download URLs use the plain names, so copy them back
       # before the audit and the release upload.
+      # The bundle layout is NOT hardcoded: AGP 9.1.1 + flavors put
+      # the AAB somewhere other than bundle/play/release/ (v0.2.6
+      # release run 44149629843 failed on the hardcoded cp while
+      # bundlePlayRelease itself was BUILD SUCCESSFUL). Locate both
+      # artifacts by search and fail loudly if either is missing or
+      # ambiguous, instead of guessing the layout again.
       - name: Restore plain release file names
         run: |
           mkdir -p app/build/outputs/apk/release app/build/outputs/bundle/release
-          cp app/build/outputs/apk/play/release/app-play-release.apk app/build/outputs/apk/release/app-release.apk
-          cp app/build/outputs/bundle/play/release/app-play-release.aab app/build/outputs/bundle/release/app-release.aab
+          APK=$(find app/build/outputs/apk -name 'app-play-release.apk' -print -quit)
+          AAB=$(find app/build/outputs/bundle -name '*.aab' -print -quit)
+          [ -n "$APK" ] || { echo "ERROR: no app-play-release.apk under app/build/outputs/apk"; find app/build/outputs/apk -type f | head -20; exit 1; }
+          [ -n "$AAB" ] || { echo "ERROR: no .aab under app/build/outputs/bundle"; find app/build/outputs/bundle -type f | head -20; exit 1; }
+          [ "$(find app/build/outputs/bundle -name '*.aab' | wc -l)" -eq 1 ] || { echo "ERROR: ambiguous AABs:"; find app/build/outputs/bundle -name '*.aab'; exit 1; }
+          echo "APK built at: $APK"
+          echo "AAB built at: $AAB"
+          cp "$APK" app/build/outputs/apk/release/app-release.apk
+          cp "$AAB" app/build/outputs/bundle/release/app-release.aab
       - name: Audit merged manifest in the built APK
         run: |
           AAPT2=$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)
