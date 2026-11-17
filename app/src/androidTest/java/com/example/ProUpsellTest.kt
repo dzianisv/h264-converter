@@ -3,7 +3,6 @@ package com.example
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
@@ -33,15 +32,21 @@ class ProUpsellTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<MainActivity>()
 
-    /** Swipes the queue list up until the tagged node is composed, then returns it displayed. */
+    /** Swipes the queue list up until the tagged node is actually displayed, then returns. */
     private fun scrollTo(tag: String) {
-        repeat(8) {
-            if (composeRule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()) {
+        repeat(10) {
+            try {
+                // assertIsDisplayed throws both when the node is not
+                // composed yet and when it is composed but still
+                // off-screen (LazyColumn pre-composes items just
+                // beyond the viewport — v0.2.7 smoke re-run). Either
+                // way, scroll and retry.
                 composeRule.onNodeWithTag(tag).assertIsDisplayed()
                 return
+            } catch (e: AssertionError) {
+                composeRule.onRoot().performTouchInput { swipeUp() }
+                composeRule.waitForIdle()
             }
-            composeRule.onRoot().performTouchInput { swipeUp() }
-            composeRule.waitForIdle()
         }
         composeRule.onNodeWithTag(tag).assertIsDisplayed()
     }
