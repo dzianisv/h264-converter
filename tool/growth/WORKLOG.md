@@ -16,7 +16,7 @@ Close with a dated reason.
   success): play+foss flavors live on main; review-ktx play-only;
   release file names unchanged. Remaining: his GitLab account +
   fdroiddata MR.
-- [ ] WL-37 v0.2.6 release failed — AAB path (Nov 17, 2026): Android
+- [x] WL-37 v0.2.6 release failed — AAB path (Nov 17, 2026): Android
   Release run 44149629843 (tag v0.2.6, PR #11 / WL-14) failed at
   "Restore plain release file names": `cp: cannot stat
   'app/build/outputs/bundle/play/release/app-play-release.aab'`. The
@@ -29,6 +29,17 @@ Close with a dated reason.
   loudly if not exactly one each, then copy to plain names. Reship
   WL-14 as v0.2.7: delete the unpublished v0.2.6 tag first (v0.2.3
   precedent). Owner: Muse. Issue #12.
+  DONE Nov 17 (PR #13, merge 7ffa035; Android PR 44151564815 green):
+  v0.2.7 Release published 18:57 UTC (run 44152617155 green, 4m18s),
+  APK 51,300,028 B + AAB 32,398,402 B. Root cause confirmed from the
+  run log: AGP 9.1.1 writes the flavored AAB to
+  `bundle/playRelease/app-play-release.aab` (variant-name dir), not
+  `bundle/play/release/`. Issue #12 auto-closed by the merge.
+  Landing Download button + llms.txt updated to v0.2.7 in the same
+  run (branch fix/wl37-landing-v027). Smoke: v0.2.6 first attempt
+  FAILED at the emulator-unlock step (adb keyevent 82 broken pipe,
+  no tests ran — infra flake); diagnostic re-run 44149629955 in
+  flight; v0.2.7 smoke 44152617153 in flight on the merged head.
 
 - [ ] WL-30 Directory submissions (Nov 15, 2026): per social-marketing
   lane + Week 2 plan — submit Convert264 to free directories
@@ -108,6 +119,11 @@ Close with a dated reason.
   RUNNING Nov 17: smoke run 44146602913 dispatched on main (head
   2373139); if green, close as not-reproducible-on-emulator. Owner:
   Muse (reproduce) / founder (error text, if he ever sends it).
+  NOTE Nov 17: the v0.2.6 smoke run 44149629955 (merge head 710132f)
+  FAILED at the emulator-unlock step (adb keyevent 82 broken pipe,
+  exit 224 — no tests ran, infra flake, not an app bug); one
+  diagnostic re-run in flight. WL-18 run 44146602913 still in
+  flight at ~39 min; v0.2.7 smoke 44152617153 also in flight.
 
 - [ ] WL-13 App name — pick a name people understand. 'Convert264'
   reopened Nov 14 (owner): '264' means nothing to a normal person.
@@ -124,7 +140,7 @@ Close with a dated reason.
 
 - [x] WL-14 Payment model — DECIDED Nov 17 by the product lead (Den delegated the payment decision Nov 17): free core + one-time Pro $9.99. Free: every conversion (all containers, all codecs, trim), no ads, no watermark, no account. Pro: batch conversion (multi-select / whole folder) + background conversion. Reason: free core keeps the edge — competitors paywall basic conversion and get 1-star complaints for it; $9.99 is the category's advertised lifetime price and matches SnapDisk's Pro; one-time, no subscription. Next: wire Play Billing + verify a sandbox purchase (MVP payment milestone). Owner: Muse.
   PROGRESS Nov 17: wired in v0.2.6 (branch feat/wl14-play-billing) — billing-ktx 8.2.1 play-only, Pro state + upsell + foreground service for background conversion; unit + instrumented upsell tests. Sandbox purchase verification → WL-36 (gated on Console WL-02 + keystore WL-03 + product creation).
-  PROGRESS Nov 17: PR #11 merged (710132f) but the v0.2.6 Release FAILED (run 44149629843, AAB not at assumed path) — no v0.2.6 Release published. Reship as v0.2.7 via WL-37 (issue #12).
+  PROGRESS Nov 17: PR #11 merged (710132f) but the v0.2.6 Release FAILED (run 44149629843, AAB not at assumed path) — no v0.2.6 Release published. Reshipped as v0.2.7 via WL-37 (issue #12, PR #13, merge 7ffa035): Release published 18:57 UTC, run 44152617155 green, APK + AAB attached. Smoke verification of the v0.2.7 head in flight (run 44152617153).
 
 - [ ] WL-15 PostHog: install the Android SDK + run the self-driving
   wizard on the landing page; project key in the Secure Vault only.

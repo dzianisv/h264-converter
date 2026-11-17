@@ -8,7 +8,7 @@ Convert any video on your Android phone: pick a video or share one to the app, c
 
 ## Download
 
-- Latest APK (v0.2.5): https://github.com/dzianisv/h264-converter/releases/download/v0.2.5/app-release.apk
+- Latest APK (v0.2.7): https://github.com/dzianisv/h264-converter/releases/download/v0.2.7/app-release.apk
 - All releases: https://github.com/dzianisv/h264-converter/releases
 - Coming soon to Google Play.
 - Source code: https://github.com/dzianisv/h264-converter
