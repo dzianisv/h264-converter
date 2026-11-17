@@ -116,7 +116,7 @@ not been filled in. Draft answers, to paste when the account is created:
 
 - [ ] Play Console developer account created ($25) — founder, needs his payment
 - [ ] Privacy policy URL set (PRIVACY.md link above)
-- [ ] Signed AAB built from a tagged release (v0.2.5 or later) — Play needs AAB,
+- [ ] Signed AAB built from a tagged release (v0.2.7 or later) — Play needs AAB,
       not the sideload APK
 - [ ] Icon, feature graphic, 4 screenshots uploaded
 - [ ] Listing text pasted from this file
