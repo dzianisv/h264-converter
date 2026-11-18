@@ -30,17 +30,21 @@ listing live, Sentry receiving events, issues enabled (done: issues enabled,
 
 - Downloads: unknown — not on Play. Unblock: Play Console account.
 - Rating / reviews: unknown — same unblock.
-- Open GitHub issues: 0 (verified Nov 15, 2026 — `gh issue list` empty;
-  0 open PRs; last 5 CI runs green, latest 43715239728;
-  issue #1 fixed and closed Nov 14, shipped as v0.2.2).
+- Open GitHub issues: 0 (verified Nov 17, 2026 — `gh issue list` empty;
+  0 open PRs; last 10 CI runs green, latest 44187429253;
+  issue #12 fixed and closed Nov 17, shipped as v0.2.7).
 - Sentry: not installed. Unblock: Sentry DSN (needs a Sentry project).
 - Store state: not created. Unblock: Play Console account ($25).
-- Landing page: live Nov 14 — https://dzianisv.github.io/h264-converter/ (GitHub Pages, docs/ on main; HTTP 200 re-verified Nov 15).
+- Landing page: live Nov 14 — https://dzianisv.github.io/h264-converter/ (GitHub Pages, docs/ on main; HTTP 200 re-verified Nov 17, Download serves v0.2.7, 51 MB).
 - Useful articles: 10 live (WL-08 + WL-19–WL-25 + WL-27 + WL-29), all 7 quick wins
   covered + top core fight "convert video to mp4" covered + secondary
   "trim video android" / "video trimmer" covered
   (verified Nov 15 — latest article trim-video.html HTTP 200).
-- Latest build: v0.2.5 (tag; Release published Nov 15, 2026 10:56 UTC,
+- Latest build: v0.2.7 (tag; Release published Nov 17, 2026 18:57 UTC,
+  APK 51,300,028 B + AAB 32,398,402 B; smoke test GREEN on run
+  44180827378 in 37m8s, 11/11 — WL-37 AAB-path fix + WL-39
+  ProUpsellTest scroll fix; WL-18 closed as not-reproducible-on-emulator).
+  Previous: v0.2.5 (tag; Release published Nov 15, 2026 10:56 UTC,
   APK + AAB, versionCode 16; smoke test GREEN on run 43706165212 in
   38m10s — WL-28 dead template deps removed + Data Safety draft).
   Previous: v0.2.4 (smoke GREEN on re-run 43608544016 — WL-17 full
