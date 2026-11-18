@@ -113,6 +113,14 @@ Close with a dated reason.
   UNVERIFIED and the sweep must not escalate a Sentry password
   ask to Den on a stale finding. Owner: founder (token) / Muse
   (wire PATH + env file once provisioned).
+  PROGRESS Nov 18 12:40 PST (hourly supervisor): PATH half DONE —
+  reproduced live this run (`secretsctl` not found without PATH;
+  with `PATH="$HOME/bin:$PATH"` doctor reports bws 2.1.0, token
+  NO, project unset), and the rule is now in exec-unblock §9
+  (product-framework commit cc5b874, pushed, readback-verified:
+  the PATH line is in HEAD). Sweeps reading the skill now invoke
+  secretsctl/bws with the PATH prefix. Token half still open —
+  founder mints the machine-account token.
 
 ## Done
 - [x] WL-35 F-Droid `foss` flavor (Nov 16, 2026): build the
