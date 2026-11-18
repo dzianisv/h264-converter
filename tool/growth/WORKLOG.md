@@ -92,6 +92,28 @@ Close with a dated reason.
   buy Pro, verify the unlock + acknowledge. Owner: founder
   (Console) / Muse (verify once live).
 
+- [ ] WL-40 Sweep §9 Sentry-token check unrunnable (Nov 18, 2026):
+  the 04:17 product-unblock sweep (run ada3d644) FAILED on a
+  coverage gap — its §9 mechanical check for WL-01 could not run:
+  `secretsctl` reported no BWS_ACCESS_TOKEN or SECRETSCTL_PROJECT
+  in the worker shell, so the Sentry-token route stays UNVERIFIED.
+  Verified this run: `bws` 2.1.0 IS installed at `~/bin/bws` and
+  works by full path, but `~/bin` is not on PATH in non-interactive
+  shells (`secretsctl doctor` reports "bws binary: MISSING" until
+  PATH is set; with `PATH="$HOME/bin:$PATH"` it reports
+  "bws binary: bws 2.1.0"). No file on the VM defines
+  BWS_ACCESS_TOKEN or SECRETSCTL_PROJECT (grep of ~/.env.d/,
+  workspace .env files: no matches) — the machine-account token
+  was never provisioned for cron-worker shells. Fix in two halves:
+  (1) sweeps invoke secretsctl with `PATH="$HOME/bin:$PATH"`;
+  (2) founder mints a Bitwarden Secrets Manager machine-account
+  token (read-only) and it is written to
+  `~/.env.d/agent-<id>.env` — do NOT pull a pasted token from chat
+  history. Until (2) lands, every §9 Sentry claim stays
+  UNVERIFIED and the sweep must not escalate a Sentry password
+  ask to Den on a stale finding. Owner: founder (token) / Muse
+  (wire PATH + env file once provisioned).
+
 ## Done
 - [x] WL-35 F-Droid `foss` flavor (Nov 16, 2026): build the
   F-Droid-ready variant — `play`/`foss` product flavors, review-ktx
@@ -564,6 +586,34 @@ Close with a dated reason.
   Den's proceed/stop), none past due (earliest due Nov 19); article
   lane exhausted at 10. No skill fix needed; no fix attempted;
   nothing new for Den. No chat report (healthy no-op day).
+
+- [x] Nov 18, 2026 — NOT STOPPED (healthy, no-op day). Verdict from live
+  readback 13:50 UTC: 0 open GitHub issues, 0 open PRs, last 5 CI runs
+  green (latest 44219263926, 2026-11-18T01:53:56Z, WL-30 repair commit),
+  v0.2.7 latest release (2026-11-17T18:57:24Z), working tree clean at
+  c7b640e. Landing page HTTP 200, Download button serves v0.2.7 (APK,
+  51 MB). All 5 jobs enabled (daily loop, hourly supervisor, daily
+  growth sweep, weekly reflection, this reflection). Daily loop last
+  ran Nov 17 17:48 PST succeeded (housekeeping: 7 done rows moved to
+  Done, skill + KPI pushed, framework commit 60839a5); growth sweep
+  same time succeeded; hourly supervisor ran every hour through
+  05:40 PST today, all succeeded; weekly reflection last ran Nov 15
+  succeeded, next Nov 22. Chat: latest turns are routine hourly
+  supervisor handoffs, no stalled agent, no new question for Den.
+  FINDING (not a stop): the 04:17 product-unblock sweep (run
+  ada3d644) failed on a coverage gap — its §9 Sentry-token check
+  could not run (no BWS_ACCESS_TOKEN / SECRETSCTL_PROJECT in the
+  worker shell). Root cause verified this run: bws 2.1.0 exists at
+  ~/bin/bws but ~/bin is not on PATH in non-interactive shells, and
+  no machine-account token is provisioned anywhere on the VM
+  (grep: no matches). Recorded as open row WL-40 (token provisioning
+  is founder-side; PATH half documented for the sweep). The skill
+  is not wrong — exec-unblock §9 prescribes the check correctly;
+  the environment cannot execute it, so no skill fix. All open
+  rows are founder-gated (WL-01/02/03/09/10/13/15/30/36/40), none
+  past due (earliest due Nov 19); article lane exhausted at 10.
+  No chat report (healthy no-op day; WL-40 is logged where the
+  next loop run will see it).
 
 ## Daily growth sweep notes
 
