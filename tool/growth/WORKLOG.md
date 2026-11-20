@@ -5,18 +5,6 @@ Close with a dated reason.
 
 ## Open
 
-- [ ] WL-41 Landing FAQ says "no in-app purchases" (Nov 20, 2026):
-  found by the hourly supervisor's stale-ref sweep — docs/index.html
-  line 101 still said "Free, no ads, no in-app purchases, no watermark"
-  while the payment model decided Nov 17 (WL-14, DECISIONS.md) is free
-  core + one-time Pro $9.99, the store listing already says "one-time
-  Pro unlock $9.99" (listing.md lines 12–13), and the v0.2.7 app itself
-  shows a Pro upsell. A visitor reading the FAQ then seeing the upsell
-  in the app gets a contradiction. Repo-wide sweep: only one hit
-  (docs/index.html:101) — no other "no in-app purchases" claim in docs/
-  or tool/play-store/. Fix: FAQ answer now states every conversion is
-  free, no ads, no watermark, with the optional one-time Pro $9.99 for
-  batch + background conversion. Owner: Muse.
 - [ ] WL-30 Directory submissions (Nov 15, 2026): per social-marketing
   lane + Week 2 plan — submit Convert264 to free directories
   (AlternativeTo, DevHunt, BetaList, Product Hunt, Show HN, Indie
@@ -135,6 +123,16 @@ Close with a dated reason.
   founder mints the machine-account token.
 
 ## Done
+- [x] WL-41 Landing FAQ said "no in-app purchases" (Nov 20, 2026):
+  docs/index.html line 101 claimed "Free, no ads, no in-app purchases,
+  no watermark" while the Nov 17 payment decision (WL-14) is free core
+  + one-time Pro $9.99, the store listing already says "one-time Pro
+  unlock $9.99", and v0.2.7 shows a Pro upsell. Repo-wide sweep: only
+  one hit. Fixed: FAQ now says every conversion is free — no ads, no
+  watermark — with the optional one-time Pro unlock ($9.99) for batch +
+  background conversion. PR #19, merge 5fca969, PR CI 44737970424 pass,
+  merge run 44738209631 success, Pages deploy 44738208858 success,
+  live page verified HTTP 200 with the corrected FAQ. Owner: Muse.
 - [x] WL-35 F-Droid `foss` flavor (Nov 16, 2026): build the
   F-Droid-ready variant — `play`/`foss` product flavors, review-ktx
   play-only behind a flavor-provided ReviewLauncher (no-op in foss),
