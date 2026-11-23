@@ -154,6 +154,12 @@ Close with a dated reason.
   mobile-app-release deferred per the new Stage-0 clause in the
   dispatcher skill (product-manager, Nov 22): re-check at Play-live /
   first PH launch. Owner: Muse. Re-check trigger: WL-02 clears.
+  PROGRESS Nov 22 18:15 PST (daily loop): ASO + screenshots halves
+  DONE — store-05-done.png built from the real v0.2.7 smoke capture,
+  critic PASS, PR #20 merged d1efaa5, merge runs green (Android PR
+  45099148375, pages 45099148209). Listing now has 5 screenshots.
+  Remaining on this row: the PH + mobile-app-release Used-FAIL
+  deferral, re-check at Play-live.
 
 ## Done
 - [x] WL-41 Landing FAQ said "no in-app purchases" (Nov 20, 2026):
