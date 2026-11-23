@@ -131,6 +131,30 @@ Close with a dated reason.
   secretsctl/bws with the PATH prefix. Token half still open —
   founder mints the machine-account token.
 
+- [ ] WL-42 External skills Used-FAIL — Stage-0 deferral (Nov 22, 2026):
+  daily-loop validation subagent (read-only): Installed PASS all four
+  (app-store-optimization, app-store-screenshots, product-hunt-launch,
+  mobile-app-release — symlinks under custom-skills, SKILL.md readable,
+  references resolve); Current PASS all four (shallow clone + diff vs
+  upstream HEAD, byte-identical: ASO dpearson2699/swift-ios-skills
+  8d90fd1, screenshots ParthJadhav/app-store-screenshots e889033, PH
+  agent-k-labs/shipping-skills 4fe77ff, mobile-app-release
+  gargravish/agent-skills f58837a). Used FAIL all four — zero load
+  evidence in any receipt; all the underlying work predates the Nov 18
+  adoption. Structural at Stage 0, not negligence: growth-aso itself
+  says "run only when the app is live on Play", and the other three can
+  only be exercised once the Play listing exists (WL-02/03) or at the
+  first PH launch (WL-30, founder accounts). Resolution this run:
+  (1) ASO + screenshots USED now — mechanical ASO check on the listing
+  draft (title 28 chars ≤30, short 74 ≤80, full desc 163 words; title
+  count in the file was wrong, 27→28, fixed; one keyword-repeating
+  sentence added so MP4/MKV/MOV/WebM appear 2–3x) and a 5th screenshot
+  card dispatched (ASO requires ≥5, listing has 4 — red-flag gap;
+  card subagent in flight, growth-design critic gates it). (2) PH +
+  mobile-app-release deferred per the new Stage-0 clause in the
+  dispatcher skill (product-manager, Nov 22): re-check at Play-live /
+  first PH launch. Owner: Muse. Re-check trigger: WL-02 clears.
+
 ## Done
 - [x] WL-41 Landing FAQ said "no in-app purchases" (Nov 20, 2026):
   docs/index.html line 101 claimed "Free, no ads, no in-app purchases,

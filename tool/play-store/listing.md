@@ -6,7 +6,7 @@ account ($25, one-time) and a signed release build (AAB).
 ## Store identity
 
 - **App name:** Convert264
-- **Store title (max 30 chars):** `Convert264 – Video Converter` (27)
+- **Store title (max 30 chars):** `Convert264 – Video Converter` (28)
 - **Package:** `dev.dzianisv.convert264`
 - **Category:** Video Players & Editors
 - **Content rating:** Everyone (no user content, no ads; one-time Pro unlock $9.99)
@@ -31,6 +31,8 @@ Convert any video, right on your phone. No account, no ads, no watermark —
 your videos never leave your device.
 
 Pick a video or share one to Convert264, choose the format, and press play.
+Convert MP4 to MKV, MOV to MP4, or WebM to MP4 — any format to any format,
+or keep the original quality with stream copy.
 
 WHAT YOU CAN DO
 - Convert a whole queue of videos in one go
@@ -63,8 +65,17 @@ convert video to mp4, video converter no ads, offline video converter
 - `store-02-queue.png` — 1080×1920, "A whole queue, one tap"
 - `store-03-trim.png` — 1080×1920, "Trim with a real preview"
 - `store-04-converting.png` — 1080×1920, "Watch it convert"
-- All four screenshots show the real app (emulator captures from the v0.2.0
-  smoke run). Replace with Pixel captures once the real phone is tested.
+- `store-05-done.png` — 1080×1920, "Done. Open it or share it."
+- All five screenshots show the real app (emulator captures from the v0.2.0
+  smoke run for 01–04; 05 is a v0.2.7 capture from verification smoke
+  44180827378, green 11/11). Replace with Pixel captures once the real phone
+  is tested.
+- Critic verdict, store-05 (Nov 23, 2026): PASS — KPI (shows the done payoff
+  that closes the conversion loop), product (real v0.2.7 flow, matches the
+  listing's "open and share when it's done"), brand (navy #0F172A, white
+  headline, dark-bold/purple accent). Note: built in the app-store-screenshots
+  editor, so its phone frame is the editor's dark Android bezel, not the thin
+  white border on 01–04; same layout and brand otherwise.
 
 ## Privacy policy
 
@@ -118,7 +129,7 @@ not been filled in. Draft answers, to paste when the account is created:
 - [ ] Privacy policy URL set (PRIVACY.md link above)
 - [ ] Signed AAB built from a tagged release (v0.2.7 or later) — Play needs AAB,
       not the sideload APK
-- [ ] Icon, feature graphic, 4 screenshots uploaded
+- [ ] Icon, feature graphic, 5 screenshots uploaded
 - [ ] Listing text pasted from this file
 - [ ] Content rating questionnaire filled (Everyone)
 - [ ] Closed testing track first (organization account — Vibe
