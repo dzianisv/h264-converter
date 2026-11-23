@@ -3,6 +3,15 @@
 Status: `[ ]` open, `[x]` done (with date + reason). Never delete a row.
 Close with a dated reason.
 
+## Weekly reflection — Nov 22, 2026: next three actions
+
+1. Founder — Play Console reachable (WL-02). Due Nov 25.
+2. Founder — pick the app name (WL-13, VidSwitch recommended). Due Nov 25.
+3. Founder — mint the Bitwarden machine-account token so the Sentry check
+   runs (WL-40 token half). Due Nov 25.
+   (Reflection in GOAL.md, Week 2. WL-30 proceed/stop still unanswered
+   since Nov 16 — noted, not one of the three.)
+
 ## Open
 
 - [ ] WL-30 Directory submissions (Nov 15, 2026): per social-marketing

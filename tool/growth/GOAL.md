@@ -101,6 +101,10 @@ Follow-up Nov 20, 2026 (daily loop, 17:48 PST): none of the four cleared —
 Week 1 closed late on WL-01/02/03/13; Week 2 (publish) cannot start until
 WL-02 clears. No new ask sent — the verdict above already went out Nov 19.
 
+Follow-up Nov 22, 2026 (weekly reflection): still none of the four cleared —
+WL-01/02/03/13 are 3 days past due; Week 2 still cannot start. No new ask
+sent this run — the three actions below carry the Nov 25 target dates.
+
 ## Gaps (recorded, not invented)
 
 - Lane skills missing from skills-internal: `app-maintainer` (ASO, SEO, AI
@@ -213,3 +217,65 @@ failure arrives readable.
    the copied error if it fails (WL-05 / WL-18). Due Nov 19.
 3. Founder — name + payment decisions (WL-13 VidSwitch recommended,
    WL-14): the listing cannot be finalised without them. Due Nov 19.
+
+### Week 2 reflection — Nov 22, 2026 (covers Nov 16–22)
+
+Stage 0 — pre-launch, not on Play. One blocker: Play Console is
+unreachable (WL-02) — Week 1 closed late Nov 19 on WL-01/02/03/13,
+now 3 days past due; Week 2 (publish) cannot start until WL-02 clears.
+
+**1. Scoreboard — this week vs last week.**
+
+| Metric | This week | Last week |
+| --- | --- | --- |
+| Downloads | unknown (not on Play) | unknown |
+| Play rating / reviews | unknown (not on Play) | unknown |
+| Open GitHub issues | 0 (verified Nov 22, 01:48 UTC: `gh issue list` empty) | 0 |
+| Open PRs | 0 (verified Nov 22, 01:48 UTC) | 0 |
+| Sentry repeats | n/a (not installed) | n/a |
+| Support queue age | none (no channel yet) | none |
+| Releases shipped | 1 (v0.2.7, Nov 17) | 3 (v0.2.2, v0.2.4, v0.2.5) |
+| Useful articles live | 10 (unchanged) | 10 |
+| CI (last 5 runs) | green (latest 45029643537, Nov 22 13:51 UTC) | green |
+
+**2. What worked.**
+
+- v0.2.7 shipped Nov 17, smoke 44180827378 GREEN 11/11 — AAB-path fix
+  (WL-37) + ProUpsell scroll fix (WL-39) verified on the merged head.
+- Payment wired in v0.2.7 (WL-14): free core + one-time Pro $9.99;
+  sandbox verification defined as WL-36.
+- Pixel 9a failure closed Nov 17 as not-reproducible-on-emulator
+  (WL-18): queue conversion green in 3 consecutive smokes, no
+  0-byte file.
+- F-Droid `foss` flavor built Nov 16 (WL-35): play/foss flavors live,
+  review-ktx play-only.
+- Landing FAQ fixed Nov 20 (WL-41): it contradicted the decided Pro
+  model; live page verified with the corrected copy.
+- CI green all week; landing + trim article + llms.txt all HTTP 200
+  (verified Nov 22).
+
+**3. What did not.**
+
+- Week 1 closed late Nov 19: WL-01/02/03/13 still open, now 3 days
+  past due; Week 2 (publish) cannot start until WL-02 clears.
+- Directory submissions: 0 completed (WL-30) — proceed/stop question
+  unanswered since Nov 16.
+- Sentry-token check still unverifiable (WL-40): PATH half fixed
+  Nov 18, token half waits on the founder minting a Bitwarden
+  machine-account token.
+- No release since v0.2.7 (Nov 17) — nothing new to ship; board idle
+  on founder gates.
+- Article lane exhausted at 10; no new articles this week.
+
+**4. Support.** No channel, no reviews, no complaints yet (Stage 0).
+Top complaint: none. Closest user feedback remains the Pixel 9a
+failure (WL-18), closed as not-reproducible; the full-error UI
+(WL-17) already shipped so the next failure arrives readable.
+
+**5. Next three actions.**
+
+1. Founder — Play Console reachable (WL-02). Due Nov 25.
+2. Founder — pick the app name (WL-13, VidSwitch recommended). Due
+   Nov 25.
+3. Founder — mint the Bitwarden machine-account token so the Sentry
+   check runs (WL-40 token half). Due Nov 25.
