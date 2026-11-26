@@ -105,6 +105,14 @@ Follow-up Nov 22, 2026 (weekly reflection): still none of the four cleared —
 WL-01/02/03/13 are 3 days past due; Week 2 still cannot start. No new ask
 sent this run — the three actions below carry the Nov 25 target dates.
 
+Follow-up Nov 25, 2026 (daily loop, 17:48 PST): none of the three cleared by
+end of day — WL-02 (Play Console), WL-13 (app name), WL-40 token half are now
+past their Nov 25 target dates; WL-01/02/03/13 remain past due since Nov 19.
+Week 2 (publish) still cannot start until WL-02 clears. No new ask sent —
+the three were already reported with the Nov 25 date in the Nov 22 weekly
+reflection; the Nov 29 weekly reflection re-states them with new dates if
+still open.
+
 ## Gaps (recorded, not invented)
 
 - Lane skills missing from skills-internal: `app-maintainer` (ASO, SEO, AI
